@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Please cite this repository if you use its Lean formalization or documentation."
+title: "Allender polylogarithmic-genus problem: Lean formalization"
+type: software
+authors:
+  - family-names: "Pochuev"
+    given-names: "Grisha"
+version: 0.1.0
+date-released: 2026-08-06
+repository-code: "https://github.com/Grisha-Pochuev/allender-polylog-genus-lean"
+license: MIT
+keywords:
+  - Lean 4
+  - formal verification
+  - circuit complexity
+  - ACC0
+  - graph genus
+  - constant-width circuits
+abstract: >-
+  Lean 4 development for auditing and formalizing a candidate proof strategy
+  for Eric Allender's open question on constant-width polynomial-size circuit
+  families of polylogarithmic genus.
