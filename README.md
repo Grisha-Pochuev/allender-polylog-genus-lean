@@ -8,19 +8,21 @@ Allender attached a **US $1000 bounty** to this question in his 2023 SIGACT News
 
 ## Current status
 
-This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. A green continuous-integration run means only that the theorems currently present in the repository have been accepted by Lean.
+This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. The first Lean modules have been implemented, but a clean build has not yet been run because GitHub Actions is intentionally configured for manual launch only.
 
 | Component | Status |
 |---|---|
-| Boolean states of constant width | machine checked |
-| Algebra of binary relations and sequential composition | machine checked |
-| Basic invariant for cutting a layered graph along whole layers | machine checked |
+| Boolean states of constant width | implemented; build pending |
+| Algebra of binary relations and sequential composition | implemented; build pending |
+| Basic invariant for cutting a layered graph along whole layers | implemented; build pending |
 | Precise quantitative interfaces for size and genus bounds | specified |
 | Median-layer planarization theorem | pending |
 | Orientable genus and additivity over components | pending / external dependency |
 | Hansen's planar constant-width characterization of `ACC⁰` | pending / external dependency |
 | Syntax and semantics of Boolean and `ACC⁰` circuits | pending |
 | End-to-end theorem resolving Open Question 3 | **not yet proved** |
+
+A future green verification run will mean only that the declarations then present in the repository have been accepted by Lean. It will not by itself mean that the bounty problem has been solved.
 
 See [`STATUS.md`](STATUS.md) and [`docs/proof-obligations.md`](docs/proof-obligations.md) for the detailed proof ledger.
 
@@ -43,16 +45,19 @@ Allender/
   Interfaces/
     Topology.lean               exact statement expected from topology
     Complexity.lean             language/family profiles and growth predicates
-  AxiomAudit.lean               `#print axioms` checks for proved lemmas
+  AxiomAudit.lean               `#print axioms` checks for central lemmas
 Allender.lean                   root import
 
 docs/
   problem.md                    exact problem and historical context
+  candidate-proof-outline.md    current prose strategy mapped to Lean tasks
   formalization-plan.md         staged implementation plan
   proof-obligations.md          checklist of mathematical obligations
   trust-boundary.md             what Lean does and does not currently certify
+  references.bib                core bibliography
 
-.github/workflows/lean.yml      reproducible build and proof checks
+paper/README.md                 workspace for the original TeX/PDF manuscript
+.github/workflows/lean.yml      manual reproducible build and proof checks
 ```
 
 ## Building locally
@@ -67,6 +72,10 @@ lake build
 
 The Lean toolchain and `mathlib` release are pinned in the repository.
 
+## Manual GitHub verification
+
+The workflow is **not** triggered by pushes. It can be started manually from the Actions tab when compute capacity is available. It rejects `sorry`/`admit`, runs `lake build`, and invokes Lean's independent environment checker.
+
 ## Proof discipline
 
 The project follows these rules:
@@ -74,9 +83,9 @@ The project follows these rules:
 - no `sorry` or `admit` in committed Lean files;
 - every imported external theorem must be named and documented;
 - abstract interfaces are not described as completed formalizations;
-- `#print axioms` is kept for central checked lemmas;
+- `#print axioms` is kept for central lemmas;
 - prose claims in the paper must be linked to specific Lean declarations;
-- changes are accepted only after `lake build` succeeds.
+- no result is promoted to “checked” until a clean build succeeds.
 
 ## Primary sources
 
