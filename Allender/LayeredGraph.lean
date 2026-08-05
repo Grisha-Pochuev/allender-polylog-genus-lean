@@ -17,21 +17,14 @@ structure LayeredDigraph (V : Type*) where
   layer : V → Nat
   edge_next : ∀ {u v}, edge u v → layer v = layer u + 1
 
-namespace LayeredDigraph
-
-variable {V : Type*} (G : LayeredDigraph V)
-
-/-- A vertex survives deletion of the listed whole layers. -/
-def Survives (cuts : Finset Nat) (v : V) : Prop := G.layer v ∉ cuts
-
-/-- Number of cuts strictly below layer `ℓ`; this names the interval block of `ℓ`. -/
-def blockIndex (cuts : Finset Nat) (ℓ : Nat) : Nat :=
+/-- Number of cuts strictly below layer `ℓ`. -/
+def cutCountBelow (cuts : Finset Nat) (ℓ : Nat) : Nat :=
   (cuts.filter fun k => k < ℓ).card
 
-/-- If layer `n` is not cut, crossing from `n` to `n+1` does not change the block. -/
-theorem blockIndex_succ_of_not_mem (cuts : Finset Nat) {n : Nat} (hn : n ∉ cuts) :
-    blockIndex cuts (n + 1) = blockIndex cuts n := by
-  unfold blockIndex
+/-- If layer `n` is not cut, crossing from `n` to `n+1` does not change the count. -/
+theorem cutCountBelow_succ_of_not_mem (cuts : Finset Nat) {n : Nat} (hn : n ∉ cuts) :
+    cutCountBelow cuts (n + 1) = cutCountBelow cuts n := by
+  unfold cutCountBelow
   have hsets :
       cuts.filter (fun k => k < n + 1) = cuts.filter (fun k => k < n) := by
     ext k
@@ -49,12 +42,24 @@ theorem blockIndex_succ_of_not_mem (cuts : Finset Nat) {n : Nat} (hn : n ∉ cut
       exact ⟨hkcuts, Nat.lt_trans hlt (by omega)⟩
   exact congrArg Finset.card hsets
 
+namespace LayeredDigraph
+
+variable {V : Type*} (G : LayeredDigraph V)
+
+/-- A vertex survives deletion of the listed whole layers. -/
+def Survives (cuts : Finset Nat) (v : V) : Prop := G.layer v ∉ cuts
+
+/-- The interval block containing a vertex after whole-layer cuts. -/
+def blockIndex (cuts : Finset Nat) (v : V) : Nat :=
+  cutCountBelow cuts (G.layer v)
+
 /-- Every surviving source edge stays inside one cut-layer interval block. -/
 theorem edge_same_block_of_source_survives (cuts : Finset Nat) {u v : V}
     (hEdge : G.edge u v) (hSurvive : G.Survives cuts u) :
-    G.blockIndex cuts (G.layer u) = G.blockIndex cuts (G.layer v) := by
+    G.blockIndex cuts u = G.blockIndex cuts v := by
+  unfold blockIndex
   rw [G.edge_next hEdge]
-  exact (blockIndex_succ_of_not_mem cuts hSurvive).symm
+  exact (cutCountBelow_succ_of_not_mem cuts hSurvive).symm
 
 /-- Edges strictly increase the layer number. -/
 theorem layer_lt_of_edge {u v : V} (hEdge : G.edge u v) : G.layer u < G.layer v := by
