@@ -1,58 +1,62 @@
-# Formalization status ledger
+# Formalization status
 
-Last verification update: 2026-08-06.
+Last verified commit: `aa11f91c9c740fb0cb53a377fb6a9bb667523a49`  
+Successful workflow run: `31070265777`  
+Toolchain: Lean 4.32.2, mathlib 4.32.2
 
-## Meaning of labels
+## Status labels
 
-- **checked** — Lean accepts the declaration without `sorry` or `admit` in a clean build; the compiled project has also passed `leanchecker`.
-- **specified** — the intended mathematical statement has an explicit Lean interface, but no implementation has been supplied.
-- **external** — a published theorem is intended to be imported or re-proved; it is not currently machine checked here.
-- **pending** — no complete Lean statement/proof yet.
+- **checked** — built without `sorry`/`admit`, included in the root module, audited, and replayed by `leanchecker`.
+- **partial** — a mathematically relevant core is checked, but the manuscript statement is not yet represented end to end.
+- **external** — a published result still needs formalization or an exact named trust boundary.
+- **pending** — not yet represented adequately in Lean.
 
-## Verification record
+## Source-aligned ledger
 
-The initial development passed:
-
-- `lake build` with Lean 4.32.2 and `mathlib` 4.32.2;
-- compilation of `Allender/AxiomAudit.lean`;
-- `lake env leanchecker Allender`;
-- a source check rejecting `sorry` and `admit`.
-
-The axiom audit reported only standard Lean foundations such as `propext`, `Classical.choice`, and `Quot.sound`; no theorem depended on `sorryAx`.
-
-## Ledger
-
-| ID | Mathematical item | Lean location | Status |
+| ID | Item | Lean declaration/file | Status |
 |---|---|---|---|
-| S1 | Boolean state space `Fin w → Bool` | `Allender/FiniteState.lean` | checked |
-| S2 | Cardinality `|Q_w| = 2^w` | `Allender.BitState.card` | checked |
-| R1 | Identity and composition of relations | `Allender/Relation.lean` | checked |
-| R2 | Associativity of relation composition | `Allender.Rel.comp_assoc` | checked |
-| R3 | Semantics of splitting a list of transitions | `Allender.Rel.composeList_append` | checked |
-| R4 | Functionality preserved by composition | `Allender.Rel.Functional.comp` | checked |
-| G1 | Definition of a layered directed graph | `Allender/LayeredGraph.lean` | checked |
-| G2 | Whole-layer cut block index | `Allender.LayeredDigraph.blockIndex` | checked |
-| G3 | A surviving edge stays in one interval block | `edge_same_block_of_source_survives` | checked |
-| T1 | Orientable genus of a finite graph | — | pending |
-| T2 | Genus monotonicity under subgraphs | — | pending |
-| T3 | Genus additivity over connected components | — | pending / external |
-| T4 | Median-layer planarization with `O(g log N)` cuts | `TopologyInterface.planarize_by_layers` | specified, not proved |
-| C1 | Boolean circuit syntax and evaluation | — | pending |
-| C2 | Constant width and polynomial size predicates | profile only | partially specified |
-| C3 | Planarity of the circuit graph | — | pending |
-| C4 | Formal definition of `ACC⁰` | — | pending |
-| H1 | Hansen planar constant-width characterization | — | pending / external |
-| M1 | Macroblock transition semantics | — | pending |
-| M2 | One common fixed modulus for all blocks | — | pending |
-| M3 | Constant-depth composition of polylogarithmically many transitions | relation algebra only | partially checked |
-| F1 | End-to-end Allender theorem | — | **not proved** |
+| C1 | Boolean gate basis and evaluation | `Gate.eval` | checked |
+| C2 | Deterministic layer transition | `CircuitLayer.transition_functional` | checked |
+| C3 | Concrete circuit and family evaluation | `Circuit.eval`, `CircuitFamily.accepts` | checked |
+| C4 | Circuit dependency graph and size | `Circuit.layeredGraph`, `Circuit.size_eq_card_vertex` | checked |
+| S1 | Fixed state space and cardinality | `BitState.card` | checked |
+| R1 | Relation composition and associativity | `Rel.comp_assoc`, `Rel.composeList_append` | checked |
+| R2 | Explicit intermediate-state witness semantics | `Rel.chain_iff_composeList` | checked |
+| G1 | Layered graph and whole-layer cuts | `LayeredGraph.lean` | checked |
+| G2 | No surviving path crosses a deleted layer | `no_surviving_walk_across_layer` | checked |
+| G3 | Underlying undirected simple graph | `toSimpleGraph` | checked |
+| M1 | Existence of weighted median layer | `exists_medianLayer` | checked |
+| M2 | Each connected descendant halves | `DescendantAfterCut.card_halves` | checked |
+| M3 | Descendant chain terminates after logarithmically many rounds | `DescendantChain.impossible_after_log` | checked |
+| T1 | Positive-cost components are bounded by the total budget | `card_le_of_positive_cost_sum_le` | checked |
+| T2 | Total selected layers over bounded rounds | `separator_round_count_bound` | checked |
+| T3 | Orientable genus definition and monotonicity | — | pending |
+| T4 | Genus additivity over components | Battle–Harary–Kodama–Youngs | external |
+| T5 | Global construction of cut layers with planar remainder | — | partial |
+| B1 | Bad-transition bound | `card_badTransitions_le` | checked |
+| B2 | Macroblock-count bound | `macroblock_count_le_of_cuts` | checked |
+| H1 | Exact Hansen theorem in the same circuit model | — | external |
+| H2 | Common-family padding ranges | `padding_gap`, `paddedLength_injective_on_ranges` | checked |
+| P1 | Polynomial number of intermediate state assignments | `card_stateAssignments_log_le` | checked |
+| P2 | Explicit relation-chain semantics | `RelationChain.lean` | checked |
+| P3 | Constant-depth `AC⁰[m]` circuit construction and size accounting | — | pending |
+| F1 | End-to-end theorem: source family lies in `ACC⁰` | — | **not proved** |
 
-## Release criterion for a claimed formal proof
+## Removed material
 
-The repository may describe the bounty problem as formally proved only when:
+The following earlier placeholders were deleted and must not be cited as verification:
 
-1. `F1` is a concrete Lean theorem with the intended circuit definitions;
-2. `#print axioms` for `F1` contains no `sorryAx` and no undocumented project axiom;
-3. every remaining external dependency is either already in a trusted Lean library or is stated exactly and identified by a published source;
-4. a clean `lake build` and an independent Lean environment check succeed for the final theorem;
-5. the prose paper and Lean theorem use the same hypotheses.
+- the structure with arbitrary `CircuitFamily.accepts` unrelated to a circuit;
+- the `TopologyInterface` whose main planarization statement was merely a field;
+- obsolete proof-obligation and planning documents referring to those interfaces.
+
+## Release criterion
+
+The repository may claim a full Lean verification of Allender's theorem only after:
+
+1. a concrete final theorem quantifies over the source circuit family defined here;
+2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
+3. the global separator construction is proved for the actual graph/genus definitions;
+4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
+5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
+6. clean build, axiom audit, and `leanchecker` all pass.

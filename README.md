@@ -1,76 +1,90 @@
 # Allender polylogarithmic-genus problem — Lean formalization
 
-This private repository develops a Lean 4 formalization of a **candidate proof strategy** for Eric Allender's Open Question 3:
+This private repository develops a Lean 4 formalization of the proof candidate in:
 
-> Does every language accepted by constant-width circuit families of polylogarithmic genus lie in `ACC⁰`?
+> **Polylogarithmic Genus Does Not Increase the Power of Constant-Width Polynomial-Size Circuits — A Separator-Based Candidate Proof**
 
-Allender attached a **US $1000 bounty** to this question in his 2023 SIGACT News column.
+The target is Eric Allender's US $1000 open question: whether every language accepted by a nonuniform family of polynomial-size, constant-width Boolean circuits of polylogarithmic orientable genus belongs to `ACC⁰`.
 
-## Current status
+## Verified status
 
-This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. The initial Lean modules have now passed a clean build with the pinned Lean 4.32.2 and `mathlib` 4.32.2 toolchain.
+The source-aligned formalization branch is:
 
-| Component | Status |
+```text
+formalization/full-reduction-v1
+```
+
+Verification run **31070265777** completed successfully with Lean 4.32.2 and mathlib 4.32.2. It performed:
+
+- rejection of `sorry` and `admit`;
+- `lake build` over every imported module;
+- compilation of `Allender/AxiomAudit.lean`;
+- independent replay with `leanchecker Allender`.
+
+The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` field and an assumed layer-planarization structure field, were deleted. The current circuit family is computed by concrete layers and gates.
+
+## What Lean currently verifies
+
+| Manuscript component | Lean coverage |
 |---|---|
-| Boolean states of constant width | machine checked |
-| Algebra of binary relations and sequential composition | machine checked |
-| Basic invariant for cutting a layered graph along whole layers | machine checked |
-| Precise quantitative interfaces for size and genus bounds | specified |
-| Median-layer planarization theorem | pending |
-| Orientable genus and additivity over components | pending / external dependency |
-| Hansen's planar constant-width characterization of `ACC⁰` | pending / external dependency |
-| Syntax and semantics of Boolean and `ACC⁰` circuits | pending |
-| End-to-end theorem resolving Open Question 3 | **not yet proved** |
+| Fixed width state space `Q = {0,1}^w` and `|Q| = 2^w` | checked |
+| Concrete gates, circuit layers, circuit evaluation, and circuit families | checked |
+| Concrete layered dependency graph of a circuit | checked |
+| Sequential transition relations and witness chains | checked |
+| Underlying undirected simple graph | checked |
+| A surviving path cannot cross a deleted whole layer | checked |
+| Existence of a weighted median layer in a finite component | checked |
+| Every connected descendant after a median cut has at most half the vertices | checked |
+| A descendant chain cannot survive `log₂ N + 1` rounds | checked |
+| Positive-component genus-budget counting consequence | checked abstractly |
+| At most two bad transitions per cut layer and at most `4|J|+1` macroblocks | checked |
+| Polynomial count of intermediate state assignments | checked |
+| Disjoint padded input-length ranges used in Lemma 6.1 | checked |
 
-The successful verification run performed all of the following:
+See [`docs/source-alignment.md`](docs/source-alignment.md) for declaration-level correspondence.
 
-- rejected `sorry` and `admit` placeholders;
-- ran `lake update` and restored the pinned `mathlib` cache;
-- completed `lake build` successfully;
-- compiled `Allender/AxiomAudit.lean` and found no `sorryAx`;
-- replayed the compiled `Allender` modules with Lean's `leanchecker`.
+## What is not yet a complete Lean proof
 
-A green verification run means only that the declarations currently present have been accepted by Lean. It does **not** mean that Allender's full problem has already been formalized or solved.
+The final bounty theorem is **not yet formalized**. The remaining major obligations are:
 
-See [`STATUS.md`](STATUS.md) and [`docs/proof-obligations.md`](docs/proof-obligations.md) for the detailed proof ledger.
+1. formal orientable graph genus and the Battle–Harary–Kodama–Youngs additivity theorem, or an exact audited external theorem boundary;
+2. the global recursive construction of all cut layers and the theorem that the final graph is planar;
+3. formal planarity of every good macroblock and exact transition semantics at all boundaries;
+4. a concrete `AC⁰[m]`/`ACC⁰` circuit model with depth and size accounting;
+5. an exact formal statement of Hansen's planar constant-width characterization;
+6. the simultaneous common-modulus simulation and the end-to-end main theorem.
 
-## Why formalize this result?
-
-The 2005 paper *Topology inside NC¹* claimed that constant-width, polynomial-size circuits of polylogarithmic genus compute only languages in `ACC⁰`. Eric Allender later stated that the proof of its main theorem is incorrect and that the theorem remains open. A formal development is intended to:
-
-1. expose every hidden definition and dependency;
-2. isolate the genuinely new combinatorial argument from published external results;
-3. prevent accidental reuse of the invalid topological step from the earlier proof;
-4. provide a reproducible artifact that specialists can inspect without trusting prose alone.
+A green build certifies only the declarations listed in the axiom audit. It does not by itself establish the $1000 result.
 
 ## Repository layout
 
 ```text
 Allender/
-  FiniteState.lean              Boolean states of fixed width
-  Relation.lean                 relation composition and list semantics
-  LayeredGraph.lean             layered directed graphs and cut-layer invariant
-  Interfaces/
-    Topology.lean               exact statement expected from topology
-    Complexity.lean             language/family profiles and growth predicates
-  AxiomAudit.lean               `#print axioms` checks for central lemmas
-Allender.lean                   root import
-
-docs/
-  problem.md                    exact problem and historical context
-  candidate-proof-outline.md    current prose strategy mapped to Lean tasks
-  formalization-plan.md         staged implementation plan
-  proof-obligations.md          checklist of mathematical obligations
-  trust-boundary.md             what Lean does and does not currently certify
-  references.bib                core bibliography
-
-paper/README.md                 workspace for the original TeX/PDF manuscript
-.github/workflows/lean.yml      reproducible build and proof checks
+  FiniteState.lean          fixed-width Boolean states
+  Gate.lean                 source gate basis
+  CircuitLayer.lean         one deterministic layer transition
+  Circuit.lean              layered circuit evaluation
+  CircuitFamily.lean        concrete nonuniform families
+  CircuitGraph.lean         circuit dependency graph
+  Relation.lean             relation algebra
+  RelationChain.lean        explicit intermediate-state witnesses
+  LayeredGraph.lean         layered directed graphs and cuts
+  LayeredWalk.lean          undirected paths and layer separation
+  SimpleGraph.lean          underlying undirected simple graph
+  FiniteComponent.lean      connected sets and descendant halves
+  MedianExistence.lean      weighted median layer existence
+  ComponentChain.lean       logarithmic termination of descendants
+  Halving.lean              numerical halving core
+  GenusBudget.lean          additive positive-cost counting
+  MacroblockCounting.lean   bad-transition and block bounds
+  StateEnumeration.lean     polynomial state enumeration
+  Padding.lean              common-family input-length padding
+  AxiomAudit.lean           trusted-dependency report
 ```
 
-## Building locally
+## Build locally
 
-Install [elan](https://github.com/leanprover/elan), then run:
+Install `elan`, then run:
 
 ```bash
 lake update
@@ -80,37 +94,27 @@ lake env lean Allender/AxiomAudit.lean
 lake env leanchecker Allender
 ```
 
-The Lean toolchain and `mathlib` release are pinned in the repository.
-
-## GitHub verification
-
-The workflow runs automatically on pushes to `main` and can also be started manually from the Actions tab. It checks for proof placeholders, builds the project, compiles the axiom audit, and runs `leanchecker` on the root `Allender` module.
+The toolchain and mathlib revision are pinned.
 
 ## Proof discipline
 
-The project follows these rules:
+- no `sorry` or `admit`;
+- no arbitrary semantic placeholder may be described as a circuit theorem;
+- every source claim must map to named Lean declarations;
+- external results must be isolated, named, and visible in `#print axioms`;
+- the final theorem may be claimed only when its definitions match the manuscript and its axiom audit is explicit.
 
-- no `sorry` or `admit` in committed Lean files;
-- every imported external theorem must be named and documented;
-- abstract interfaces are not described as completed formalizations;
-- `#print axioms` is kept for central lemmas;
-- prose claims in the paper must be linked to specific Lean declarations;
-- no result is promoted to “checked” until a clean build succeeds.
+## Primary references
 
-## Primary sources
-
-- Eric Allender, *Parting Thoughts and Parting Shots*, SIGACT News 54(1), 2023:  
-  https://people.cs.rutgers.edu/~allender/papers/sigact.news.draft.pdf
-- Eric Allender, Samir Datta, Sambuddha Roy, *Topology inside NC¹*, ECCC TR04-108 / CCC 2005:  
-  https://eccc.weizmann.ac.il/eccc-reports/2004/TR04-108/index.html
+- Eric Allender, *Parting Thoughts and Parting Shots*, SIGACT News 54(1), 2023.
+- Eric Allender, Samir Datta, Sambuddha Roy, *Topology inside NC¹*, CCC 2005 / ECCC TR04-108.
 - Kristoffer Arnsfelt Hansen, *Constant Width Planar Computation Characterizes ACC⁰*, Theory of Computing Systems 39, 2006.
+- J. Battle, F. Harary, Y. Kodama, J. W. T. Youngs, *Additivity of the Genus of a Graph*, 1962.
 
-## Authorship and provenance
+## Authorship
 
-Project owner: **Grisha Pochuev**, independent researcher.
-
-The initial repository structure and Lean code were prepared with AI assistance under the project owner's direction. Mathematical responsibility remains with the author. Machine acceptance by Lean verifies only the declarations actually present and their listed dependencies.
+Project owner: **Grisha Pochuev**, independent researcher. Initial code and documentation were prepared with AI assistance. Mathematical responsibility remains with the author.
 
 ## License
 
-Lean source code and project documentation are released under the MIT License unless a file states otherwise.
+MIT.

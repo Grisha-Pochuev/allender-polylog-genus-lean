@@ -5,8 +5,18 @@ on:
     branches:
       - "main"
       - "formalization/**"
+    paths:
+      - "**/*.lean"
+      - "lakefile.toml"
+      - "lean-toolchain"
+      - ".github/workflows/lean.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "**/*.lean"
+      - "lakefile.toml"
+      - "lean-toolchain"
+      - ".github/workflows/lean.yml"
   workflow_dispatch:
 
 concurrency:
@@ -42,12 +52,6 @@ jobs:
           "$HOME/.elan/bin/elan" toolchain install "$(cat lean-toolchain)"
           "$HOME/.elan/bin/lean" --version
           "$HOME/.elan/bin/lake" --version
-
-      - name: Restore Lake workspace cache
-        uses: actions/cache@v4
-        with:
-          path: .lake
-          key: lean-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml') }}
 
       - name: Generate Lake manifest
         run: lake update
