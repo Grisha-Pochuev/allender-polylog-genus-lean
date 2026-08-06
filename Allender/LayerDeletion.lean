@@ -31,13 +31,11 @@ def deleteLayers (G : LayeredDigraph V) (cuts : Finset Nat) : LayeredDigraph V w
       G.edge u v ∧ G.Survives cuts u ∧ G.Survives cuts v := Iff.rfl
 
 /-- Decidable directed edges give decidable undirected adjacency after deletion. -/
-instance instDecidableRelDeleteLayersToSimpleGraph
+noncomputable instance instDecidableRelDeleteLayersToSimpleGraph
     (G : LayeredDigraph V) [DecidableRel G.edge] (cuts : Finset Nat) :
     DecidableRel (G.deleteLayers cuts).toSimpleGraph.Adj := by
+  classical
   intro u v
-  change Decidable
-    ((G.edge u v ∧ G.layer u ∉ cuts ∧ G.layer v ∉ cuts) ∨
-      (G.edge v u ∧ G.layer v ∉ cuts ∧ G.layer u ∉ cuts))
   infer_instance
 
 /-- Deleting no layers leaves the edge relation unchanged. -/
