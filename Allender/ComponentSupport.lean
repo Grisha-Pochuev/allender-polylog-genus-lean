@@ -1,4 +1,5 @@
 import Allender.FiniteComponent
+import Allender.SimpleGraph
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
 
 /-!
