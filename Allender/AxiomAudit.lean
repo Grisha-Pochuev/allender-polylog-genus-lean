@@ -39,6 +39,10 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantChain.impossible_after_log
 #print axioms Allender.ComponentRoundSystem.pow_mul_size_le
 #print axioms Allender.ComponentRoundSystem.active_empty_after_log
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.toComponentRoundSystem
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.active_empty_after_log
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.roundCuts_card_le
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.selectedCounts_sum_le_log
 #print axioms Allender.card_le_of_positive_cost_sum_le
 #print axioms Allender.separator_round_count_bound
 #print axioms Allender.card_badTransitions_le

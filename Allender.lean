@@ -19,6 +19,7 @@ import Allender.MedianExistence
 import Allender.Halving
 import Allender.ComponentChain
 import Allender.ComponentRounds
+import Allender.LayerSeparationProcess
 import Allender.GenusBudget
 import Allender.MacroblockCounting
 import Allender.MacroblockPartition
