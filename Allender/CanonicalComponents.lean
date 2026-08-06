@@ -105,7 +105,7 @@ theorem componentGraph_eq_bot_of_isolated {H : SimpleGraph V}
   constructor
   · intro huw
     have hu : u ∈ c.supp :=
-      (OrientableGenus.componentGraph_adj c u w).1 huw |>.1
+      ((OrientableGenus.componentGraph_adj c u w).1 huw).1
     have hreach : H.Reachable u v :=
       c.reachable_of_mem_supp hu hv
     have huv : u = v := by
@@ -113,9 +113,10 @@ theorem componentGraph_eq_bot_of_isolated {H : SimpleGraph V}
       exact (SimpleGraph.not_reachable_of_neighborSet_right_eq_empty
         hne hneighbor) hreach
     subst u
-    exact (hiso w ((OrientableGenus.componentGraph_adj c v w).1 huw |>.2)).elim
+    exact (hiso w
+      (((OrientableGenus.componentGraph_adj c v w).1 huw).2)).elim
   · intro hbot
-    exact (by simpa using hbot)
+    exact False.elim (by simpa using hbot)
 
 /-- A nonplanar component cannot contain an isolated vertex. -/
 theorem nonplanarComponent_not_mem_isolated {H : SimpleGraph V}
