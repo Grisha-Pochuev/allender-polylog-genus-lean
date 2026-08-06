@@ -1,5 +1,6 @@
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Fintype.Pi
+import Mathlib.Data.Fintype.BigOperators
 import Mathlib.Data.Bool.Basic
 
 /-!
@@ -42,7 +43,7 @@ theorem ext {w : Nat} {s t : BitState w} (h : ∀ i, s i = t i) : s = t :=
 
 /-- There are exactly `2^w` Boolean states of width `w`. -/
 theorem card (w : Nat) : Fintype.card (BitState w) = 2 ^ w := by
-  simp [BitState, Fintype.card_pi]
+  simpa [BitState] using (Fintype.card_pi_const Bool w)
 
 end BitState
 end Allender
