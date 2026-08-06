@@ -20,7 +20,7 @@ namespace LayeredDigraph
 open OrientableGenus
 
 variable {V : Type*} [Fintype V] [DecidableEq V] [Nonempty V]
-variable {G : LayeredDigraph V}
+variable {G : LayeredDigraph V} [DecidableRel G.edge]
 
 /-- Choose one vertex of a connected component. -/
 noncomputable def componentRoot {H : SimpleGraph V}
@@ -100,8 +100,7 @@ theorem componentGraph_eq_bot_of_isolated {H : SimpleGraph V}
     apply Set.eq_empty_iff_forall_notMem.mpr
     intro u hu
     exact hiso u hu
-  apply SimpleGraph.ext
-  intro u w
+  ext u w
   constructor
   · intro huw
     have hu : u ∈ c.supp :=
@@ -124,6 +123,7 @@ theorem nonplanarComponent_not_mem_isolated {H : SimpleGraph V}
     (hc : c ∈ OrientableGenus.nonplanarComponents H)
     {v : V} (hiso : ∀ u, ¬H.Adj v u) :
     v ∉ c.supp := by
+  classical
   intro hv
   have hnonzero : OrientableGenus.genus
       (OrientableGenus.componentGraph c) ≠ 0 := by
@@ -193,7 +193,7 @@ noncomputable def componentForSupport (H : SimpleGraph V)
       componentVerts c = s then
     exact Classical.choose h
   else
-    exact H.connectedComponentMk default
+    exact H.connectedComponentMk (Classical.choice (inferInstance : Nonempty V))
 
 /-- Active identifiers decode back to their exact support. -/
 theorem componentForSupport_verts (H : SimpleGraph V)
@@ -246,9 +246,10 @@ theorem activeFiniteConnectedSet_card_le (cuts : Finset Nat)
     (activeFiniteConnectedSet (G := G) cuts s).verts.card ≤
       Fintype.card V := by
   classical
-  exact componentFiniteConnectedSet_card_le
-    (G.deleteLayers_toSimpleGraph_le cuts)
-    (componentForSupport (G.deleteLayers cuts).toSimpleGraph s)
+  simpa [activeFiniteConnectedSet] using
+    (componentFiniteConnectedSet_card_le
+      (G.deleteLayers_toSimpleGraph_le cuts)
+      (componentForSupport (G.deleteLayers cuts).toSimpleGraph s))
 
 end LayeredDigraph
 end Allender
