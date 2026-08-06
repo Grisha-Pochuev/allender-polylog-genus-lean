@@ -4,20 +4,27 @@ import Mathlib.Data.Fintype.Card
 import Mathlib.Tactic
 
 /-!
-# Certified global layer planarization
+# Conditional global layer planarization
 
-This module packages the last purely logical part of the layer-separator
-argument.  A `LayerSeparationProcess` already contains the actual finite
-connected sets, median cuts, parent relation, and the local half-size proofs.
-Here we additionally require a transparent coverage certificate: at each round,
-every genuinely nonplanar connected component of the current remainder injects
-into the active components supplied by the process.
+This module packages the last logical part of the layer-separator argument. A
+`LayerSeparationProcess` already contains finite connected sets, median cuts,
+parent relations, and the local half-size proofs.
 
-From that certificate Lean proves that after `log₂ N + 1` rounds the remainder
-is planar and that at most `g * (log₂ N + 1)` distinct layers were deleted.
-The construction of the coverage certificate from the canonical connected
-components of each remainder remains a separate obligation; no planarization
-conclusion is assumed as a field.
+The genuinely missing graph-theoretic bridge is represented explicitly rather
+than hidden as a planarization axiom:
+
+* every initially nonplanar component is represented by an active component;
+* representation is preserved locally from one cut round to the next.
+
+Lean then iterates this local preservation, proves that no nonplanar component
+survives `log₂ N + 1` rounds, and bounds the number of distinct deleted layers
+by `g * (log₂ N + 1)`.
+
+The construction of the initial and stepwise coverage maps from the canonical
+connected components of the remainder is not proved in this module. Thus the
+main planarization theorem below is explicitly conditional on
+`PlanarizationCoverage`; it is not yet the unconditional Lemma 3.1 of the
+manuscript.
 -/
 
 namespace Allender
@@ -82,19 +89,22 @@ abbrev ActiveAt
   {c // c ∈ S.active t}
 
 /--
-A non-circular coverage certificate for one round: every actual nonplanar
-component of the current remainder is represented by a distinct active
-component identifier.
+Coverage at one round: every actual nonplanar component of the current
+remainder is represented by a distinct active component identifier.
 -/
 structure RoundCoverage
     (S : G.LayerSeparationProcess α steps N g) (t : Nat) where
   represent : S.RemainderNonplanar t → S.ActiveAt t
   injective : Function.Injective represent
 
-/-- Coverage certificates for every round used by the process. -/
+/--
+Inductive coverage data. The initial map and one-step preservation are the
+precise remaining graph-component obligations.
+-/
 structure PlanarizationCoverage
     (S : G.LayerSeparationProcess α steps N g) where
-  round : (t : Nat) → t ≤ steps → S.RoundCoverage t
+  initial : S.RoundCoverage 0
+  step : ∀ t, t < steps → S.RoundCoverage t → S.RoundCoverage (t + 1)
 
 namespace RoundCoverage
 
@@ -112,8 +122,21 @@ end RoundCoverage
 
 namespace PlanarizationCoverage
 
-/-- After logarithmically many certified rounds, the actual remainder is planar. -/
-theorem final_isPlanar
+/-- Iterate the local coverage-preservation law through any valid round. -/
+def at {S : G.LayerSeparationProcess α steps N g}
+    (C : S.PlanarizationCoverage) :
+    (t : Nat) → t ≤ steps → S.RoundCoverage t
+  | 0, _ => C.initial
+  | t + 1, ht =>
+      let hlt : t < steps := Nat.lt_of_succ_le ht
+      C.step t hlt (at C t hlt.le)
+
+/--
+After logarithmically many locally covered rounds, the actual remainder is
+planar. This theorem is conditional on the explicit initial and stepwise
+coverage obligations above.
+-/
+theorem final_isPlanar_of_coverage
     (S : G.LayerSeparationProcess α (Nat.log 2 N + 1) N g)
     (C : S.PlanarizationCoverage) :
     OrientableGenus.IsPlanar
@@ -122,7 +145,7 @@ theorem final_isPlanar
   let T := Nat.log 2 N + 1
   have hactive : S.active T = ∅ := by
     simpa [T] using S.active_empty_after_log
-  have hle := (C.round T le_rfl).nonplanar_card_le_active_card
+  have hle := (C.at T le_rfl).nonplanar_card_le_active_card
   rw [hactive] at hle
   have hcard :
       (OrientableGenus.nonplanarComponents
@@ -139,7 +162,7 @@ theorem final_isPlanar
       ((G.deleteLayers (S.cumulativeCuts T)).toSimpleGraph)).2 hempty
   simpa [T] using hplanarT
 
-/-- The final certified planarization deletes at most `g(log₂ N + 1)` layers. -/
+/-- The final separation process deletes at most `g(log₂ N + 1)` layers. -/
 theorem final_cuts_card_le
     (S : G.LayerSeparationProcess α (Nat.log 2 N + 1) N g) :
     (S.cumulativeCuts (Nat.log 2 N + 1)).card ≤
