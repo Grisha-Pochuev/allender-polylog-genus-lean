@@ -6,12 +6,13 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
 /-!
 # Exact external boundary for orientable graph genus
 
-The candidate proof uses ordinary orientable graph genus only through three
+The candidate proof uses ordinary orientable graph genus only through four
 published topological facts:
 
 1. the ordinary orientable genus of a finite graph is a natural number;
 2. genus is monotone under taking subgraphs;
-3. genus is additive over connected components
+3. an edgeless graph has genus zero;
+4. genus is additive over connected components
    (Battle--Harary--Kodama--Youngs).
 
 These facts are deliberately isolated as named axioms. No separator,
@@ -41,6 +42,10 @@ def IsPlanar {V : Type*} [Finite V] (G : SimpleGraph V) : Prop :=
 subgraph. -/
 axiom genus_mono {V : Type*} [Finite V] {G H : SimpleGraph V}
     (h : G ≤ H) : genus G ≤ genus H
+
+/-- External base case: an edgeless finite graph has orientable genus zero. -/
+axiom genus_bot {V : Type*} [Finite V] :
+    genus (⊥ : SimpleGraph V) = 0
 
 /-- A fixed finite enumeration of the connected components of `G`.
 
@@ -79,7 +84,7 @@ noncomputable def nonplanarComponents {V : Type*} [Fintype V]
 
 /-- The number of nonplanar components is at most the genus of the whole graph.
 
-Unlike the three external declarations above, this is a proved consequence
+Unlike the four external declarations above, this is a proved consequence
 inside Lean.
 -/
 theorem nonplanarComponents_card_le_genus {V : Type*}
