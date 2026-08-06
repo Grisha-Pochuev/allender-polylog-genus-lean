@@ -1,18 +1,30 @@
 # Allender polylogarithmic-genus problem — Lean formalization
 
-This private repository develops a Lean 4 formalization of the proof candidate in:
+This branch develops a Lean 4 formalization of the proof candidate in:
 
 > **Polylogarithmic Genus Does Not Increase the Power of Constant-Width Polynomial-Size Circuits — A Separator-Based Candidate Proof**
 
 The target is Eric Allender's US $1000 open question: whether every language accepted by a nonuniform family of polynomial-size, constant-width Boolean circuits of polylogarithmic orientable genus belongs to `ACC⁰`.
 
-## Verified status
+## Branch scope and project navigation
 
-The source-aligned formalization branch is:
+This is the authoritative **Lean formalization branch**:
 
 ```text
 formalization/full-reduction-v1
 ```
+
+The human-review manuscript package is maintained on `main` under [`reproducibility/`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/main/reproducibility). It contains the LaTeX manuscript, English synopsis, sources, integrity checks, and reviewer materials.
+
+The two tracks are deliberately separate:
+
+- this branch records what Lean has checked, what remains conditional, and what is external;
+- `main/reproducibility/` records whether the prose artifact can be independently rebuilt and reviewed;
+- neither track upgrades the status of the other automatically.
+
+After synchronization with `main`, this branch may contain the same `reproducibility/` files for repository-history safety. They remain maintained from `main` and are not part of the Lean proof audit. For the project-wide map, see [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md).
+
+## Verified status
 
 Latest fully verified code commit:
 
@@ -146,7 +158,7 @@ lake env lean Allender/AxiomAudit.lean
 lake env leanchecker Allender
 ```
 
-The toolchain and mathlib revision are pinned.
+The toolchain and mathlib revision are pinned. The GitHub Lean workflow is manual so that documentation and manuscript maintenance do not create misleading formal-verification runs.
 
 ## Proof discipline
 
