@@ -13,16 +13,18 @@ has at most half as many vertices.
 namespace Allender
 namespace LayeredDigraph
 
-variable {V : Type*} [DecidableEq V] (G : LayeredDigraph V)
+variable {V : Type*} [DecidableEq V]
 
 /-- A nonempty finite vertex set connected in the underlying undirected graph. -/
-structure FiniteConnectedSet where
+structure FiniteConnectedSet (G : LayeredDigraph V) where
   verts : Finset V
   nonempty : verts.Nonempty
   connected : ∀ {u v : V}, u ∈ verts → v ∈ verts →
     ∃ walk : G.UWalk u v, walk.All (fun x => x ∈ verts)
 
 namespace FiniteConnectedSet
+
+variable {G : LayeredDigraph V}
 
 /-- Vertices of `C` strictly below layer `m`. -/
 def below (C : G.FiniteConnectedSet) (m : Nat) : Finset V :=
