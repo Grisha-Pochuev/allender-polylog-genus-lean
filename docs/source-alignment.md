@@ -29,7 +29,7 @@ The source model pads every layer to the fixed width. Output-location convention
 | A descendant has at most half the parent cardinality | `DescendantAfterCut.card_halves` |
 | Repeated descendants form a numerical halving chain | `DescendantChain.toHalvingChain` |
 | No nonempty descendant survives `log₂ N+1` cuts | `DescendantChain.impossible_after_log` |
-| Ordinary orientable genus and monotonicity | external declarations `OrientableGenus.genus`, `genus_mono` |
+| Ordinary orientable genus, monotonicity, and the edgeless base case | external declarations `OrientableGenus.genus`, `genus_mono`, `genus_bot` |
 | Genus is additive over connected components | external declaration `genus_eq_sum_components` |
 | At most `g` components are nonplanar when total genus is at most `g` | `nonplanarComponents_card_le_genus` |
 | Deleting layers cannot increase genus | `genus_deleteLayers_le` |
@@ -37,16 +37,17 @@ The source model pads every layer to the fixed width. Output-location convention
 | The cumulative number of distinct cuts after `t` rounds is at most `g*t` | `cumulativeCuts_card_le_mul` |
 | Initial coverage plus one-step preservation yields coverage at every round | `PlanarizationCoverage.coverageAt` |
 | Covered nonplanar components disappear after `log₂ N+1` rounds | `final_isPlanar_of_coverage` |
+| Actual nonplanar components are represented by their finite supports | `activeComponentVerts`, `componentForSupport_mem_nonplanar` |
+| Every next-round nonplanar component has a nonplanar canonical parent | `canonicalParent_active` |
+| A child is contained in its parent and avoids the new median layer | `canonicalChild_subset`, `canonicalChild_avoids` |
+| The actual canonical recursion is a valid separation process | `canonicalLayerSeparationProcess` |
+| At most `g(log₂ N+1)` deleted whole layers leave a planar remainder | `exists_planarizing_layer_set` |
 
-The last theorem is deliberately conditional on explicit `PlanarizationCoverage` data. The remaining core obligation is to construct, from the canonical connected components of every actual remainder graph:
-
-1. the active finite connected sets;
-2. their median layers;
-3. their canonical parents after the next deletion;
-4. the initial injection from actual nonplanar components to active components;
-5. the one-step preservation of that injection.
-
-Therefore the unconditional manuscript Lemma 3.1 is still not present, but its recursion, quantitative cut bound, and final implication have now been checked.
+The generic `final_isPlanar_of_coverage` theorem remains conditional on explicit
+`PlanarizationCoverage` data.  The new canonical construction supplies the
+corresponding facts directly for actual remainder components, so
+`exists_planarizing_layer_set` is the unconditional manuscript Lemma 3.1 inside
+the graph model, relative only to the named orientable-genus declarations.
 
 ## Section 4 — Macroblocks
 
@@ -116,10 +117,15 @@ is present. The root module verifies the source-aligned lemmas and conditional r
 
 ## External theorem boundary
 
-The manuscript relies on three published external facts:
+The manuscript relies on the following external mathematics:
 
 1. orientable graph genus is a natural-valued monotone invariant;
-2. Battle–Harary–Kodama–Youngs additivity of genus;
-3. Hansen's constant-width planar characterization of `ACC⁰`.
+2. an edgeless finite graph has genus zero;
+3. Battle–Harary–Kodama–Youngs additivity of genus;
+4. Hansen's constant-width planar characterization of `ACC⁰`.
 
-The first two are now isolated as exact named declarations in `OrientableGenus.lean`. Hansen's result still needs an exact model-compatible Lean statement. Any theorem using these results must expose them in `#print axioms` until they are formalized internally.
+The first three are now isolated as four exact named declarations (`genus`,
+`genus_mono`, `genus_bot`, and `genus_eq_sum_components`) in
+`OrientableGenus.lean`. Hansen's result still needs an exact model-compatible
+Lean statement. Any theorem using these results must expose them in
+`#print axioms` until they are formalized internally.
