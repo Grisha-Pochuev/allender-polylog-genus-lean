@@ -6,7 +6,7 @@ import Mathlib.Data.Fintype.Card
 # Dependency graph of a layered circuit
 
 Circuit genus is measured on the underlying undirected version of this directed
-dependency graph.  Vertices are padded gate positions `(layer, position)` and
+dependency graph. Vertices are padded gate positions `(layer, position)` and
 edges go from a parent position to a gate in the next layer.
 -/
 
@@ -19,7 +19,7 @@ abbrev Vertex {n w : Nat} (C : Circuit n w) := Fin C.layers.length × Fin w
 /-- The directed dependency graph of a layered circuit. -/
 def layeredGraph {n w : Nat} (C : Circuit n w) : LayeredDigraph C.Vertex where
   edge := fun u v =>
-    v.1.val = u.1.val + 1 ∧ u.2 ∈ (C.layers.get v.1).parents
+    v.1.val = u.1.val + 1 ∧ u.2 ∈ ((C.layers.get v.1) v.2).parents
   layer := fun v => v.1.val
   edge_next := by
     intro u v h
