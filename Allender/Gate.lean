@@ -1,11 +1,11 @@
 import Allender.FiniteState
-import Mathlib.Data.Finset.Boolean
+import Mathlib.Data.Finset.Basic
 
 /-!
 # Boolean gates
 
 The source-circuit model from the manuscript uses AND, OR, input literals,
-negated input literals, and constants.  AND and OR gates read only the
+negated input literals, and constants. AND and OR gates read only the
 immediately preceding width-`w` state.
 -/
 
@@ -35,8 +35,8 @@ def eval {n w : Nat} (g : Gate n w) (x : BitState n) (previous : BitState w) : B
   | .input i false => x i
   | .input i true => !(x i)
   | .constant b => b
-  | .andGate inputs => inputs.all fun i => previous i
-  | .orGate inputs => inputs.any fun i => previous i
+  | .andGate inputs => decide (∀ i ∈ inputs, previous i = true)
+  | .orGate inputs => decide (∃ i ∈ inputs, previous i = true)
 
 @[simp] theorem parents_input {n w : Nat} (i : Fin n) (negated : Bool) :
     (Gate.input i negated : Gate n w).parents = ∅ := rfl
