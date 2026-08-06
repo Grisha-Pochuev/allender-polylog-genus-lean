@@ -1,6 +1,10 @@
 # Formalization status
 
-This is the authoritative status ledger for the active Lean branch `formalization/full-reduction-v1`. The project-wide status and the human-review reproducibility package are maintained on `main`.
+This is the authoritative status ledger for the Lean formalization.  The
+currently checked continuation branch is
+`formalization/canonical-components-v2`, based on
+`formalization/full-reduction-v1`.  The project-wide status and the
+human-review reproducibility package are maintained on `main`.
 
 The manuscript package and this ledger answer different questions:
 
@@ -10,6 +14,12 @@ The manuscript package and this ledger answer different questions:
 Last verified code commit: `443db2186476346f91f4af8f66f47aa39fe4dcb6`  
 Successful workflow run: `31116859409`  
 Toolchain: Lean 4.32.2, mathlib 4.32.2
+
+The canonical-planarization code at `7e6b60ae903b43475a4c54f1565c2d2f42c200be`
+has additionally passed a local clean `lake build`, the complete axiom audit,
+and a memory-bounded sequential `leanchecker` replay of every project module.
+A fresh GitHub Actions run for that commit is still required before replacing
+the server-verified commit and run above.
 
 The successful workflow rejected `sorry`/`admit`, ran `lake build`, compiled
 `Allender/AxiomAudit.lean`, and replayed the environment with `leanchecker`.
@@ -44,7 +54,7 @@ Documentation and branch-synchronization commits after the verified code commit 
 | M3 | Descendant chain terminates after logarithmically many rounds | `DescendantChain.impossible_after_log` | checked |
 | T1 | Positive-cost components are bounded by the total budget | `card_le_of_positive_cost_sum_le` | checked |
 | T2 | Total selected layers over bounded rounds | `separator_round_count_bound` | checked |
-| T3 | Orientable genus symbol and monotonicity | `OrientableGenus.genus`, `genus_mono` | external |
+| T3 | Orientable genus symbol, monotonicity, and edgeless base case | `OrientableGenus.genus`, `genus_mono`, `genus_bot` | external |
 | T4 | Genus additivity over components | `genus_eq_sum_components` (Battle–Harary–Kodama–Youngs) | external |
 | T4a | Number of nonplanar components is at most genus | `nonplanarComponents_card_le_genus` | checked relative to T3–T4 |
 | T4b | Planarity iff no component has positive genus | `isPlanar_iff_nonplanarComponents_eq_empty` | checked relative to T3–T4 |
@@ -53,7 +63,8 @@ Documentation and branch-synchronization commits after the verified code commit 
 | T5b | One-round representation of actual nonplanar components by active components | `RoundCoverage`, `nonplanar_card_le_active_card` | checked as an implication from explicit representation data |
 | T5c | Iteration of initial and stepwise coverage | `PlanarizationCoverage.coverageAt` | checked |
 | T5d | Planarity after `log₂ N + 1` covered rounds | `final_isPlanar_of_coverage` | conditional on `PlanarizationCoverage`, relative to T3–T4 |
-| T5e | Canonical construction of the separation process and coverage maps from every remainder graph | — | pending; this is the remaining core of unconditional Lemma 3.1 |
+| T5e | Canonical construction from the actual nonplanar components of every remainder | `canonicalLayerSeparationProcess`, `canonicalParent_active`, `canonicalChild_subset`, `canonicalChild_avoids` | checked relative to T3–T4 |
+| T5f | Unconditional layer-planarization conclusion `|J| ≤ g(log₂ N+1)` | `exists_planarizing_layer_set` | checked relative to T3–T4 |
 | B1 | Bad-transition bound | `card_badTransitions_le` | checked |
 | B2 | Macroblock-count bound | `macroblock_count_le_of_cuts` | checked |
 | H1 | Exact Hansen theorem in the same circuit model | — | external, not yet stated exactly |
@@ -65,11 +76,12 @@ Documentation and branch-synchronization commits after the verified code commit 
 
 ## Exact topology trust boundary
 
-`Allender/OrientableGenus.lean` contains exactly three external declarations:
+`Allender/OrientableGenus.lean` contains exactly four external declarations:
 
 1. `genus` — the ordinary orientable genus as a natural-valued graph invariant;
 2. `genus_mono` — monotonicity under taking a spanning subgraph;
-3. `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity over connected components.
+3. `genus_bot` — an edgeless finite graph has genus zero;
+4. `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity over connected components.
 
 No separator theorem, planarization theorem, circuit theorem, or final Allender
 conclusion is assumed. The finset `components G` fixes one enumeration of
@@ -80,30 +92,26 @@ The derived topology lemmas are listed in `Allender/AxiomAudit.lean`. Their
 `#print axioms` output exposes the named external declarations above and does
 not contain `sorryAx`.
 
-## Exact remaining separator obligation
+## Completed separator construction
 
-`Allender/CertifiedPlanarization.lean` now separates the proved recursion from
-the missing graph-component construction.
+`Allender/CanonicalComponents.lean` and
+`Allender/CanonicalPlanarization.lean` instantiate the earlier abstract
+recursion with the actual connected components of every graph remainder.
 
-Lean has checked that:
+Lean has checked, relative only to the four topology declarations above, that:
 
 1. at most `g` median layers are added per valid round;
 2. the cumulative number of distinct cuts after `t` rounds is at most `g * t`;
-3. an initial injection from actual nonplanar components to active components,
-   together with a one-step preservation map, gives coverage at every round;
-4. after `log₂ N + 1` rounds the active set is empty, so covered actual
-   nonplanar components are empty and the remainder is planar.
+3. the active identifiers are exactly the finite supports of actual nonplanar
+   components;
+4. every active next-round component has a nonplanar parent, is contained in
+   it, and avoids its newly deleted median layer;
+5. after `log₂ N + 1` rounds no nonplanar component remains;
+6. `exists_planarizing_layer_set` supplies an actual set of at most
+   `g * (log₂ N + 1)` whole layers whose deletion leaves a planar graph.
 
-What is still missing is the construction, for the canonical connected
-components of each actual remainder graph, of:
-
-- the active finite connected sets;
-- their canonical parents after the next layer deletion;
-- the initial coverage map;
-- the one-step coverage-preservation map.
-
-Thus `final_isPlanar_of_coverage` is useful checked infrastructure, but it is
-not being presented as the unconditional layer-planarization lemma.
+The earlier conditional `PlanarizationCoverage` API remains useful generic
+infrastructure, but it is no longer the trust boundary for Lemma 3.1.
 
 ## Removed material
 
@@ -119,7 +127,7 @@ The repository may claim a full Lean verification of Allender's theorem only aft
 
 1. a concrete final theorem quantifies over the source circuit family defined here;
 2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
-3. the canonical separation process and its coverage-preservation theorem are constructed for the actual graph/genus definitions;
+3. concrete macroblock subcircuits are extracted and their good blocks are proved planar;
 4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
 5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
 6. clean build, axiom audit, and `leanchecker` all pass.
