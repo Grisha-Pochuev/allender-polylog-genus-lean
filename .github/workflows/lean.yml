@@ -13,8 +13,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: lean-${{ github.ref }}
-  cancel-in-progress: true
+  group: lean-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
