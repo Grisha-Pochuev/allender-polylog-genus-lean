@@ -55,6 +55,10 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.LayerSeparationProcess.active_empty_after_log
 #print axioms Allender.LayeredDigraph.LayerSeparationProcess.roundCuts_card_le
 #print axioms Allender.LayeredDigraph.LayerSeparationProcess.selectedCounts_sum_le_log
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.cumulativeCuts_card_le_mul
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.RoundCoverage.nonplanar_card_le_active_card
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.PlanarizationCoverage.final_isPlanar
+#print axioms Allender.LayeredDigraph.LayerSeparationProcess.PlanarizationCoverage.final_cuts_card_le
 #print axioms Allender.card_le_of_positive_cost_sum_le
 #print axioms Allender.separator_round_count_bound
 #print axioms Allender.card_badTransitions_le
