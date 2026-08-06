@@ -44,6 +44,9 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.no_surviving_walk_across_layer
 #print axioms Allender.exists_weightedMedianCut
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantAfterCut.card_halves
+#print axioms Allender.LayeredDigraph.UWalk.ofSimpleGraphWalk_all_component
+#print axioms Allender.LayeredDigraph.componentVerts_injective
+#print axioms Allender.LayeredDigraph.componentFiniteConnectedSet_card_le
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.exists_medianLayer
 #print axioms Allender.HalvingChain.pow_mul_terminal_le
 #print axioms Allender.HalvingChain.terminal_eq_zero_of_start_le
