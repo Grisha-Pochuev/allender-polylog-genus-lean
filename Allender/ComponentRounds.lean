@@ -6,18 +6,14 @@ import Mathlib.Tactic
 # Global component rounds
 
 The local median-cut theorem gives one half-size inequality for every child
-component.  This file assembles those inequalities into the global round
+component. This file assembles those inequalities into the global round
 argument from Lemma 3.1: every component in round `t+1` has an active parent in
 round `t`, so no positive component can remain after `log₂ N + 1` rounds.
 -/
 
 namespace Allender
 
-/--
-An abstract system of active components through a fixed number of rounds.
-Component identifiers live in one finite ambient type; membership in `active t`
-records which identifiers occur in round `t`.
--/
+/-- An abstract system of active components through a fixed number of rounds. -/
 structure ComponentRoundSystem (α : Type*) [DecidableEq α]
     (steps N : Nat) where
   active : Nat → Finset α
@@ -61,7 +57,7 @@ theorem pow_mul_size_le (S : ComponentRoundSystem α steps N) :
 theorem active_empty_after_log
     (S : ComponentRoundSystem α (Nat.log 2 N + 1) N) :
     S.active (Nat.log 2 N + 1) = ∅ := by
-  apply Finset.eq_empty_iff_forall_not_mem.mpr
+  apply Finset.eq_empty_iff_forall_notMem.mpr
   intro c hc
   have hbound :
       2 ^ (Nat.log 2 N + 1) * S.size (Nat.log 2 N + 1) c ≤ N :=
