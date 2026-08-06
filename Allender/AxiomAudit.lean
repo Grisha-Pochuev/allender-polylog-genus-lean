@@ -98,6 +98,9 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.Circuit.macroblockCircuit_graph_map_le
 #print axioms Allender.Circuit.macroblockCircuit_isPlanar
 #print axioms Allender.Circuit.exists_planarizingCuts_with_planar_good_macroblocks
+#print axioms Allender.Circuit.padInput_eval_zeroExtend
+#print axioms Allender.Circuit.padInput_isPlanar
+#print axioms Allender.ACmCircuit.restrictInput_eval
 #print axioms Allender.Hansen.planar_constantWidth_polySize_to_ACC0
 #print axioms Allender.card_stateAssignments
 #print axioms Allender.card_stateAssignments_log_le

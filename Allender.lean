@@ -31,6 +31,7 @@ import Allender.MacroblockCounting
 import Allender.MacroblockPartition
 import Allender.MacroblockCircuit
 import Allender.BlockCircuit
+import Allender.InputPadding
 import Allender.StateEnumeration
 import Allender.Padding
 import Allender.Hansen
