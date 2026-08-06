@@ -16,7 +16,7 @@ namespace Allender
 namespace LayeredDigraph
 namespace FiniteConnectedSet
 
-variable {V : Type*} [DecidableEq V] (G : LayeredDigraph V)
+variable {V : Type*} [DecidableEq V] {G : LayeredDigraph V}
 
 /-- The finite set of layer indices occupied by a component. -/
 def layerImage (C : G.FiniteConnectedSet) : Finset Nat :=
