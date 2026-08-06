@@ -83,9 +83,7 @@ theorem exists_medianLayer (C : G.FiniteConnectedSet) : Nonempty C.MedianLayer :
     have hunion : C.atOrBelow m ∪ C.above m = C.verts := by
       apply Finset.ext
       intro v
-      change
-        ((v ∈ C.verts ∧ G.layer v ≤ m) ∨
-          (v ∈ C.verts ∧ m < G.layer v)) ↔ v ∈ C.verts
+      simp only [atOrBelow, above, Finset.mem_union, Finset.mem_filter]
       constructor
       · rintro (⟨hv, _⟩ | ⟨hv, _⟩)
         · exact hv
