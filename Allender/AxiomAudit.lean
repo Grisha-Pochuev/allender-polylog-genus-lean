@@ -36,6 +36,7 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.no_edge_to_cut_vertex
 #print axioms Allender.OrientableGenus.genus
 #print axioms Allender.OrientableGenus.genus_mono
+#print axioms Allender.OrientableGenus.genus_bot
 #print axioms Allender.OrientableGenus.genus_eq_sum_components
 #print axioms Allender.OrientableGenus.nonplanarComponents_card_le_genus
 #print axioms Allender.OrientableGenus.isPlanar_iff_nonplanarComponents_eq_empty
@@ -44,6 +45,16 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.no_surviving_walk_across_layer
 #print axioms Allender.exists_weightedMedianCut
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantAfterCut.card_halves
+#print axioms Allender.LayeredDigraph.UWalk.ofSimpleGraphWalk_all_component
+#print axioms Allender.LayeredDigraph.componentVerts_injective
+#print axioms Allender.LayeredDigraph.componentFiniteConnectedSet_card_le
+#print axioms Allender.LayeredDigraph.componentGraph_eq_bot_of_isolated
+#print axioms Allender.LayeredDigraph.parentComponent_mem_nonplanar
+#print axioms Allender.LayeredDigraph.nonplanarComponent_survives
+#print axioms Allender.LayeredDigraph.canonicalParent_active
+#print axioms Allender.LayeredDigraph.canonicalChild_subset
+#print axioms Allender.LayeredDigraph.canonicalChild_avoids
+#print axioms Allender.LayeredDigraph.canonicalLayerSeparationProcess
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.exists_medianLayer
 #print axioms Allender.HalvingChain.pow_mul_terminal_le
 #print axioms Allender.HalvingChain.terminal_eq_zero_of_start_le
