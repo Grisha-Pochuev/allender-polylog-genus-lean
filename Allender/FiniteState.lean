@@ -1,4 +1,5 @@
 import Mathlib.Data.Fintype.Card
+import Mathlib.Data.Fintype.Pi
 import Mathlib.Data.Bool.Basic
 
 /-!
@@ -14,7 +15,7 @@ namespace Allender
 abbrev BitState (w : Nat) := Fin w → Bool
 
 instance (w : Nat) : Fintype (BitState w) := inferInstance
-instance (w : Nat) : DecidableEq (BitState w) := Classical.decEq _
+instance (w : Nat) : DecidableEq (BitState w) := inferInstance
 
 namespace BitState
 
@@ -41,7 +42,7 @@ theorem ext {w : Nat} {s t : BitState w} (h : ∀ i, s i = t i) : s = t :=
 
 /-- There are exactly `2^w` Boolean states of width `w`. -/
 theorem card (w : Nat) : Fintype.card (BitState w) = 2 ^ w := by
-  simp [BitState]
+  simp [BitState, Fintype.card_fun]
 
 end BitState
 end Allender
