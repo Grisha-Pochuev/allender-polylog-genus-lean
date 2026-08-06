@@ -42,7 +42,7 @@ theorem ext {w : Nat} {s t : BitState w} (h : ∀ i, s i = t i) : s = t :=
 
 /-- There are exactly `2^w` Boolean states of width `w`. -/
 theorem card (w : Nat) : Fintype.card (BitState w) = 2 ^ w := by
-  simp [BitState, Fintype.card_fun]
+  simp [BitState, Fintype.card_pi]
 
 end BitState
 end Allender
