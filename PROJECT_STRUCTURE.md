@@ -74,8 +74,9 @@ Checked continuation that constructs the actual nonplanar remainder
 components, their canonical parents, and the unconditional layer-planarization
 lemma relative to the named genus declarations.  It also connects the canonical
 macroblock partition to concrete circuit layers, exact segment relations, and
-planar good-block dependency graphs.  It is reviewed through PR #6 before
-integration into the base branch.
+standalone planar good-block circuits with exact semantics.  Hansen's forward
+theorem is isolated as one exact family-level external dependency.  The branch
+is reviewed through PR #7 before integration into the base branch.
 
 Do not describe a manuscript claim as machine checked unless the branch status names the exact Lean declaration and a successful verification run includes it.
 

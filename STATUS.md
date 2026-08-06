@@ -15,8 +15,8 @@ Last verified code commit: `443db2186476346f91f4af8f66f47aa39fe4dcb6`
 Successful workflow run: `31116859409`  
 Toolchain: Lean 4.32.2, mathlib 4.32.2
 
-The canonical-planarization and concrete macroblock code through
-`80047136171181c3d8eca719997abf55dc491e91`
+The canonical-planarization and standalone planar-macroblock code through
+`49b76255155482e564d68ec7665ad953f580448a`
 has additionally passed a local clean `lake build`, the complete axiom audit,
 and a memory-bounded sequential `leanchecker` replay of every project module.
 A fresh GitHub Actions run for that commit is still required before replacing
@@ -55,7 +55,7 @@ Documentation and branch-synchronization commits after the verified code commit 
 | M3 | Descendant chain terminates after logarithmically many rounds | `DescendantChain.impossible_after_log` | checked |
 | T1 | Positive-cost components are bounded by the total budget | `card_le_of_positive_cost_sum_le` | checked |
 | T2 | Total selected layers over bounded rounds | `separator_round_count_bound` | checked |
-| T3 | Orientable genus symbol, monotonicity, and edgeless base case | `OrientableGenus.genus`, `genus_mono`, `genus_bot` | external |
+| T3 | Orientable genus symbol, monotonicity, relabelling invariance, and edgeless base case | `OrientableGenus.genus`, `genus_mono`, `genus_map`, `genus_bot` | external |
 | T4 | Genus additivity over components | `genus_eq_sum_components` (Battle–Harary–Kodama–Youngs) | external |
 | T4a | Number of nonplanar components is at most genus | `nonplanarComponents_card_le_genus` | checked relative to T3–T4 |
 | T4b | Planarity iff no component has positive genus | `isPlanar_iff_nonplanarComponents_eq_empty` | checked relative to T3–T4 |
@@ -71,7 +71,9 @@ Documentation and branch-synchronization commits after the verified code commit 
 | B3 | Canonical block layers concatenate to the exact circuit tail | `flatten_canonicalMacroblockLayers_eq_tail` | checked |
 | B4 | Exact acceptance decomposition through canonical block relations | `compose_macroblockRelations_eq_tailSegment`, `accept_cons_iff_macroblockRelations` | checked |
 | B5 | Every good block dependency graph is planar when the cut remainder is planar | `macroblockGraph_toSimpleGraph_le_deleteLayers`, `goodMacroblock_isPlanar` | checked relative to T3 |
-| H1 | Exact Hansen theorem in the same circuit model | — | external, not yet stated exactly |
+| B6 | Standalone `(n+w)`-input circuit for each block has exact semantics and size | `macroblockCircuit_eval`, `macroblockCircuit_size` | checked |
+| B7 | Every good standalone block circuit is planar; combined cut/block certificate exists | `macroblockCircuit_graph_map_le`, `macroblockCircuit_isPlanar`, `exists_planarizingCuts_with_planar_good_macroblocks` | checked relative to T3–T4 |
+| H1 | Hansen forward theorem for concrete planar `CircuitFamily` and concrete `InACC0` | `Hansen.planar_constantWidth_polySize_to_ACC0` | external, exact named published dependency |
 | H2 | Common-family padding ranges | `padding_gap`, `paddedLength_injective_on_ranges` | checked |
 | P1 | Polynomial number of intermediate state assignments | `card_stateAssignments_log_le` | checked |
 | P2 | Explicit relation-chain semantics | `RelationChain.lean` | checked |
@@ -80,12 +82,19 @@ Documentation and branch-synchronization commits after the verified code commit 
 
 ## Exact topology trust boundary
 
-`Allender/OrientableGenus.lean` contains exactly four external declarations:
+`Allender/OrientableGenus.lean` contains exactly five external declarations:
 
 1. `genus` — the ordinary orientable genus as a natural-valued graph invariant;
 2. `genus_mono` — monotonicity under taking a spanning subgraph;
-3. `genus_bot` — an edgeless finite graph has genus zero;
-4. `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity over connected components.
+3. `genus_map` — invariance under injective vertex relabelling and added isolates;
+4. `genus_bot` — an edgeless finite graph has genus zero;
+5. `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity over connected components.
+
+`Allender/Hansen.lean` contains one additional external declaration: the
+forward, family-level direction of Hansen's Theorem 1.  Its hypotheses use the
+concrete source-family graph and polynomial-size definitions, and its
+conclusion is the concrete `InACC0` predicate.  No per-block simulator is
+postulated.
 
 No separator theorem, planarization theorem, circuit theorem, or final Allender
 conclusion is assumed. The finset `components G` fixes one enumeration of
@@ -131,7 +140,7 @@ The repository may claim a full Lean verification of Allender's theorem only aft
 
 1. a concrete final theorem quantifies over the source circuit family defined here;
 2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
-3. the checked macroblock layer lists and planar dependency subgraphs are packaged as model-compatible circuit families for Hansen's theorem;
+3. the checked standalone planar block circuits are combined, via the padding construction, into one polynomial-size planar family to which Hansen applies;
 4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
 5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
 6. clean build, axiom audit, and `leanchecker` all pass.

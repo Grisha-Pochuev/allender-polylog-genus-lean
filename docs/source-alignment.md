@@ -60,10 +60,14 @@ the graph model, relative only to the named orientable-genus declarations.
 | Every canonical block is a good run or one bad singleton | `macroblock_good_or_singleton` |
 | A good block graph is a subgraph of the planarized remainder | `macroblockGraph_toSimpleGraph_le_deleteLayers` |
 | Hence every good block graph is planar | `goodMacroblock_isPlanar` |
+| Incoming boundary bits become real extra inputs of a standalone block circuit | `boundaryInputLayer`, `Circuit.macroblockCircuit` |
+| Standalone block evaluation and size are exact | `macroblockCircuit_eval`, `macroblockCircuit_size` |
+| The standalone graph embeds into the ambient block graph | `macroblockCircuit_graph_map_le` |
+| Every standalone good-block circuit is planar | `macroblockCircuit_isPlanar` |
 
-Still missing: packaging these checked layer lists and dependency subgraphs as
-standalone, uniformly indexed circuit families in the exact model consumed by
-Hansen's theorem.
+The block extraction itself is now complete. Still missing is combining all
+valid block/output pairs across input lengths into the one padded planar family
+used for simultaneous Hansen simulation.
 
 ## Section 5 — Relations on the state space
 
@@ -94,10 +98,11 @@ bounds.
 | Gaps between adjacent ranges dominate `n^d` | `padding_gap` |
 | Valid padded ranges for distinct `n` are disjoint | `paddedLength_injective_on_ranges` |
 
-Still missing:
+The exact family-level forward theorem is isolated as
+`Hansen.planar_constantWidth_polySize_to_ACC0`. Still missing:
 
-1. an exact formal statement of Hansen's theorem using, or explicitly converting to, these circuit definitions;
-2. construction of the padded single family of planar block-output circuits;
+1. construction of the padded single family of planar block-output circuits;
+2. proof of its polynomial size and planarity at invalid padded lengths;
 3. fixing ignored variables in the resulting `AC⁰[m]` circuits;
 4. extraction of one common modulus, depth bound, and polynomial size bound.
 
@@ -130,12 +135,13 @@ is present. The root module verifies the source-aligned lemmas and conditional r
 The manuscript relies on the following external mathematics:
 
 1. orientable graph genus is a natural-valued monotone invariant;
-2. an edgeless finite graph has genus zero;
-3. Battle–Harary–Kodama–Youngs additivity of genus;
-4. Hansen's constant-width planar characterization of `ACC⁰`.
+2. injective vertex relabelling and adding isolates preserves genus;
+3. an edgeless finite graph has genus zero;
+4. Battle–Harary–Kodama–Youngs additivity of genus;
+5. Hansen's constant-width planar characterization of `ACC⁰`.
 
-The first three are now isolated as four exact named declarations (`genus`,
-`genus_mono`, `genus_bot`, and `genus_eq_sum_components`) in
-`OrientableGenus.lean`. Hansen's result still needs an exact model-compatible
-Lean statement. Any theorem using these results must expose them in
-`#print axioms` until they are formalized internally.
+The first three are isolated as five exact named declarations (`genus`,
+`genus_mono`, `genus_map`, `genus_bot`, and
+`genus_eq_sum_components`) in `OrientableGenus.lean`. Hansen's result is the
+single exact declaration in `Hansen.lean`. Any theorem using these results must
+expose them in `#print axioms` until they are formalized internally.

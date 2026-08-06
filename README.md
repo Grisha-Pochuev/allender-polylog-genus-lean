@@ -50,8 +50,8 @@ The run used Lean 4.32.2 and mathlib 4.32.2 and performed:
 
 Documentation-only commits after the verified code commit do not alter the checked Lean declarations.
 
-The canonical-planarization and concrete macroblock code through commit
-`8004713` has also passed locally:
+The canonical-planarization and standalone planar-macroblock code through
+commit `49b7625` has also passed locally:
 
 - a complete `lake build`;
 - compilation of the axiom audit, with no `sorryAx` dependency;
@@ -83,6 +83,8 @@ The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` 
 | Canonical partition into at most `4|J|+1` macroblocks | checked |
 | Exact reconstruction of circuit-tail semantics from macroblock relations | checked |
 | Every good macroblock dependency graph is planar after the layer cut | checked relative to genus monotonicity |
+| A standalone `(n+w)`-input circuit computes each block/output bit exactly | checked |
+| Every standalone good-block circuit is planar | checked relative to genus relabelling invariance |
 | Concrete syntax and semantics for `AC⁰[m]` and `ACC⁰` | checked |
 | Polynomial count of intermediate state assignments | checked |
 | Disjoint padded input-length ranges used in Lemma 6.1 | checked |
@@ -98,16 +100,17 @@ constructs their median cuts and canonical parents.  Lean now proves
 `g * (log₂ |V| + 1)` whole layers leaves a graph of genus zero.
 
 This result is unconditional inside the graph model, but it deliberately
-depends on four named external topology declarations: the genus invariant,
-monotonicity, the edgeless base case, and additivity over components.  It does
-not by itself prove the final circuit-class inclusion.
+depends on named external topology declarations: the genus invariant,
+monotonicity, relabelling invariance where used by extracted block circuits,
+the edgeless base case, and additivity over components.  It does not by itself
+prove the final circuit-class inclusion.
 
 ## What is not yet a complete Lean proof
 
 The final bounty theorem is **not yet formalized**. The main remaining obligations are:
 
-1. package the checked macroblock layer lists and dependency graphs as circuit families compatible with Hansen's model;
-2. state Hansen's theorem exactly in that model, or prove an explicit conversion theorem;
+1. combine the checked standalone planar block circuits into the padded single family used for simultaneous simulation;
+2. apply the exact named Hansen boundary and fix unused padded inputs;
 3. construct the common-modulus simulations of all planar blocks;
 4. construct the constant-depth `AC⁰[m]` circuits for polylogarithmic relation composition and prove depth/size bounds;
 5. combine all parts into the final theorem `allender_main`.
@@ -116,14 +119,18 @@ A green build certifies only the declarations listed in the axiom audit. It does
 
 ## Exact external boundary
 
-`Allender/OrientableGenus.lean` contains exactly four external declarations:
+`Allender/OrientableGenus.lean` contains exactly five external declarations:
 
 - `genus` — ordinary orientable graph genus;
 - `genus_mono` — monotonicity under taking a spanning subgraph;
+- `genus_map` — invariance under injective relabelling and added isolates;
 - `genus_bot` — genus zero for an edgeless graph;
 - `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity.
 
-No separator, planarization, circuit-simulation, or Allender conclusion is assumed there. Hansen's theorem has not yet been added as an exact Lean declaration.
+No separator, planarization, circuit-simulation, or Allender conclusion is
+assumed there. `Allender/Hansen.lean` separately isolates the exact
+family-level forward direction of Hansen's published theorem; it does not
+assume an arbitrary per-block simulator.
 
 ## Repository layout
 
@@ -160,6 +167,8 @@ Allender/
   MacroblockCounting.lean      bad-transition and block bounds
   MacroblockPartition.lean     concrete macroblock tag chains
   MacroblockCircuit.lean       block semantics, count, and planar block graphs
+  BlockCircuit.lean            standalone block circuits and planar embedding
+  Hansen.lean                  exact external family-level Hansen theorem
   StateEnumeration.lean        polynomial state enumeration
   Padding.lean                 common-family input-length padding
   AxiomAudit.lean              trusted-dependency report
