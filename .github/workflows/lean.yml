@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - formalization/full-reduction-v1
     paths:
       - 'Allender/**'
       - 'Allender.lean'
