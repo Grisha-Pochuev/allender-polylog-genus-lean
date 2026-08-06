@@ -31,11 +31,12 @@ theorem exists_weightedMedianCut (weights : List Nat) (hne : weights ≠ []) :
   let P : Nat → Prop := fun k =>
     1 ≤ k ∧ k ≤ weights.length ∧ weights.sum ≤ 2 * (weights.take k).sum
   have hlen : 1 ≤ weights.length := by
-    have hpos : 0 < weights.length := List.length_pos.mpr hne
+    have hpos : 0 < weights.length := List.length_pos_of_ne_nil hne
     omega
   have hex : ∃ k, P k := by
     refine ⟨weights.length, hlen, le_rfl, ?_⟩
-    simp [P]
+    simp only [List.take_length]
+    omega
   let k := Nat.find hex
   have hk : P k := Nat.find_spec hex
   refine ⟨k, hk.1, hk.2.1, ?_, ?_⟩
