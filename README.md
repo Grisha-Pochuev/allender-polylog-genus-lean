@@ -8,13 +8,13 @@ Allender attached a **US $1000 bounty** to this question in his 2023 SIGACT News
 
 ## Current status
 
-This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. The first Lean modules have been implemented, but a clean build has not yet been run because GitHub Actions is intentionally configured for manual launch only.
+This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. The initial Lean modules have now passed a clean build with the pinned Lean 4.32.2 and `mathlib` 4.32.2 toolchain.
 
 | Component | Status |
 |---|---|
-| Boolean states of constant width | implemented; build pending |
-| Algebra of binary relations and sequential composition | implemented; build pending |
-| Basic invariant for cutting a layered graph along whole layers | implemented; build pending |
+| Boolean states of constant width | machine checked |
+| Algebra of binary relations and sequential composition | machine checked |
+| Basic invariant for cutting a layered graph along whole layers | machine checked |
 | Precise quantitative interfaces for size and genus bounds | specified |
 | Median-layer planarization theorem | pending |
 | Orientable genus and additivity over components | pending / external dependency |
@@ -22,7 +22,15 @@ This repository is **not yet a complete formal proof of the bounty problem**. It
 | Syntax and semantics of Boolean and `ACC⁰` circuits | pending |
 | End-to-end theorem resolving Open Question 3 | **not yet proved** |
 
-A future green verification run will mean only that the declarations then present in the repository have been accepted by Lean. It will not by itself mean that the bounty problem has been solved.
+The successful verification run performed all of the following:
+
+- rejected `sorry` and `admit` placeholders;
+- ran `lake update` and restored the pinned `mathlib` cache;
+- completed `lake build` successfully;
+- compiled `Allender/AxiomAudit.lean` and found no `sorryAx`;
+- replayed the compiled `Allender` modules with Lean's `leanchecker`.
+
+A green verification run means only that the declarations currently present have been accepted by Lean. It does **not** mean that Allender's full problem has already been formalized or solved.
 
 See [`STATUS.md`](STATUS.md) and [`docs/proof-obligations.md`](docs/proof-obligations.md) for the detailed proof ledger.
 
@@ -57,7 +65,7 @@ docs/
   references.bib                core bibliography
 
 paper/README.md                 workspace for the original TeX/PDF manuscript
-.github/workflows/lean.yml      manual reproducible build and proof checks
+.github/workflows/lean.yml      reproducible build and proof checks
 ```
 
 ## Building locally
@@ -68,13 +76,15 @@ Install [elan](https://github.com/leanprover/elan), then run:
 lake update
 lake exe cache get
 lake build
+lake env lean Allender/AxiomAudit.lean
+lake env leanchecker Allender
 ```
 
 The Lean toolchain and `mathlib` release are pinned in the repository.
 
-## Manual GitHub verification
+## GitHub verification
 
-The workflow is **not** triggered by pushes. It can be started manually from the Actions tab when compute capacity is available. It rejects `sorry`/`admit`, runs `lake build`, and invokes Lean's independent environment checker.
+The workflow runs automatically on pushes to `main` and can also be started manually from the Actions tab. It checks for proof placeholders, builds the project, compiles the axiom audit, and runs `leanchecker` on the root `Allender` module.
 
 ## Proof discipline
 
