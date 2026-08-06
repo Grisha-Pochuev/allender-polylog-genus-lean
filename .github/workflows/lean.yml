@@ -4,7 +4,13 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - formalization/full-reduction-v1
+      - main
+    paths:
+      - 'Allender/**'
+      - 'Allender.lean'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
 
 concurrency:
   group: lean-${{ github.ref }}
@@ -40,13 +46,13 @@ jobs:
           "$HOME/.elan/bin/lean" --version
           "$HOME/.elan/bin/lake" --version
 
-      - name: Restore dependency sources
+      - name: Restore Lake workspace cache
         uses: actions/cache@v4
         with:
-          path: .lake/packages
-          key: lean-packages-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
+          path: .lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'lake-manifest.json') }}
 
-      - name: Verify pinned dependencies
+      - name: Generate Lake manifest
         run: lake update
 
       - name: Download mathlib build cache
