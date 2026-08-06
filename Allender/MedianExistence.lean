@@ -7,7 +7,7 @@ import Mathlib.Tactic
 # Existence of a median layer for a finite component
 
 The paper chooses the first layer at which the cumulative number of component
-vertices reaches at least half of the total.  This file carries out that choice
+vertices reaches at least half of the total. This file carries out that choice
 with `Nat.find` and proves the two cardinality inequalities required by
 `FiniteConnectedSet.MedianLayer`.
 -/
@@ -54,14 +54,20 @@ theorem exists_medianLayer (C : G.FiniteConnectedSet) : Nonempty C.MedianLayer :
   let P : Nat → Prop := fun m => C.verts.card ≤ 2 * (C.atOrBelow m).card
   have hex : ∃ m, P m := by
     refine ⟨C.maxLayer, ?_⟩
+    dsimp [P]
     rw [C.atOrBelow_maxLayer]
     omega
   let m := Nat.find hex
-  have hcross : P m := Nat.find_spec hex
+  have hcross : C.verts.card ≤ 2 * (C.atOrBelow m).card := by
+    change P m
+    exact Nat.find_spec hex
   refine ⟨⟨m, ?_, ?_⟩⟩
   · by_cases hmzero : m = 0
-    · subst m
-      simp [below]
+    · have hbelow : C.below m = ∅ := by
+        ext v
+        simp [below, hmzero]
+      rw [hbelow]
+      simp
     · have hpred_lt : m - 1 < m := by omega
       have hnotP : ¬P (m - 1) := Nat.find_min hex hpred_lt
       have hpred_eq : C.atOrBelow (m - 1) = C.below m := by
@@ -71,7 +77,9 @@ theorem exists_medianLayer (C : G.FiniteConnectedSet) : Nonempty C.MedianLayer :
       have hnotCross : ¬C.verts.card ≤ 2 * (C.below m).card := by
         intro h
         apply hnotP
-        simpa [hpred_eq] using h
+        dsimp [P]
+        rw [hpred_eq]
+        exact h
       omega
   · have hdisj : Disjoint (C.atOrBelow m) (C.above m) := by
       refine Finset.disjoint_left.mpr ?_
