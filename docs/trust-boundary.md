@@ -13,7 +13,8 @@ For the checked modules currently present, Lean verifies the concrete source
 circuit semantics, finite-state relations, the canonical median-layer
 recursion, and the layer-planarization conclusion relative to the named genus
 declarations.  It also verifies the numerical macroblock, padding, and state
-enumeration lemmas listed in `STATUS.md`.
+enumeration lemmas, the exact semantic macroblock decomposition, and planar
+good-block dependency graphs listed in `STATUS.md`.
 
 ## What it does not certify yet
 

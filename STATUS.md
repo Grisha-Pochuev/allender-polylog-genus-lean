@@ -15,7 +15,8 @@ Last verified code commit: `443db2186476346f91f4af8f66f47aa39fe4dcb6`
 Successful workflow run: `31116859409`  
 Toolchain: Lean 4.32.2, mathlib 4.32.2
 
-The canonical-planarization code at `7e6b60ae903b43475a4c54f1565c2d2f42c200be`
+The canonical-planarization and concrete macroblock code through
+`80047136171181c3d8eca719997abf55dc491e91`
 has additionally passed a local clean `lake build`, the complete axiom audit,
 and a memory-bounded sequential `leanchecker` replay of every project module.
 A fresh GitHub Actions run for that commit is still required before replacing
@@ -66,7 +67,10 @@ Documentation and branch-synchronization commits after the verified code commit 
 | T5e | Canonical construction from the actual nonplanar components of every remainder | `canonicalLayerSeparationProcess`, `canonicalParent_active`, `canonicalChild_subset`, `canonicalChild_avoids` | checked relative to T3–T4 |
 | T5f | Unconditional layer-planarization conclusion `|J| ≤ g(log₂ N+1)` | `exists_planarizing_layer_set` | checked relative to T3–T4 |
 | B1 | Bad-transition bound | `card_badTransitions_le` | checked |
-| B2 | Macroblock-count bound | `macroblock_count_le_of_cuts` | checked |
+| B2 | Canonical macroblock partition and actual bound `≤ 4|J|+1` | `macroblockTags`, `macroblockTags_length_le_of_cuts` | checked |
+| B3 | Canonical block layers concatenate to the exact circuit tail | `flatten_canonicalMacroblockLayers_eq_tail` | checked |
+| B4 | Exact acceptance decomposition through canonical block relations | `compose_macroblockRelations_eq_tailSegment`, `accept_cons_iff_macroblockRelations` | checked |
+| B5 | Every good block dependency graph is planar when the cut remainder is planar | `macroblockGraph_toSimpleGraph_le_deleteLayers`, `goodMacroblock_isPlanar` | checked relative to T3 |
 | H1 | Exact Hansen theorem in the same circuit model | — | external, not yet stated exactly |
 | H2 | Common-family padding ranges | `padding_gap`, `paddedLength_injective_on_ranges` | checked |
 | P1 | Polynomial number of intermediate state assignments | `card_stateAssignments_log_le` | checked |
@@ -127,7 +131,7 @@ The repository may claim a full Lean verification of Allender's theorem only aft
 
 1. a concrete final theorem quantifies over the source circuit family defined here;
 2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
-3. concrete macroblock subcircuits are extracted and their good blocks are proved planar;
+3. the checked macroblock layer lists and planar dependency subgraphs are packaged as model-compatible circuit families for Hansen's theorem;
 4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
 5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
 6. clean build, axiom audit, and `leanchecker` all pass.

@@ -54,11 +54,16 @@ the graph model, relative only to the named orientable-genus declarations.
 | Manuscript step | Lean declaration |
 |---|---|
 | A cut layer is incident with at most two bad transitions | `card_badTransitions_le` |
-| Singleton bad transitions plus maximal good runs give at most `4|J|+1` blocks | `macroblock_count_le_of_cuts` |
+| Singleton bad transitions plus maximal good runs give at most `4|J|+1` blocks | `macroblockTags_length_le_of_cuts` |
 | A concrete chain of macroblock tags can be constructed | `macroblockTags`, `macroblock_isChain` |
 | Adjacent macroblocks are separated correctly | `macroblocks_separated` |
+| Every canonical block is a good run or one bad singleton | `macroblock_good_or_singleton` |
+| A good block graph is a subgraph of the planarized remainder | `macroblockGraph_toSimpleGraph_le_deleteLayers` |
+| Hence every good block graph is planar | `goodMacroblock_isPlanar` |
 
-Still missing: extraction of complete macroblock subcircuits from a concrete circuit and proof that every good block graph is a subgraph of the planarized remainder.
+Still missing: packaging these checked layer lists and dependency subgraphs as
+standalone, uniformly indexed circuit families in the exact model consumed by
+Hansen's theorem.
 
 ## Section 5 — Relations on the state space
 
@@ -71,8 +76,13 @@ Still missing: extraction of complete macroblock subcircuits from a concrete cir
 | Concrete segment semantics agrees with evaluation | `segmentRelation_iff_eval`, `segmentRelation_append` |
 | Initial and accepting boundary conditions are represented | `initialState_iff_transition`, `accept_cons_iff_exists_boundary_states` |
 | Concrete circuit evaluation gives a transition chain | `Circuit.chain_from_zero_to_final` |
+| Canonical block layer lists concatenate to the exact circuit tail | `flatten_canonicalMacroblockLayers_eq_tail` |
+| Composing all canonical block relations equals the full tail relation | `compose_macroblockRelations_eq_tailSegment` |
+| Acceptance has exact initial/block-composition/final semantics | `accept_cons_iff_macroblockRelations` |
 
-Still missing: connecting the macroblock partition from Section 4 to concrete segment relations for every good and bad block.
+The proposition-level macroblock decomposition is checked.  Still missing is
+its realization by concrete target `AC⁰[m]` circuits with uniform resource
+bounds.
 
 ## Section 6 — Simultaneous Hansen simulation
 

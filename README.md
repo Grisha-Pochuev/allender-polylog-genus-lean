@@ -50,7 +50,8 @@ The run used Lean 4.32.2 and mathlib 4.32.2 and performed:
 
 Documentation-only commits after the verified code commit do not alter the checked Lean declarations.
 
-The canonical-planarization code at commit `7e6b60a` has also passed locally:
+The canonical-planarization and concrete macroblock code through commit
+`8004713` has also passed locally:
 
 - a complete `lake build`;
 - compilation of the axiom audit, with no `sorryAx` dependency;
@@ -79,7 +80,9 @@ The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` 
 | Cumulative cut count after `t` rounds is at most `g*t` | checked |
 | Actual nonplanar remainder components and their canonical parents | checked relative to the genus declarations |
 | Deleting at most `g(log₂ N+1)` whole layers leaves a planar graph | checked relative to the genus declarations |
-| At most two bad transitions per cut layer and at most `4|J|+1` macroblocks | checked |
+| Canonical partition into at most `4|J|+1` macroblocks | checked |
+| Exact reconstruction of circuit-tail semantics from macroblock relations | checked |
+| Every good macroblock dependency graph is planar after the layer cut | checked relative to genus monotonicity |
 | Concrete syntax and semantics for `AC⁰[m]` and `ACC⁰` | checked |
 | Polynomial count of intermediate state assignments | checked |
 | Disjoint padded input-length ranges used in Lemma 6.1 | checked |
@@ -103,8 +106,8 @@ not by itself prove the final circuit-class inclusion.
 
 The final bounty theorem is **not yet formalized**. The main remaining obligations are:
 
-1. extract concrete macroblock subcircuits and prove every good block is planar;
-2. state Hansen's theorem exactly in the same circuit model, or prove an explicit conversion theorem;
+1. package the checked macroblock layer lists and dependency graphs as circuit families compatible with Hansen's model;
+2. state Hansen's theorem exactly in that model, or prove an explicit conversion theorem;
 3. construct the common-modulus simulations of all planar blocks;
 4. construct the constant-depth `AC⁰[m]` circuits for polylogarithmic relation composition and prove depth/size bounds;
 5. combine all parts into the final theorem `allender_main`.
@@ -156,6 +159,7 @@ Allender/
   GenusBudget.lean             additive positive-cost counting
   MacroblockCounting.lean      bad-transition and block bounds
   MacroblockPartition.lean     concrete macroblock tag chains
+  MacroblockCircuit.lean       block semantics, count, and planar block graphs
   StateEnumeration.lean        polynomial state enumeration
   Padding.lean                 common-family input-length padding
   AxiomAudit.lean              trusted-dependency report
