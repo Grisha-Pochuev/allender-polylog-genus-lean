@@ -90,6 +90,72 @@ theorem parentComponent_mem_nonplanar {H H' : SimpleGraph V}
       exact Nat.ne_of_gt (hpos.trans_le hmono)
     simpa [OrientableGenus.IsPlanar] using hparent
 
+/-- If a component contains an isolated vertex, then its
+ambient-vertex component graph is edgeless. -/
+theorem componentGraph_eq_bot_of_isolated {H : SimpleGraph V}
+    (c : H.ConnectedComponent) {v : V}
+    (hv : v ∈ c.supp) (hiso : ∀ u, ¬H.Adj v u) :
+    OrientableGenus.componentGraph c = ⊥ := by
+  have hneighbor : H.neighborSet v = ∅ := by
+    ext u
+    simp only [SimpleGraph.mem_neighborSet, Set.mem_empty_iff_false]
+    exact iff_false_intro (hiso u)
+  apply SimpleGraph.ext
+  intro u w
+  constructor
+  · intro huw
+    have hu : u ∈ c.supp :=
+      (OrientableGenus.componentGraph_adj c u w).1 huw |>.1
+    have hreach : H.Reachable u v :=
+      c.reachable_of_mem_supp hu hv
+    have huv : u = v := by
+      by_contra hne
+      exact (SimpleGraph.not_reachable_of_neighborSet_right_eq_empty
+        hne hneighbor) hreach
+    subst u
+    exact (hiso w ((OrientableGenus.componentGraph_adj c v w).1 huw |>.2)).elim
+  · intro hbot
+    exact (by simpa using hbot)
+
+/-- A nonplanar component cannot contain an isolated vertex. -/
+theorem nonplanarComponent_not_mem_isolated {H : SimpleGraph V}
+    [DecidableRel H.Adj] {c : H.ConnectedComponent}
+    (hc : c ∈ OrientableGenus.nonplanarComponents H)
+    {v : V} (hiso : ∀ u, ¬H.Adj v u) :
+    v ∉ c.supp := by
+  intro hv
+  have hnonzero : OrientableGenus.genus
+      (OrientableGenus.componentGraph c) ≠ 0 := by
+    simpa [OrientableGenus.nonplanarComponents,
+      OrientableGenus.IsPlanar] using
+      (Finset.mem_filter.mp hc).2
+  have hgraph : OrientableGenus.componentGraph c = ⊥ :=
+    componentGraph_eq_bot_of_isolated c hv hiso
+  apply hnonzero
+  rw [hgraph]
+  exact OrientableGenus.genus_bot
+
+/-- A vertex on a deleted layer is isolated in the graph remainder. -/
+theorem deleteLayers_isolated_of_mem (cuts : Finset Nat)
+    {v : V} (hv : G.layer v ∈ cuts) :
+    ∀ u, ¬(G.deleteLayers cuts).toSimpleGraph.Adj v u := by
+  intro u hadj
+  rcases hadj with hvu | huv
+  · exact G.no_edge_from_cut_vertex cuts hv hvu
+  · exact G.no_edge_to_cut_vertex cuts hv huv
+
+/-- Every vertex of a nonplanar remainder component survives all deleted
+layers. -/
+theorem nonplanarComponent_survives (cuts : Finset Nat)
+    {c : (G.deleteLayers cuts).toSimpleGraph.ConnectedComponent}
+    (hc : c ∈ OrientableGenus.nonplanarComponents
+      ((G.deleteLayers cuts).toSimpleGraph))
+    {v : V} (hv : v ∈ c.supp) :
+    G.layer v ∉ cuts := by
+  intro hcut
+  exact (nonplanarComponent_not_mem_isolated hc
+    (G.deleteLayers_isolated_of_mem cuts hcut)) hv
+
 /-- Finite supports of the actual nonplanar connected components of `H`. -/
 noncomputable def activeComponentVerts (H : SimpleGraph V)
     [DecidableRel H.Adj] : Finset (Finset V) := by
