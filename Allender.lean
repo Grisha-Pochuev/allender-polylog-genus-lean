@@ -8,10 +8,12 @@ import Allender.CircuitFamily
 import Allender.LayeredGraph
 import Allender.CircuitGraph
 import Allender.LayeredWalk
+import Allender.SimpleGraph
 import Allender.WeightedMedian
 import Allender.FiniteComponent
 import Allender.MedianExistence
 import Allender.Halving
+import Allender.ComponentChain
 import Allender.GenusBudget
 import Allender.MacroblockCounting
 import Allender.StateEnumeration
