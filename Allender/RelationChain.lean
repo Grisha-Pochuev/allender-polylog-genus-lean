@@ -5,7 +5,7 @@ import Allender.Relation
 
 The formula used in the paper expands a composite relation as a disjunction over
 all intermediate state sequences, with one conjunction of relation entries per
-sequence.  `RelChain` is the proposition-level version of that expansion.
+sequence. `RelChain` is the proposition-level version of that expansion.
 -/
 
 namespace Allender
@@ -27,7 +27,9 @@ theorem chain_iff_composeList {a z : α} {Rs : List (Rel α)} :
         cases h
         rfl
       · intro h
-        simpa [composeList, id] using h
+        change a = z at h
+        subst z
+        exact .nil a
   | cons R Rs ih =>
       constructor
       · intro h
