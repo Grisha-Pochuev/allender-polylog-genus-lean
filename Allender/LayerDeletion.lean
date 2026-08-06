@@ -36,8 +36,8 @@ instance instDecidableRelDeleteLayersToSimpleGraph
     DecidableRel (G.deleteLayers cuts).toSimpleGraph.Adj := by
   intro u v
   change Decidable
-    ((G.edge u v ∧ G.Survives cuts u ∧ G.Survives cuts v) ∨
-      (G.edge v u ∧ G.Survives cuts v ∧ G.Survives cuts u))
+    ((G.edge u v ∧ G.layer u ∉ cuts ∧ G.layer v ∉ cuts) ∨
+      (G.edge v u ∧ G.layer v ∉ cuts ∧ G.layer u ∉ cuts))
   infer_instance
 
 /-- Deleting no layers leaves the edge relation unchanged. -/
