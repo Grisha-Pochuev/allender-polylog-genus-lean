@@ -26,7 +26,8 @@ inductive UWalk : V → V → Type _
 namespace UWalk
 
 /-- Every vertex occurring in a walk satisfies `P`. -/
-def All {u v : V} (walk : G.UWalk u v) (P : V → Prop) : Prop :=
+def All {G : LayeredDigraph V} {u v : V} (walk : G.UWalk u v)
+    (P : V → Prop) : Prop :=
   match walk with
   | .nil x => P x
   | .cons (u := x) _ tail => P x ∧ tail.All P
@@ -81,7 +82,8 @@ theorem blockIndex_singleton_of_below {m : Nat} {v : V}
   unfold blockIndex cutCountBelow
   have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = ∅ := by
     ext k
-    simp
+    simp only [Finset.mem_filter, Finset.mem_singleton, Finset.not_mem_empty, iff_false]
+    rintro ⟨rfl, hlt⟩
     omega
   rw [hfilter]
   simp
@@ -93,13 +95,13 @@ theorem blockIndex_singleton_of_above {m : Nat} {v : V}
   unfold blockIndex cutCountBelow
   have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = {m} := by
     ext k
-    simp
+    simp only [Finset.mem_filter, Finset.mem_singleton]
     constructor
-    · intro hk
-      exact ⟨hk.1, hk.2⟩
-    · intro hk
+    · rintro ⟨hkm, _⟩
+      exact hkm
+    · intro hkm
       subst k
-      exact hv
+      exact ⟨rfl, hv⟩
   rw [hfilter]
   simp
 
