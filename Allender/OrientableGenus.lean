@@ -46,8 +46,8 @@ theorem nonplanarComponents_card_le_genus {V : Type*}
   classical
   calc
     (nonplanarComponents G).card =
-        ∑ _c in nonplanarComponents G, 1 := by simp
-    _ ≤ ∑ c in nonplanarComponents G, genus c.toSimpleGraph := by
+        ∑ _c in (nonplanarComponents G), 1 := by simp
+    _ ≤ ∑ c in (nonplanarComponents G), genus c.toSimpleGraph := by
       apply Finset.sum_le_sum
       intro c hc
       have hpositive : genus c.toSimpleGraph ≠ 0 := by
@@ -64,9 +64,11 @@ theorem isPlanar_iff_nonplanarComponents_eq_empty {V : Type*}
   classical
   constructor
   · intro hplanar
-    have hcard : (nonplanarComponents G).card = 0 := by
-      apply Nat.eq_zero_of_le_zero
-      simpa [IsPlanar, hplanar] using nonplanarComponents_card_le_genus G
+    have hplanar' : genus G = 0 := hplanar
+    have hle : (nonplanarComponents G).card ≤ 0 := by
+      rw [← hplanar']
+      exact nonplanarComponents_card_le_genus G
+    have hcard : (nonplanarComponents G).card = 0 := Nat.eq_zero_of_le_zero hle
     exact Finset.card_eq_zero.mp hcard
   · intro hempty
     unfold IsPlanar
