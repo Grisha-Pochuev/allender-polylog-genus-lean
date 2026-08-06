@@ -1,5 +1,8 @@
 name: Lean verification
 
+# A green run validates the Lean declarations present on this branch; it does
+# not certify manuscript claims that have not yet been formalized.
+
 on:
   workflow_dispatch:
   push:
