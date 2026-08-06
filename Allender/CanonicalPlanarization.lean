@@ -198,7 +198,7 @@ noncomputable def canonicalLayerSeparationProcess
           OrientableGenus.genus (canonicalRemainder G t) :=
         activeComponentVerts_card_le_genus _
       _ ≤ OrientableGenus.genus G.toSimpleGraph := by
-        exact G.genus_deleteLayers_le (canonicalCuts G t)
+        exact OrientableGenus.genus_deleteLayers_le G (canonicalCuts G t)
       _ ≤ g := hgenus
   parent_active := by
     intro t ht s hs
