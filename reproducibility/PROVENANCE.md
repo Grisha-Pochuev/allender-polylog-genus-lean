@@ -14,7 +14,7 @@ The files committed here were taken from the project's source library rather tha
 - reference PDF - retained in the project source library; GitHub builds the PDF from the committed `.tex` source;
 - `notes/allender_polylog_genus_acc0_notes_ru.md` - Russian technical synopsis and audit notes.
 
-At packaging time, the PDF committed here matched the supplied project PDF byte for byte, with SHA-256:
+At packaging time, the reference PDF used for verification matched the supplied project PDF byte for byte, with SHA-256:
 
 ```text
 e8d04870bf696263d34cdc863d2337897ca9ed4f46e997121e2c7da2a9f97225
@@ -38,7 +38,7 @@ The authoritative current integrity values for the whole directory are in `MANIF
 
 - LaTeX compilation completed successfully.
 - The generated PDF contains 12 pages.
-- The committed PDF and a fresh rebuild were rendered and compared at 120 DPI; all 12 pages were pixel-identical. (Binary PDF hashes can differ because of metadata.)
+- The reference PDF and a fresh rebuild were rendered and compared at 120 DPI; all 12 pages were pixel-identical. (Binary PDF hashes can differ because of metadata.)
 - The PDF was also rendered page by page for visual inspection.
 - No clipped pages, missing pages, or obvious rendering failures were observed.
 - After the normal multi-pass LaTeX build, no unresolved references remained; only harmless PDF-bookmark warnings for mathematics in one heading were reported.
@@ -49,7 +49,7 @@ Generated auxiliary files are deliberately not committed. They can be recreated 
 
 Any mathematical edit to the `.tex` file should:
 
-1. update the PDF;
+1. rebuild the PDF and refresh the workflow artifact;
 2. update the relevant entries in `CLAIMS_AND_CHECKS.md`;
 3. refresh `MANIFEST.sha256`;
 4. record the reason in the Git commit message;
