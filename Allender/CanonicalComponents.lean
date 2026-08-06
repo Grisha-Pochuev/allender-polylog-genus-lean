@@ -71,7 +71,7 @@ theorem componentForSupport_verts (H : SimpleGraph V)
     (mem_activeComponentVerts_iff H s).1 hs
   unfold componentForSupport
   rw [dif_pos hex]
-  exact (Classical.choose_spec hex).2.2
+  exact (Classical.choose_spec hex).2
 
 /-- An active identifier decodes to a genuinely nonplanar component. -/
 theorem componentForSupport_mem_nonplanar (H : SimpleGraph V)
