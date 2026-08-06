@@ -97,9 +97,9 @@ theorem componentGraph_eq_bot_of_isolated {H : SimpleGraph V}
     (hv : v ∈ c.supp) (hiso : ∀ u, ¬H.Adj v u) :
     OrientableGenus.componentGraph c = ⊥ := by
   have hneighbor : H.neighborSet v = ∅ := by
-    ext u
-    simp only [SimpleGraph.mem_neighborSet, Set.mem_empty_iff_false]
-    exact iff_false_intro (hiso u)
+    apply Set.eq_empty_iff_forall_notMem.mpr
+    intro u hu
+    exact hiso u hu
   apply SimpleGraph.ext
   intro u w
   constructor
