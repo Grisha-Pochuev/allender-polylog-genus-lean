@@ -22,6 +22,74 @@ open OrientableGenus
 variable {V : Type*} [Fintype V] [DecidableEq V] [Nonempty V]
 variable {G : LayeredDigraph V}
 
+/-- Choose one vertex of a connected component. -/
+noncomputable def componentRoot {H : SimpleGraph V}
+    (c : H.ConnectedComponent) : V :=
+  c.nonempty_supp.choose
+
+theorem componentRoot_mem {H : SimpleGraph V}
+    (c : H.ConnectedComponent) :
+    componentRoot c ∈ c.supp :=
+  c.nonempty_supp.choose_spec
+
+/-- The component of a larger graph containing a given component of a spanning
+subgraph. -/
+noncomputable def parentComponent {H H' : SimpleGraph V}
+    (h : H ≤ H') (c : H.ConnectedComponent) :
+    H'.ConnectedComponent :=
+  H'.connectedComponentMk (componentRoot c)
+
+/-- Every child-component vertex lies in its canonical parent component. -/
+theorem component_supp_subset_parent {H H' : SimpleGraph V}
+    (h : H ≤ H') (c : H.ConnectedComponent) :
+    c.supp ⊆ (parentComponent h c).supp := by
+  intro v hv
+  have hreach : H.Reachable v (componentRoot c) :=
+    c.reachable_of_mem_supp hv (componentRoot_mem c)
+  have hreach' : H'.Reachable v (componentRoot c) :=
+    hreach.mono h
+  rw [SimpleGraph.ConnectedComponent.mem_supp_iff]
+  exact SimpleGraph.ConnectedComponent.sound hreach'
+
+/-- The ambient-vertex component graph of a child is a spanning subgraph of
+the ambient-vertex graph of its canonical parent. -/
+theorem componentGraph_le_parentGraph {H H' : SimpleGraph V}
+    (h : H ≤ H') (c : H.ConnectedComponent) :
+    OrientableGenus.componentGraph c ≤
+      OrientableGenus.componentGraph (parentComponent h c) := by
+  intro u v huv
+  rw [OrientableGenus.componentGraph_adj] at huv ⊢
+  exact ⟨component_supp_subset_parent h c huv.1, h huv.2⟩
+
+/-- A nonplanar child component always has a nonplanar canonical parent. -/
+theorem parentComponent_mem_nonplanar {H H' : SimpleGraph V}
+    [DecidableRel H.Adj] [DecidableRel H'.Adj]
+    (h : H ≤ H') {c : H.ConnectedComponent}
+    (hc : c ∈ OrientableGenus.nonplanarComponents H) :
+    parentComponent h c ∈
+      OrientableGenus.nonplanarComponents H' := by
+  classical
+  apply Finset.mem_filter.mpr
+  constructor
+  · simp [OrientableGenus.components]
+  · have hchild : OrientableGenus.genus
+        (OrientableGenus.componentGraph c) ≠ 0 := by
+      simpa [OrientableGenus.nonplanarComponents,
+        OrientableGenus.IsPlanar] using
+        (Finset.mem_filter.mp hc).2
+    have hmono : OrientableGenus.genus
+        (OrientableGenus.componentGraph c) ≤
+        OrientableGenus.genus
+          (OrientableGenus.componentGraph (parentComponent h c)) :=
+      OrientableGenus.genus_mono (componentGraph_le_parentGraph h c)
+    have hparent : OrientableGenus.genus
+        (OrientableGenus.componentGraph (parentComponent h c)) ≠ 0 := by
+      have hpos : 0 < OrientableGenus.genus
+          (OrientableGenus.componentGraph c) :=
+        Nat.pos_of_ne_zero hchild
+      exact Nat.ne_of_gt (hpos.trans_le hmono)
+    simpa [OrientableGenus.IsPlanar] using hparent
+
 /-- Finite supports of the actual nonplanar connected components of `H`. -/
 noncomputable def activeComponentVerts (H : SimpleGraph V)
     [DecidableRel H.Adj] : Finset (Finset V) := by
