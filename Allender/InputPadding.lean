@@ -14,6 +14,7 @@ Padding source inputs changes only input-gate indices, never dependency edges.
 Restricting a target circuit replaces an input outside the retained prefix by
 the constant `false`.  The semantic theorems below make the two operations
 exact rather than leaving “ignored inputs” as an informal convention.
+Both transformations retain the existing layer width and layer count.
 -/
 
 namespace Allender
