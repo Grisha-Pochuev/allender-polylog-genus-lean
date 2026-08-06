@@ -29,7 +29,9 @@ A reviewer should not use the state of the Lean branch as a substitute for check
 
 ## 2. Lean formalization track
 
-**Authoritative location:** branch `formalization/full-reduction-v1`
+**Authoritative base:** branch `formalization/full-reduction-v1`
+
+**Current continuation:** branch `formalization/canonical-components-v2`
 
 Purpose:
 
@@ -63,7 +65,15 @@ The `Allender/` directory on `main` is not the current authoritative formalizati
 
 ### `formalization/full-reduction-v1`
 
-Only active Lean development branch. It contains the current source-aligned formalization and its declaration-level status ledger.
+Stable base of the active Lean development. It contains the source-aligned
+formalization and its declaration-level status ledger.
+
+### `formalization/canonical-components-v2`
+
+Checked continuation that constructs the actual nonplanar remainder
+components, their canonical parents, and the unconditional layer-planarization
+lemma relative to the named genus declarations.  It is reviewed through PR #6
+before integration into the base branch.
 
 Do not describe a manuscript claim as machine checked unless the branch status names the exact Lean declaration and a successful verification run includes it.
 
