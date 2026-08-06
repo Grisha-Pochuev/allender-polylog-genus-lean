@@ -2,6 +2,10 @@ name: Lean verification
 
 on:
   push:
+    branches:
+      - "main"
+      - "formalization/**"
+  pull_request:
     branches: ["main"]
   workflow_dispatch:
 
