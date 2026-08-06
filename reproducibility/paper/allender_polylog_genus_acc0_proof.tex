@@ -1,0 +1,492 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=blue!55!black,
+  urlcolor=blue!55!black,
+  pdftitle={Polylogarithmic genus and constant-width circuits: a separator-based candidate proof},
+  pdfauthor={Grisha Pochuev}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{warning}[theorem]{Verification warning}
+
+\newcommand{\ACC}{\mathrm{ACC}^{0}}
+\newcommand{\ACm}[1]{\mathrm{AC}^{0}[#1]}
+\newcommand{\genus}{\operatorname{genus}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\bits}{\{0,1\}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cR}{\mathcal{R}}
+
+\title{Polylogarithmic Genus Does Not Increase the Power of\\
+Constant-Width Polynomial-Size Circuits\\
+\large A Separator-Based Candidate Proof}
+\author{Grisha Pochuev\thanks{Working draft prepared with assistance from OpenAI GPT-5.6 Thinking. The author should assume responsibility for every claim before submission. This version has not yet undergone independent expert review.}}
+\date{5 August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Allender, Datta, and Roy claimed that constant-width polynomial-size Boolean circuits of polylogarithmic orientable genus compute exactly $\ACC$. The published proof was later found to contain a false topological assertion, and Eric Allender listed the upper-bound direction as an open problem with a US\$1000 bounty. This note presents a different candidate proof that avoids the handle-placement argument entirely.
+
+The key observation is a layer-separator lemma. If a layered graph has $N$ vertices, width $w$, and orientable genus $g$, then deleting at most $g(\lceil\log_2 N\rceil+1)$ whole layers makes the graph planar. The circuit consequently decomposes into only $O(g\log N)$ planar macroblocks and constant-size boundary transitions. Each planar macroblock is simulated in $\ACC$ using Hansen's characterization of planar constant-width computation. Since the state space of a width-$w$ circuit has constant size, a polylogarithmic number of macroblock relations can be composed in constant depth by grouping $\lceil\log n\rceil$ consecutive relations and explicitly disjoining over all intermediate state sequences. For polynomial-size circuits and polylogarithmic genus, the resulting circuit has constant depth and polynomial size.
+
+The argument below proves the intended nonuniform statement, subject to independent verification of the cited standard theorems and of the formal compatibility with Hansen's circuit model. It does not establish a uniform version.
+\end{abstract}
+
+\tableofcontents
+
+\section{Status, scope, and exact statement}
+
+Hansen proved that constant-width polynomial-size planar circuits characterize $\ACC$~\cite{Hansen2006}. Allender, Datta, and Roy proposed the following extension~\cite{ADR2005,ECCC2004}.
+
+\begin{theorem}[Main theorem claimed in \cite{ADR2005}; candidate proof here]\label{thm:main}
+Let $L\subseteq\bits^*$ be accepted by a nonuniform family of layered Boolean circuits $\{C_n\}_{n\ge 1}$. Assume that there are constants $w,k,c\ge 0$ and $A>0$ such that, for every $n$,
+\[
+  \operatorname{width}(C_n)\le w,\qquad
+  |C_n|\le n^k,\qquad
+  \genus(C_n)\le A(\log(n+2))^c.
+\]
+Then $L\in\ACC$.
+\end{theorem}
+
+The converse follows immediately from Hansen's planar characterization, since planar circuits have genus zero. Thus Theorem~\ref{thm:main} yields the equality stated in the original paper.
+
+\begin{remark}[The intended bounty statement includes polynomial size]
+Allender's 2023 open-question wording says ``constant-width circuit families of polylogarithmic genus''~\cite{Allender2023}. The surrounding discussion explicitly retracts the main theorem of Allender--Datta--Roy, whose statement includes polynomial size. Without a size bound the assertion is false: arbitrary Boolean functions can be computed by sufficiently long constant-width sequential circuits. Hence this note addresses the intended polynomial-size version.
+\end{remark}
+
+\begin{warning}
+This document is a complete proof candidate, not a certificate that the bounty has been won. The original result also once appeared to have a complete proof. Before public submission, a specialist should independently check every use of graph genus, the macroblock semantics, and the simultaneous invocation of Hansen's theorem.
+\end{warning}
+
+\section{Circuit model and notation}
+
+We use the model in Allender--Datta--Roy~\cite{ADR2005,ECCC2004}.
+
+\begin{definition}[Layered graph and width]
+A directed graph is \emph{layered} if its vertices are partitioned into layers
+\[
+  V_0,V_1,\ldots,V_\ell
+\]
+and every directed edge goes from $V_i$ to $V_{i+1}$ for some $i$. Its width is $\max_i |V_i|$.
+\end{definition}
+
+A constant-width Boolean circuit is a layered directed acyclic graph whose vertices are labeled by AND gates, OR gates, input literals $x_j$, negated input literals $\neg x_j$, and, when convenient, constants. Inputs may occur on arbitrary layers and may occur repeatedly. The designated output can be assumed to lie in the last layer by adding unary copy gates. The genus is the orientable genus of the underlying undirected graph.
+
+The original model has no essential difficulty with constants: Hansen's constructions explicitly use constants, and constants may alternatively be represented by $x_1\wedge\neg x_1$ and $x_1\vee\neg x_1$ if needed.
+
+For a circuit of width at most $w$, pad each layer to $w$ positions with isolated constant-zero dummy vertices. The state space is then the fixed set
+\[
+  Q:=\bits^w,
+\]
+whose cardinality $|Q|=2^w$ is independent of $n$.
+
+\section{A layer planarization lemma}
+
+The proof uses only two facts about genus:
+\begin{enumerate}[label=(G\arabic*)]
+\item genus is monotone under taking subgraphs;
+\item orientable genus is additive over connected components.
+\end{enumerate}
+The second fact follows from the classical additivity theorem of Battle, Harary, Kodama, and Youngs~\cite{BHKY1962}. In particular, a graph of genus at most $g$ has at most $g$ nonplanar connected components, since each such component has integer genus at least one.
+
+\begin{lemma}[Planarization by deleting whole layers]\label{lem:layer-planarization}
+Let $G$ be a layered graph with $N\ge 2$ vertices and orientable genus at most $g$. Then there is a set $J$ of layer indices such that
+\[
+  |J|\le g\bigl(\lceil\log_2 N\rceil+1\bigr)
+\]
+and the graph obtained by deleting all vertices in the layers indexed by $J$ is planar.
+\end{lemma}
+
+\begin{proof}
+We define a sequence of subgraphs
+\[
+  G=G^{(0)}\supseteq G^{(1)}\supseteq G^{(2)}\supseteq\cdots
+\]
+by rounds. Suppose $G^{(t)}$ has been defined. Let $\cK_t$ be the collection of its nonplanar connected components. By genus monotonicity and additivity,
+\[
+  \sum_{K\in\cK_t}\genus(K)
+  \le \genus(G^{(t)})
+  \le \genus(G)
+  \le g.
+\]
+Every term in the sum is at least one, so $|\cK_t|\le g$.
+
+For each $K\in\cK_t$, choose a weighted median layer $m(K)$: an index satisfying
+\[
+ \left|K\cap\bigcup_{i<m(K)}V_i\right|\le \frac{|K|}{2},
+ \qquad
+ \left|K\cap\bigcup_{i>m(K)}V_i\right|\le \frac{|K|}{2}.
+\]
+Such an index exists by scanning the layer weights $|K\cap V_i|$ from left to right.
+
+Let
+\[
+  J_t:=\{m(K):K\in\cK_t\},
+\]
+and form $G^{(t+1)}$ by deleting from $G^{(t)}$ every vertex lying in a layer indexed by $J_t$. Since $|\cK_t|\le g$, we have $|J_t|\le g$.
+
+Fix $K\in\cK_t$. Because all edges join consecutive layers, after the entire layer $V_{m(K)}$ is deleted no connected subgraph descended from $K$ can contain both a vertex in a layer below $m(K)$ and a vertex in a layer above $m(K)$. Deleting the other selected layers can only split the graph further. Consequently every connected component of $G^{(t+1)}$ contained in $K$ has at most $|K|/2$ vertices.
+
+Now follow any chain
+\[
+  K_0\supset K_1\supset\cdots\supset K_r
+\]
+where $K_t$ is a nonplanar component of $G^{(t)}$ and $K_{t+1}$ is contained in $K_t$. The preceding paragraph gives
+\[
+  |K_r|\le \frac{N}{2^r}.
+\]
+For $r=\lceil\log_2 N\rceil+1$, the right-hand side is strictly less than one, which is impossible. Therefore $G^{(r)}$ has no nonplanar connected component and is planar.
+
+Taking
+\[
+  J:=\bigcup_{t=0}^{r-1}J_t
+\]
+gives
+\[
+  |J|\le gr=g\bigl(\lceil\log_2 N\rceil+1\bigr),
+\]
+and deleting the layers in $J$ yields $G^{(r)}$, which is planar.
+\end{proof}
+
+\begin{remark}
+The width is not needed in Lemma~\ref{lem:layer-planarization}. Width becomes essential later, because deleting a small number of layer indices must leave only a constant-size interface at each cut.
+\end{remark}
+
+\begin{corollary}[Polylogarithmically many cut layers]\label{cor:polylog-cuts}
+Under the hypotheses of Theorem~\ref{thm:main}, the graph of $C_n$ can be made planar by deleting
+\[
+  s(n)=O\bigl((\log n)^{c+1}\bigr)
+\]
+whole layers.
+\end{corollary}
+
+\begin{proof}
+Apply Lemma~\ref{lem:layer-planarization} with $N=|C_n|\le n^k$ and $g\le A(\log(n+2))^c$. Since $\log N=O(\log n)$, the stated bound follows.
+\end{proof}
+
+\section{Decomposition into planar macroblocks}
+
+Fix $n$ and a set $J$ of cut-layer indices supplied by Corollary~\ref{cor:polylog-cuts}. A transition index $i\in\{0,\ldots,\ell-1\}$ is called \emph{bad} if
+\[
+  i\in J\quad\text{or}\quad i+1\in J.
+\]
+Let $B$ be the set of bad transition indices. Since each cut layer is incident with at most two transitions,
+\[
+  |B|\le 2|J|.
+\]
+
+Partition the ordered transition sequence $0,1,\ldots,\ell-1$ into:
+\begin{itemize}
+\item every bad transition as a singleton block;
+\item every maximal consecutive run of nonbad transitions as one block.
+\end{itemize}
+The number $M$ of macroblocks satisfies
+\[
+  M\le |B|+(|B|+1)\le 4|J|+1
+   =O\bigl((\log n)^{c+1}\bigr).
+\]
+
+A nonsingleton good macroblock using transition indices $a,a+1,\ldots,b-1$ contains exactly the layers $V_a,\ldots,V_b$. None of those layers belongs to $J$, because every transition in the run is nonbad. Its underlying graph is therefore a subgraph of the planar graph obtained after deleting the cut layers. Hence every good macroblock is planar.
+
+The singleton bad macroblocks need not be planar, but each contains only two layers of width at most $w$. Its Boolean transition behavior is consequently a constant-size function.
+
+\section{Macroblocks as relations on a fixed state space}
+
+For a macroblock $\cB$ beginning at layer $a$ and ending at layer $b$, and states $p,q\in Q$, define
+\[
+  R_{\cB}(p,q;x)=1
+\]
+if, on input $x\in\bits^n$, assigning state $p$ to the vertices of layer $V_a$ causes the block to produce state $q$ on layer $V_b$. Values of input-literal vertices on internal layers are determined directly by $x$. The first-layer assignment is treated as prescribed boundary data; consistency of the boundary state with the actual circuit will be enforced by the preceding block, or by the initial-state predicate.
+
+For each $p\in Q$, let $I_p(x)$ assert that the true values of all vertices in the first layer equal $p$. This is a constant-size $\mathrm{AC}^0$ predicate because the first layer has constant size. Let $A_q$ be the constant predicate that the designated output coordinate equals one in state $q$.
+
+If the macroblocks in order are $\cB_1,\ldots,\cB_M$, then the original circuit accepts exactly when
+\begin{equation}\label{eq:acceptance}
+  \bigvee_{p_0,p_M\in Q}
+  I_{p_0}(x)\wedge
+  (R_{\cB_1}\circ\cdots\circ R_{\cB_M})(p_0,p_M;x)
+  \wedge A_{p_M}
+\end{equation}
+is true, where relation composition is over the intermediate states in $Q$.
+
+\section{Simultaneous $\ACC$ simulation of all planar macroblocks}
+
+A subtle point is that $\ACC$ is a union over fixed moduli. It is not enough to say separately that every planar block belongs to $\ACC$, because a priori different block families could use different moduli. The following padding lemma reduces all block-output circuits to one planar family and thereby obtains common $\ACC$ parameters.
+
+\begin{lemma}[Simultaneous form of Hansen's theorem]\label{lem:simultaneous-hansen}
+Fix constants $w,k,d$. For each $n$, suppose
+\[
+  P_{n,0},P_{n,1},\ldots,P_{n,T(n)-1}
+\]
+are Boolean planar circuits of width at most $w$, on $n$ input variables, with size at most $n^k$, where $T(n)\le n^d$. Then there exist a modulus $m\ge 2$, a depth $D$, and a constant $a$, all independent of $n$ and $t$, such that every function computed by $P_{n,t}$ is computed by an $\ACm{m}$ circuit of depth at most $D$ and size at most $n^a$.
+\end{lemma}
+
+\begin{proof}
+For $0\le t<T(n)$ define a new input length
+\[
+  N(n,t):=n^{d+2}+t.
+\]
+The ranges belonging to distinct $n$ are disjoint. Indeed,
+\[
+  (n+1)^{d+2}-n^{d+2}>n^d
+\]
+for every $n\ge 1$, whereas $t<n^d$.
+
+Construct one family $\{\widehat P_N\}_{N\ge 1}$ as follows. If $N=N(n,t)$ for some pair $(n,t)$, let $\widehat P_N$ be $P_{n,t}$ viewed as a circuit on $N$ variables that ignores variables $x_{n+1},\ldots,x_N$. For lengths outside the range, let $\widehat P_N$ compute the constant zero function.
+
+This is a single family of planar circuits of width at most $w$ and polynomial size in $N$, since $n\le N$ and $|P_{n,t}|\le n^k\le N^k$. Hansen's theorem therefore places the family $\{\widehat P_N\}$ in $\ACC$~\cite{Hansen2006}. By the definition of $\ACC$, there are one fixed modulus $m$, one fixed depth $D$, and polynomial size bounds for the whole family.
+
+For $N=N(n,t)$, fix the ignored inputs $x_{n+1},\ldots,x_N$ to zero in the resulting $\ACm{m}$ circuit. Since $N(n,t)=n^{O(1)}$, its size is polynomial in $n$. The modulus and depth remain the same for every $n$ and $t$.
+\end{proof}
+
+\begin{lemma}[Every macroblock relation has common $\ACC$ complexity]\label{lem:block-relations}
+There exist a fixed modulus $m$, fixed depth $D$, and a constant $a$ such that, for every $n$, every macroblock $\cB$, and every $p,q\in Q$, the predicate $R_{\cB}(p,q;x)$ is computed by an $\ACm{m}$ circuit of depth at most $D$ and size at most $n^a$.
+\end{lemma}
+
+\begin{proof}
+First consider a good planar macroblock $\cB$, beginning at layer $a$ and ending at layer $b$. Fix a boundary state $p\in Q$ and an output coordinate $j\in\{1,\ldots,w\}$. Form a planar circuit $P_{\cB,p,j}$ by taking the block subcircuit, replacing all vertices of its first layer by constants prescribed by $p$, and designating coordinate $j$ of its last layer as the output. This circuit has width at most $w$, size at most $|C_n|\le n^k$, and is planar.
+
+The number of triples $(\cB,p,j)$ for fixed $n$ is
+\[
+  M\,|Q|\,w=O\bigl((\log n)^{c+1}\bigr),
+\]
+which is at most $n^d$ for some fixed $d$ and all sufficiently large $n$; finitely many small input lengths may be hardwired. Lemma~\ref{lem:simultaneous-hansen} therefore supplies common $\ACm{m}$ circuits for all output bits of all good blocks.
+
+For fixed $p,q$, the relation $R_{\cB}(p,q;x)$ is the conjunction, over the $w$ output coordinates, of the appropriate output bit or its complement according to $q$. Since $w$ is constant and $\ACm{m}$ is closed under Boolean operations, this preserves constant depth and polynomial size.
+
+Now consider a bad macroblock, consisting of one transition between two width-$w$ layers. Once $p$ and $q$ are fixed, gate values depending on the preceding state are constants, and the only remaining conditions involving $x$ are the values of at most $w$ input literals on the target layer. Thus $R_{\cB}(p,q;x)$ is a constant-size $\mathrm{AC}^0$ predicate. Pad these circuits to the same depth as the good-block simulators. All relations therefore use one common fixed modulus, depth, and polynomial size bound.
+\end{proof}
+
+\section{Constant-depth composition of polylogarithmically many relations}
+
+\begin{lemma}[Finite-state polylogarithmic composition]\label{lem:composition}
+Let $Q$ be a fixed finite set. Suppose that for each input length $n$ there are
+\[
+  M(n)\le C(\log(n+2))^r
+\]
+relations $R_1,\ldots,R_{M(n)}$ on $Q$, whose entries $R_i(p,q;x)$ are all computed by $\ACm{m}$ circuits with one fixed modulus $m$, fixed depth $D$, and polynomial size. Then every entry of
+\[
+  R_1\circ R_2\circ\cdots\circ R_{M(n)}
+\]
+is computable by $\ACm{m}$ circuits of constant depth and polynomial size.
+\end{lemma}
+
+\begin{proof}
+Let
+\[
+  L:=\lceil\log_2(n+2)\rceil.
+\]
+For a consecutive group of $s\le L$ relations and endpoints $p,q\in Q$, the composite entry is
+\begin{equation}\label{eq:explicit-composition}
+  \bigvee_{u_1,\ldots,u_{s-1}\in Q}
+  \bigwedge_{i=1}^{s}R_i(u_{i-1},u_i;x),
+\end{equation}
+where $u_0=p$ and $u_s=q$. The number of intermediate sequences is at most
+\[
+  |Q|^{L-1}
+  \le (n+2)^{\log_2|Q|},
+\]
+which is polynomial in $n$ because $Q$ is fixed. Therefore each group composite is obtained by adding one unbounded-fan-in AND layer and one unbounded-fan-in OR layer, with polynomial size.
+
+Replace each consecutive group of at most $L$ relations by its composite relation. The number of relations decreases by a factor of approximately $L$. Repeating this blocking operation a constant number of times suffices: since $M(n)\le C(\log(n+2))^r$, after at most $r+O(1)$ rounds only one relation remains. Each round adds depth two and at most a polynomial multiplicative factor to the size. Since the number of rounds is constant, final depth is constant and final size is polynomial. No new modular gates are introduced, so the modulus remains $m$.
+\end{proof}
+
+\section{Proof of the main theorem}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Fix $n$. By Corollary~\ref{cor:polylog-cuts}, delete
+\[
+  O\bigl((\log n)^{c+1}\bigr)
+\]
+whole layers to make the underlying graph planar. Section~4 decomposes the transition sequence into
+\[
+  M(n)=O\bigl((\log n)^{c+1}\bigr)
+\]
+macroblocks, each of which is either planar or a single transition between two constant-size layers.
+
+By Lemma~\ref{lem:block-relations}, every entry of every macroblock relation has a common fixed-modulus $\ACC$ implementation of common constant depth and polynomial size. Lemma~\ref{lem:composition}, with $r=c+1$, then gives an $\ACC$ implementation of the complete transition relation
+\[
+  R_{\cB_1}\circ\cdots\circ R_{\cB_M}.
+\]
+Finally, the acceptance formula~\eqref{eq:acceptance} adds only a constant-size Boolean combination, since $|Q|=2^w$ is constant. Hence the Boolean function computed by $C_n$ is computed by a fixed-modulus constant-depth polynomial-size circuit.
+
+The construction works for all $n$ with the same modulus and a common depth bound, so the language $L$ lies in $\ACC$.
+\end{proof}
+
+\begin{corollary}
+Constant-width polynomial-size circuits of polylogarithmic orientable genus compute exactly $\ACC$.
+\end{corollary}
+
+\begin{proof}
+The upper bound is Theorem~\ref{thm:main}. For the lower bound, Hansen proved that every $\ACC$ language has a constant-width polynomial-size planar circuit family~\cite{Hansen2006}; planar graphs have genus zero.
+\end{proof}
+
+\section{Why the invalid handle argument is unnecessary}
+
+The failed proof in Allender--Datta--Roy converts an embedding into a cylinder with handles and then attempts to organize active handle attachments as nonintersecting longitudinal stripes. The specific false step asserts that each active handle connection has well-defined east and west neighboring handle connections. Allender reports that a counterexample exists to this assertion~\cite{Allender2023}; the ECCC record now explicitly marks the proof of the main theorem as incorrect and the theorem as not known from that paper~\cite{ECCCComment2025}.
+
+The present argument never analyzes an embedding locally. It uses genus only through the global inequality
+\[
+  \#\{\text{nonplanar components}\}\le \genus(G),
+\]
+which follows from additivity, and it uses layeredness only to ensure that deleting a median layer halves every descendant component. No handles are placed, ordered, paired, or cut.
+
+\section{Detailed audit of possible failure points}
+
+This section is intentionally adversarial. It records the points a referee should check first.
+
+\subsection{Additivity over disconnected components}
+The layer-planarization lemma requires orientable genus to be additive, not merely bounded by the maximum genus of the components. The classical theorem states additivity over blocks and hence over connected components~\cite{BHKY1962}. If a different genus convention were being used, this step would need rechecking. The circuit papers use ordinary orientable graph genus.
+
+\subsection{The median layer really halves component size}
+The argument deletes the entire global layer selected for a component. Because every edge joins consecutive layers, a remaining path cannot pass from below the selected layer to above it. Deleting layers selected for other components only removes more vertices and cannot create a larger descendant component.
+
+\subsection{Planar blocks exclude every cut layer}
+A good transition $i$ is defined by both $i\notin J$ and $i+1\notin J$. Therefore every layer in a maximal good run avoids $J$. The block graph is literally a subgraph of the planarized graph. Merely cutting at the indices in $J$ without declaring both incident transitions bad would not be sufficient.
+
+\subsection{Input literals may appear on arbitrary layers}
+Internal input literals are evaluated directly from $x$. Boundary-layer input literals are included in the boundary state and are checked by the preceding relation; on the first layer they are checked by $I_p(x)$. Thus replacing a block's first layer by a fixed state does not permit an inconsistent computation to survive the full relation composition.
+
+\subsection{Testing output state zero bits}
+The proof does not claim that a single planar circuit computes the whole equality predicate with complements of internal gate outputs. Hansen's theorem is applied separately to each output bit of a planar block. The resulting $\ACC$ outputs are then complemented and conjoined outside the planar model. This avoids any issue about pushing NOT gates into a planar monotone circuit.
+
+\subsection{One fixed modulus for all blocks}
+This is the purpose of Lemma~\ref{lem:simultaneous-hansen}. It packages every block-output circuit into one padded planar family before invoking Hansen. Therefore the simulator belongs to one class $\ACm{m}$ for a fixed $m$, rather than merely to the union $\ACC$ block by block.
+
+\subsection{Polynomial size during relation composition}
+Composing $L=\Theta(\log n)$ fixed-state relations explicitly uses
+\[
+  |Q|^{L-1}=n^{O(1)}
+\]
+intermediate state sequences. This would fail if width grew with $n$. After one blocking round the number of relations drops by a factor $\Theta(\log n)$, so only a constant number of rounds is needed for an initial polylogarithmic count.
+
+\subsection{Nonuniformity}
+The set of cut layers is chosen nonuniformly from each circuit graph. The theorem and bounty question are nonuniform. This draft does not show that the cut layers, planar embeddings, or final simulations can be generated in logarithmic time or logarithmic space. A uniform extension would require additional algorithmic arguments.
+
+\subsection{Polynomial size is essential}
+Hansen's theorem is a polynomial-size characterization, and the padding lemma preserves polynomial size. Without the polynomial-size assumption, the conclusion is not valid.
+
+\section{A compact reusable proof skeleton}
+
+For later formalization or independent reconstruction, the entire argument can be remembered as the following chain.
+
+\begin{enumerate}[leftmargin=2.2em]
+\item In every current subgraph, at most $g$ connected components are nonplanar, by genus additivity.
+\item Delete one weighted-median layer from each nonplanar component.
+\item Each nonplanar descendant has at most half as many vertices; after $O(\log N)$ rounds the graph is planar.
+\item Thus $O(g\log N)$ layer cuts suffice.
+\item Each cut has a constant-size state interface because width is constant.
+\item The circuit is a composition of $O(g\log N)$ planar interval transitions and local one-step transitions.
+\item Hansen places every planar interval transition in $\ACC$; padding all intervals into one family gives a common modulus and depth.
+\item A product of $\log n$ relations on a constant state space is an OR of only $n^{O(1)}$ AND terms.
+\item A polylogarithmic number of relations collapses after a constant number of such grouping rounds.
+\end{enumerate}
+
+For $N=n^{O(1)}$ and $g=(\log n)^{O(1)}$, every bound is polynomial size and constant depth.
+
+\section{What remains before claiming the bounty}
+
+The mathematical derivation above is syntactically complete, but the prudent next steps are:
+\begin{enumerate}
+\item ask at least one specialist in circuit complexity and one specialist in topological graph theory to referee the proof independently;
+\item verify that the precise published version of Hansen's theorem covers the same gate and layering conventions, or add an explicit constant-overhead conversion;
+\item send a concise version to Eric Allender, clearly labeled as a candidate proof and highlighting Lemma~\ref{lem:layer-planarization};
+\item only after expert confirmation, prepare a public preprint and discuss bounty-payment conditions.
+\end{enumerate}
+
+\appendix
+
+\section{Quantitative bounds}
+
+Suppose explicitly that
+\[
+  |C_n|\le n^k,\qquad
+  \genus(C_n)\le A(\log(n+2))^c.
+\]
+Then the number of deleted layers is at most
+\[
+  A(\log(n+2))^c\bigl(k\log_2 n+2\bigr),
+\]
+and the number of macroblocks is at most four times this quantity plus one. Let
+\[
+  r=c+1.
+\]
+The relation-composition lemma needs at most $r+O(1)$ blocking rounds. If the common planar-block simulator has depth $D$, the final depth is at most
+\[
+  D+2r+O(1).
+\]
+The polynomial size exponent is not optimized; it depends on $w,k,c$ and on the polynomial overhead in Hansen's theorem.
+
+\section{Notes toward formalization}
+
+A proof assistant formalization would naturally separate into four modules:
+\begin{enumerate}
+\item finite layered graphs, connected components, and weighted median layers;
+\item orientable graph genus, with additivity imported as a theorem;
+\item circuit semantics as deterministic transitions over $Q=\bits^w$;
+\item finite-relation composition and explicit circuit-size/depth accounting.
+\end{enumerate}
+
+The only genuinely topological imported result is genus additivity. Hansen's theorem would remain an external complexity-theoretic theorem unless its full proof were formalized. A Lean formalization of the new contribution alone could state Hansen's characterization as an axiom/theorem and verify the reduction to it.
+
+\begin{thebibliography}{99}
+
+\bibitem{ADR2005}
+E. Allender, S. Datta, and S. Roy,
+\newblock Topology Inside $\mathrm{NC}^1$,
+\newblock in \emph{Proceedings of the 20th Annual IEEE Conference on Computational Complexity (CCC 2005)}, pp. 298--307, 2005.
+
+\bibitem{ECCC2004}
+E. Allender, S. Datta, and S. Roy,
+\newblock Topology inside $\mathrm{NC}^1$,
+\newblock ECCC Report TR04-108, 2004.
+\newblock \url{https://eccc.weizmann.ac.il/report/2004/108/}
+
+\bibitem{Allender2023}
+E. Allender,
+\newblock Guest Column: Parting Thoughts and Parting Shots (Read On for Details on How to Win Valuable Prizes!),
+\newblock \emph{ACM SIGACT News} 54(1):63--81, March 2023.
+\newblock \url{https://doi.org/10.1145/3586165.3586175}
+
+\bibitem{ECCCComment2025}
+E. Allender,
+\newblock Comment to ECCC TR04-108: ``The proof of Theorem 6 is incorrect,''
+\newblock accepted 2 November 2025.
+\newblock \url{https://eccc.weizmann.ac.il/eccc-reports/2004/TR04-108/index.html}
+
+\bibitem{BHKY1962}
+J. Battle, F. Harary, Y. Kodama, and J. W. T. Youngs,
+\newblock Additivity of the genus of a graph,
+\newblock \emph{Bulletin of the American Mathematical Society} 68:565--568, 1962.
+
+\bibitem{Hansen2006}
+K. A. Hansen,
+\newblock Constant Width Planar Computation Characterizes $\mathrm{ACC}^0$,
+\newblock \emph{Theory of Computing Systems} 39(1):79--92, 2006.
+\newblock Preliminary version: ECCC TR03-025.
+
+\end{thebibliography}
+
+\end{document}
