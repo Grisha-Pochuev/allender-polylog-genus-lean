@@ -4,7 +4,7 @@ import Mathlib.Tactic
 /-!
 # Finite connected vertex sets and median-layer cuts
 
-This file connects the walk separator theorem to component cardinalities.  It
+This file connects the walk separator theorem to component cardinalities. It
 formalizes the exact one-round statement used in the paper: after deleting a
 median layer from a connected component, every nonempty connected descendant
 has at most half as many vertices.
@@ -57,7 +57,7 @@ theorem walk_survives {C : G.FiniteConnectedSet} {m : Nat}
     (walk : G.UWalk u v)
     (hwalk : walk.All (fun x => x ∈ D.component.verts)) :
     walk.All (G.Survives {m}) := by
-  apply hwalk.all_mono
+  apply UWalk.all_mono hwalk
   intro x hx
   have hne : G.layer x ≠ m := D.avoids x hx
   simpa [LayeredDigraph.Survives] using hne
