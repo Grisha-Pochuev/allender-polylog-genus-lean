@@ -84,13 +84,20 @@ theorem exists_medianLayer (C : G.FiniteConnectedSet) : Nonempty C.MedianLayer :
   · have hdisj : Disjoint (C.atOrBelow m) (C.above m) := by
       refine Finset.disjoint_left.mpr ?_
       intro v hvLow hvHigh
-      simp [atOrBelow] at hvLow
-      simp [above] at hvHigh
+      have hle : G.layer v ≤ m := (Finset.mem_filter.mp hvLow).2
+      have hgt : m < G.layer v := (Finset.mem_filter.mp hvHigh).2
       omega
     have hunion : C.atOrBelow m ∪ C.above m = C.verts := by
       ext v
-      simp [atOrBelow, above]
-      omega
+      simp only [Finset.mem_union, Finset.mem_filter]
+      constructor
+      · rintro (⟨hv, _⟩ | ⟨hv, _⟩)
+        · exact hv
+        · exact hv
+      · intro hv
+        rcases le_or_gt (G.layer v) m with hle | hgt
+        · exact Or.inl ⟨hv, hle⟩
+        · exact Or.inr ⟨hv, hgt⟩
     have hcard : (C.atOrBelow m).card + (C.above m).card = C.verts.card := by
       rw [← hunion, Finset.card_union_of_disjoint hdisj]
     omega
