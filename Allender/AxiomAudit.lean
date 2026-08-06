@@ -16,3 +16,7 @@ compilation.  No theorem below is allowed to depend on `sorryAx`.
 #print axioms Allender.HalvingChain.pow_mul_terminal_le
 #print axioms Allender.HalvingChain.terminal_eq_zero_of_start_le
 #print axioms Allender.exists_weightedMedianCut
+#print axioms Allender.LayeredDigraph.UWalk.endpoint_same_block
+#print axioms Allender.LayeredDigraph.no_surviving_walk_across_layer
+#print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantAfterCut.card_halves
+#print axioms Allender.LayeredDigraph.FiniteConnectedSet.exists_medianLayer
