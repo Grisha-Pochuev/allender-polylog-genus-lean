@@ -68,10 +68,30 @@ theorem deleteLayers_union_edge_iff (G : LayeredDigraph V)
     (G.deleteLayers (first ∪ second)).edge u v ↔
       ((G.deleteLayers first).deleteLayers second).edge u v := by
   constructor
-  · rintro ⟨huv, ⟨huFirst, huSecond⟩, hvFirst, hvSecond⟩
+  · rintro ⟨huv, huUnion, hvUnion⟩
+    have huFirst : G.layer u ∉ first := by
+      intro hu
+      exact huUnion (Finset.mem_union_left second hu)
+    have huSecond : G.layer u ∉ second := by
+      intro hu
+      exact huUnion (Finset.mem_union_right first hu)
+    have hvFirst : G.layer v ∉ first := by
+      intro hv
+      exact hvUnion (Finset.mem_union_left second hv)
+    have hvSecond : G.layer v ∉ second := by
+      intro hv
+      exact hvUnion (Finset.mem_union_right first hv)
     exact ⟨⟨huv, huFirst, hvFirst⟩, huSecond, hvSecond⟩
   · rintro ⟨⟨huv, huFirst, hvFirst⟩, huSecond, hvSecond⟩
-    exact ⟨huv, ⟨huFirst, huSecond⟩, hvFirst, hvSecond⟩
+    refine ⟨huv, ?_, ?_⟩
+    · intro huUnion
+      rcases Finset.mem_union.mp huUnion with hu | hu
+      · exact huFirst hu
+      · exact huSecond hu
+    · intro hvUnion
+      rcases Finset.mem_union.mp hvUnion with hv | hv
+      · exact hvFirst hv
+      · exact hvSecond hv
 
 /-- A vertex on a cut layer is isolated in the remainder. -/
 theorem no_edge_from_cut_vertex (G : LayeredDigraph V) (cuts : Finset Nat)
