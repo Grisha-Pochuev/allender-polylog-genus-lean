@@ -22,6 +22,9 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.Circuit.composeList_zero_final
 #print axioms Allender.Circuit.card_vertex
 #print axioms Allender.Circuit.size_eq_card_vertex
+#print axioms Allender.ACCGate.eval_input
+#print axioms Allender.ACCGate.eval_constant
+#print axioms Allender.ACCGate.eval_not
 #print axioms Allender.cutCountBelow_succ_of_not_mem
 #print axioms Allender.LayeredDigraph.edge_same_block_of_source_survives
 #print axioms Allender.LayeredDigraph.toSimpleGraph_adj

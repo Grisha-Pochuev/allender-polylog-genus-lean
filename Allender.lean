@@ -7,6 +7,8 @@ import Allender.CircuitSegment
 import Allender.BoundaryPredicates
 import Allender.Circuit
 import Allender.CircuitFamily
+import Allender.ACC0Gate
+import Allender.ACC0Circuit
 import Allender.LayeredGraph
 import Allender.CircuitGraph
 import Allender.LayeredWalk
