@@ -26,9 +26,10 @@ inductive UWalk : V → V → Type _
 namespace UWalk
 
 /-- Every vertex occurring in a walk satisfies `P`. -/
-def All (P : V → Prop) : {u v : V} → G.UWalk u v → Prop
-  | _, _, .nil x => P x
-  | u, _, .cons _ tail => P u ∧ tail.All P
+def All {u v : V} (walk : G.UWalk u v) (P : V → Prop) : Prop :=
+  match walk with
+  | .nil x => P x
+  | .cons (u := x) _ tail => P x ∧ tail.All P
 
 /-- The first vertex of a walk satisfying `All P` satisfies `P`. -/
 theorem all_start {u v : V} {walk : G.UWalk u v} {P : V → Prop}
@@ -77,14 +78,30 @@ end UWalk
 theorem blockIndex_singleton_of_below {m : Nat} {v : V}
     (hv : G.layer v < m) :
     G.blockIndex {m} v = 0 := by
-  simp [blockIndex, cutCountBelow]
-  omega
+  unfold blockIndex cutCountBelow
+  have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = ∅ := by
+    ext k
+    simp
+    omega
+  rw [hfilter]
+  simp
 
 /-- A vertex above a singleton cut layer is in block one. -/
 theorem blockIndex_singleton_of_above {m : Nat} {v : V}
     (hv : m < G.layer v) :
     G.blockIndex {m} v = 1 := by
-  simp [blockIndex, cutCountBelow, hv]
+  unfold blockIndex cutCountBelow
+  have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = {m} := by
+    ext k
+    simp
+    constructor
+    · intro hk
+      exact ⟨hk.1, hk.2⟩
+    · intro hk
+      subst k
+      exact hv
+  rw [hfilter]
+  simp
 
 /--
 There is no undirected walk whose vertices all avoid layer `m` and whose
