@@ -1,24 +1,6 @@
 name: Lean verification
 
 on:
-  push:
-    branches:
-      - "main"
-      - "formalization/**"
-    paths:
-      - "**/*.lean"
-      - "lakefile.toml"
-      - "lake-manifest.json"
-      - "lean-toolchain"
-      - ".github/workflows/lean.yml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "**/*.lean"
-      - "lakefile.toml"
-      - "lake-manifest.json"
-      - "lean-toolchain"
-      - ".github/workflows/lean.yml"
   workflow_dispatch:
 
 concurrency:
