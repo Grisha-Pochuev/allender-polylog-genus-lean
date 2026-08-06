@@ -10,6 +10,7 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.BitState.card
 #print axioms Allender.Rel.comp_assoc
 #print axioms Allender.Rel.composeList_append
+#print axioms Allender.Rel.composeList_map_composeList
 #print axioms Allender.Rel.chain_iff_composeList
 #print axioms Allender.CircuitLayer.transition_functional
 #print axioms Allender.chain_from_initial
@@ -82,6 +83,13 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.nil_not_mem_macroblockTags
 #print axioms Allender.macroblock_isChain
 #print axioms Allender.macroblocks_separated
+#print axioms Allender.macroblock_good_or_singleton
+#print axioms Allender.macroblockTags_length_le_of_cuts
+#print axioms Allender.Circuit.flatten_canonicalMacroblockLayers_eq_tail
+#print axioms Allender.Circuit.compose_macroblockRelations_eq_tailSegment
+#print axioms Allender.Circuit.accept_cons_iff_macroblockRelations
+#print axioms Allender.Circuit.macroblockGraph_toSimpleGraph_le_deleteLayers
+#print axioms Allender.Circuit.goodMacroblock_isPlanar
 #print axioms Allender.card_stateAssignments
 #print axioms Allender.card_stateAssignments_log_le
 #print axioms Allender.padding_gap

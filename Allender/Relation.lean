@@ -72,6 +72,16 @@ theorem composeList_append (Rs Ss : List (Rel α)) :
   | cons R Rs ih =>
       simp [ih, comp_assoc]
 
+/-- Composing the composite relation of each block is the same as composing
+all relations in the flattened block list. -/
+theorem composeList_map_composeList (blocks : List (List (Rel α))) :
+    composeList (blocks.map composeList) = composeList blocks.flatten := by
+  induction blocks with
+  | nil => rfl
+  | cons block blocks ih =>
+      simp only [List.map_cons, composeList_cons, List.flatten_cons,
+        composeList_append, ih]
+
 /-- A relation is functional if every input has at most one output. -/
 def Functional (R : Rel α) : Prop :=
   ∀ a b c, R a b → R a c → b = c

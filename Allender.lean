@@ -29,5 +29,6 @@ import Allender.CertifiedPlanarization
 import Allender.GenusBudget
 import Allender.MacroblockCounting
 import Allender.MacroblockPartition
+import Allender.MacroblockCircuit
 import Allender.StateEnumeration
 import Allender.Padding
