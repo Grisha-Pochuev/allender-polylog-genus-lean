@@ -44,6 +44,14 @@ theorem all_end {u v : V} {walk : G.UWalk u v} {P : V → Prop}
   | nil => exact h
   | cons _ tail ih => exact ih h.2
 
+/-- Pointwise implication transports an `All` proof along a walk. -/
+theorem all_mono {u v : V} {walk : G.UWalk u v} {P Q : V → Prop}
+    (h : walk.All P) (hpq : ∀ x, P x → Q x) : walk.All Q := by
+  induction walk with
+  | nil x => exact hpq x h
+  | @cons x y z hadj tail ih =>
+      exact ⟨hpq x h.1, ih h.2⟩
+
 /--
 All vertices of a surviving walk lie in one interval block determined by the
 cut layers; in particular its endpoints have the same block index.
