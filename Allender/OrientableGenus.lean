@@ -6,10 +6,18 @@ import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
 /-!
 # Exact external boundary for orientable graph genus
 
-The candidate proof uses ordinary orientable graph genus only through
-monotonicity and the Battle--Harary--Kodama--Youngs additivity theorem. Those
-published topological results are isolated here. Crucially, no layer separator
-or planarization conclusion is assumed.
+The candidate proof uses ordinary orientable graph genus only through three
+published topological facts:
+
+1. the ordinary orientable genus of a finite graph is a natural number;
+2. genus is monotone under taking subgraphs;
+3. genus is additive over connected components
+   (Battle--Harary--Kodama--Youngs).
+
+These facts are deliberately isolated as named axioms. No separator,
+planarization, circuit-simulation, or bounty conclusion is assumed here.
+Every later theorem that uses topology will expose these dependencies through
+`#print axioms`.
 -/
 
 namespace Allender
@@ -17,18 +25,25 @@ namespace OrientableGenus
 
 open scoped BigOperators
 
-/-- Ordinary orientable genus of a finite simple graph (external definition). -/
+/-- Ordinary orientable genus of a finite simple graph.
+
+This is an external definition boundary: a future full topological
+formalization may replace it by the minimum genus of an orientable surface in
+which the graph embeds.
+-/
 axiom genus {V : Type*} [Finite V] (G : SimpleGraph V) : Nat
 
 /-- Planarity expressed as orientable genus zero. -/
 def IsPlanar {V : Type*} [Finite V] (G : SimpleGraph V) : Prop :=
   genus G = 0
 
-/-- Genus is monotone under taking a spanning subgraph. -/
+/-- External theorem: orientable genus is monotone under taking a spanning
+subgraph. -/
 axiom genus_mono {V : Type*} [Finite V] {G H : SimpleGraph V}
     (h : G ≤ H) : genus G ≤ genus H
 
-/-- Battle--Harary--Kodama--Youngs additivity over connected components. -/
+/-- External theorem: Battle--Harary--Kodama--Youngs additivity of orientable
+genus over connected components. -/
 axiom genus_eq_sum_components {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     genus G = ∑ c : G.ConnectedComponent, genus c.toSimpleGraph
@@ -39,19 +54,24 @@ noncomputable def nonplanarComponents {V : Type*} [Fintype V]
   classical
   exact Finset.univ.filter fun c => ¬IsPlanar c.toSimpleGraph
 
-/-- The number of nonplanar components is at most the genus of the whole graph. -/
+/-- The number of nonplanar components is at most the genus of the whole graph.
+
+Unlike the three declarations above, this is a proved consequence inside Lean.
+-/
 theorem nonplanarComponents_card_le_genus {V : Type*}
     [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] :
     (nonplanarComponents G).card ≤ genus G := by
   classical
   calc
     (nonplanarComponents G).card =
-        ∑ _c in (nonplanarComponents G), 1 := by simp
-    _ ≤ ∑ c in (nonplanarComponents G), genus c.toSimpleGraph := by
+        Finset.sum (nonplanarComponents G) (fun _ => 1) := by simp
+    _ ≤ Finset.sum (nonplanarComponents G)
+          (fun c => genus c.toSimpleGraph) := by
       apply Finset.sum_le_sum
       intro c hc
       have hpositive : genus c.toSimpleGraph ≠ 0 := by
-        simpa [nonplanarComponents, IsPlanar] using (Finset.mem_filter.mp hc).2
+        simpa [nonplanarComponents, IsPlanar] using
+          (Finset.mem_filter.mp hc).2
       exact Nat.one_le_iff_ne_zero.mpr hpositive
     _ ≤ ∑ c : G.ConnectedComponent, genus c.toSimpleGraph := by
       exact Finset.sum_le_univ_sum_of_nonneg (fun _ => Nat.zero_le _)
@@ -68,7 +88,8 @@ theorem isPlanar_iff_nonplanarComponents_eq_empty {V : Type*}
     have hle : (nonplanarComponents G).card ≤ 0 := by
       rw [← hplanar']
       exact nonplanarComponents_card_le_genus G
-    have hcard : (nonplanarComponents G).card = 0 := Nat.eq_zero_of_le_zero hle
+    have hcard : (nonplanarComponents G).card = 0 :=
+      Nat.eq_zero_of_le_zero hle
     exact Finset.card_eq_zero.mp hcard
   · intro hempty
     unfold IsPlanar
@@ -77,11 +98,12 @@ theorem isPlanar_iff_nonplanarComponents_eq_empty {V : Type*}
     intro c hc
     by_contra hpositive
     have hmem : c ∈ nonplanarComponents G := by
-      exact Finset.mem_filter.mpr ⟨Finset.mem_univ c, by simpa [IsPlanar]⟩
+      exact Finset.mem_filter.mpr
+        ⟨Finset.mem_univ c, by simpa [IsPlanar]⟩
     rw [hempty] at hmem
     exact Finset.notMem_empty c hmem
 
-/-- Deleting layers cannot increase orientable genus. -/
+/-- Deleting whole layers cannot increase orientable genus. -/
 theorem genus_deleteLayers_le {V : Type*} [Finite V]
     (G : LayeredDigraph V) (cuts : Finset Nat) :
     genus (G.deleteLayers cuts).toSimpleGraph ≤ genus G.toSimpleGraph :=
