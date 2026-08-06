@@ -35,6 +35,12 @@ jobs:
           "$HOME/.elan/bin/lean" --version
           "$HOME/.elan/bin/lake" --version
 
+      - name: Restore Lake workspace cache
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml') }}
+
       - name: Generate Lake manifest
         run: lake update
 
@@ -48,4 +54,4 @@ jobs:
         run: lake env lean Allender/AxiomAudit.lean
 
       - name: Independently check Lean environment
-        run: lake env leanchecker
+        run: lake env leanchecker Allender
