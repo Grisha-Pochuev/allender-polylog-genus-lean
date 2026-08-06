@@ -30,11 +30,10 @@ def deleteLayers (G : LayeredDigraph V) (cuts : Finset Nat) : LayeredDigraph V w
     (G.deleteLayers cuts).edge u v ↔
       G.edge u v ∧ G.Survives cuts u ∧ G.Survives cuts v := Iff.rfl
 
-/-- Deleting no layers leaves every edge unchanged. -/
-theorem deleteLayers_empty (G : LayeredDigraph V) : G.deleteLayers ∅ = G := by
-  cases G with
-  | mk edge layer edge_next =>
-      simp only [deleteLayers, Survives, Finset.notMem_empty, and_true]
+/-- Deleting no layers leaves the edge relation unchanged. -/
+@[simp] theorem deleteLayers_empty_edge_iff (G : LayeredDigraph V) (u v : V) :
+    (G.deleteLayers ∅).edge u v ↔ G.edge u v := by
+  simp [deleteLayers, Survives]
 
 /-- The undirected remainder is a subgraph of the original undirected graph. -/
 theorem deleteLayers_toSimpleGraph_le (G : LayeredDigraph V) (cuts : Finset Nat) :
@@ -68,7 +67,11 @@ theorem deleteLayers_union_edge_iff (G : LayeredDigraph V)
     (first second : Finset Nat) (u v : V) :
     (G.deleteLayers (first ∪ second)).edge u v ↔
       ((G.deleteLayers first).deleteLayers second).edge u v := by
-  simp [deleteLayers, Survives, not_or]
+  constructor
+  · rintro ⟨huv, ⟨huFirst, huSecond⟩, hvFirst, hvSecond⟩
+    exact ⟨⟨huv, huFirst, hvFirst⟩, huSecond, hvSecond⟩
+  · rintro ⟨⟨huv, huFirst, hvFirst⟩, huSecond, hvSecond⟩
+    exact ⟨huv, ⟨huFirst, huSecond⟩, hvFirst, hvSecond⟩
 
 /-- A vertex on a cut layer is isolated in the remainder. -/
 theorem no_edge_from_cut_vertex (G : LayeredDigraph V) (cuts : Finset Nat)

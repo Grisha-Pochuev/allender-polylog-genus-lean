@@ -28,7 +28,7 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.cutCountBelow_succ_of_not_mem
 #print axioms Allender.LayeredDigraph.edge_same_block_of_source_survives
 #print axioms Allender.LayeredDigraph.toSimpleGraph_adj
-#print axioms Allender.LayeredDigraph.deleteLayers_empty
+#print axioms Allender.LayeredDigraph.deleteLayers_empty_edge_iff
 #print axioms Allender.LayeredDigraph.deleteLayers_toSimpleGraph_le
 #print axioms Allender.LayeredDigraph.deleteLayers_mono
 #print axioms Allender.LayeredDigraph.deleteLayers_union_edge_iff
