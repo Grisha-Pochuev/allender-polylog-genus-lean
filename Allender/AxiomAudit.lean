@@ -34,6 +34,12 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.deleteLayers_union_edge_iff
 #print axioms Allender.LayeredDigraph.no_edge_from_cut_vertex
 #print axioms Allender.LayeredDigraph.no_edge_to_cut_vertex
+#print axioms Allender.OrientableGenus.genus
+#print axioms Allender.OrientableGenus.genus_mono
+#print axioms Allender.OrientableGenus.genus_eq_sum_components
+#print axioms Allender.OrientableGenus.nonplanarComponents_card_le_genus
+#print axioms Allender.OrientableGenus.isPlanar_iff_nonplanarComponents_eq_empty
+#print axioms Allender.OrientableGenus.genus_deleteLayers_le
 #print axioms Allender.LayeredDigraph.UWalk.endpoint_same_block
 #print axioms Allender.LayeredDigraph.no_surviving_walk_across_layer
 #print axioms Allender.exists_weightedMedianCut

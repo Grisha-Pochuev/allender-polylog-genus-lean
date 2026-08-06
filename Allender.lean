@@ -13,6 +13,7 @@ import Allender.LayeredGraph
 import Allender.LayeredWalk
 import Allender.SimpleGraph
 import Allender.LayerDeletion
+import Allender.OrientableGenus
 import Allender.CircuitGraph
 import Allender.WeightedMedian
 import Allender.FiniteComponent
