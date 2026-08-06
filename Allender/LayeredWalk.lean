@@ -13,21 +13,22 @@ to above it.
 namespace Allender
 namespace LayeredDigraph
 
-variable {V : Type*} (G : LayeredDigraph V)
+variable {V : Type*}
 
 /-- Adjacency in the underlying undirected graph. -/
-def UAdj (u v : V) : Prop := G.edge u v ∨ G.edge v u
+def UAdj (G : LayeredDigraph V) (u v : V) : Prop := G.edge u v ∨ G.edge v u
 
 /-- A finite walk in the underlying undirected graph. -/
-inductive UWalk : V → V → Type _
-  | nil (v : V) : UWalk v v
-  | cons {u v z : V} (adj : G.UAdj u v) (tail : UWalk v z) : UWalk u z
+inductive UWalk (G : LayeredDigraph V) : V → V → Type _
+  | nil (v : V) : UWalk G v v
+  | cons {u v z : V} (adj : G.UAdj u v) (tail : UWalk G v z) : UWalk G u z
 
 namespace UWalk
 
+variable {G : LayeredDigraph V}
+
 /-- Every vertex occurring in a walk satisfies `P`. -/
-def All {G : LayeredDigraph V} {u v : V} (walk : G.UWalk u v)
-    (P : V → Prop) : Prop :=
+def All {u v : V} (walk : G.UWalk u v) (P : V → Prop) : Prop :=
   match walk with
   | .nil x => P x
   | .cons (u := x) _ tail => P x ∧ tail.All P
@@ -75,6 +76,8 @@ theorem endpoint_same_block (cuts : Finset Nat) {u v : V}
 
 end UWalk
 
+variable (G : LayeredDigraph V)
+
 /-- A vertex below a singleton cut layer is in block zero. -/
 theorem blockIndex_singleton_of_below {m : Nat} {v : V}
     (hv : G.layer v < m) :
@@ -82,9 +85,14 @@ theorem blockIndex_singleton_of_below {m : Nat} {v : V}
   unfold blockIndex cutCountBelow
   have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = ∅ := by
     ext k
-    simp only [Finset.mem_filter, Finset.mem_singleton, Finset.not_mem_empty, iff_false]
-    rintro ⟨rfl, hlt⟩
-    omega
+    constructor
+    · intro hk
+      have hkf := Finset.mem_filter.mp hk
+      have hkm := Finset.mem_singleton.mp hkf.1
+      subst k
+      omega
+    · intro hk
+      simpa using hk
   rw [hfilter]
   simp
 
@@ -95,13 +103,13 @@ theorem blockIndex_singleton_of_above {m : Nat} {v : V}
   unfold blockIndex cutCountBelow
   have hfilter : ({m} : Finset Nat).filter (fun k => k < G.layer v) = {m} := by
     ext k
-    simp only [Finset.mem_filter, Finset.mem_singleton]
     constructor
-    · rintro ⟨hkm, _⟩
-      exact hkm
-    · intro hkm
+    · intro hk
+      exact (Finset.mem_filter.mp hk).1
+    · intro hk
+      have hkm := Finset.mem_singleton.mp hk
       subst k
-      exact ⟨rfl, hv⟩
+      exact Finset.mem_filter.mpr ⟨by simp, hv⟩
   rw [hfilter]
   simp
 
@@ -114,7 +122,7 @@ theorem no_surviving_walk_across_layer {m : Nat} {u v : V}
     (hv : m < G.layer v)
     (walk : G.UWalk u v)
     (hall : walk.All (G.Survives {m})) : False := by
-  have hsame := walk.endpoint_same_block {m} hall
+  have hsame := UWalk.endpoint_same_block (G := G) {m} walk hall
   rw [G.blockIndex_singleton_of_below hu,
     G.blockIndex_singleton_of_above hv] at hsame
   omega
