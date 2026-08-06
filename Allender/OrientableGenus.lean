@@ -93,11 +93,11 @@ theorem nonplanarComponents_card_le_genus {V : Type*}
           (fun c => genus (componentGraph c)) := by
       apply Finset.sum_le_sum
       intro c hc
-      have hpositive : genus c.toSimpleGraph ≠ 0 := by
+      have hpositive : genus (componentGraph c) ≠ 0 := by
         simpa [nonplanarComponents, IsPlanar] using
           (Finset.mem_filter.mp hc).2
       exact Nat.one_le_iff_ne_zero.mpr hpositive
-    _ ≤ Finset.sum (components G) (fun c => genus c.toSimpleGraph) := by
+    _ ≤ Finset.sum (components G) (fun c => genus (componentGraph c)) := by
       apply Finset.sum_le_sum_of_subset_of_nonneg
       · exact Finset.filter_subset _ _
       · intro c hc hnot
