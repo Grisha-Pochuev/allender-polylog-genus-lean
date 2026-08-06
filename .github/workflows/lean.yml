@@ -8,6 +8,7 @@ on:
     paths:
       - "**/*.lean"
       - "lakefile.toml"
+      - "lake-manifest.json"
       - "lean-toolchain"
       - ".github/workflows/lean.yml"
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - "**/*.lean"
       - "lakefile.toml"
+      - "lake-manifest.json"
       - "lean-toolchain"
       - ".github/workflows/lean.yml"
   workflow_dispatch:
@@ -53,7 +55,13 @@ jobs:
           "$HOME/.elan/bin/lean" --version
           "$HOME/.elan/bin/lake" --version
 
-      - name: Generate Lake manifest
+      - name: Restore dependency sources
+        uses: actions/cache@v4
+        with:
+          path: .lake/packages
+          key: lean-packages-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
+
+      - name: Verify pinned dependencies
         run: lake update
 
       - name: Download mathlib build cache
