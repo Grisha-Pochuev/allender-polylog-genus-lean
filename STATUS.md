@@ -1,11 +1,20 @@
 # Formalization status
 
+This is the authoritative status ledger for the active Lean branch `formalization/full-reduction-v1`. The project-wide status and the human-review reproducibility package are maintained on `main`.
+
+The manuscript package and this ledger answer different questions:
+
+- `main/reproducibility/` records whether the prose artifact can be rebuilt and reviewed;
+- this file records exactly what Lean checks, what is conditional, what is external, and what remains pending.
+
 Last verified code commit: `443db2186476346f91f4af8f66f47aa39fe4dcb6`  
 Successful workflow run: `31116859409`  
 Toolchain: Lean 4.32.2, mathlib 4.32.2
 
 The successful workflow rejected `sorry`/`admit`, ran `lake build`, compiled
 `Allender/AxiomAudit.lean`, and replayed the environment with `leanchecker`.
+
+Documentation and branch-synchronization commits after the verified code commit do not upgrade the machine-checked claim. A new code claim requires a fresh complete verification run.
 
 ## Status labels
 
