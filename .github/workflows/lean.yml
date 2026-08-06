@@ -1,6 +1,8 @@
 name: Lean verification
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -23,10 +25,28 @@ jobs:
             exit 1
           fi
 
-      - name: Build and independently check Lean environment
+      - name: Install pinned Lean toolchain
         uses: leanprover/lean-action@v1
         with:
-          build: true
-          leanchecker: true
-          use-mathlib-cache: true
-          use-github-cache: true
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          leanchecker: false
+          use-mathlib-cache: false
+          use-github-cache: false
+
+      - name: Generate Lake manifest
+        run: lake update
+
+      - name: Download mathlib build cache
+        run: lake exe cache get
+
+      - name: Build project
+        run: lake build
+
+      - name: Compile axiom audit
+        run: lake env lean Allender/AxiomAudit.lean
+
+      - name: Independently check Lean environment
+        run: lake env leanchecker
