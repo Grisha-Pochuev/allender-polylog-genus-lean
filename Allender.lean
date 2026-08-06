@@ -18,6 +18,7 @@ import Allender.CircuitGraph
 import Allender.WeightedMedian
 import Allender.FiniteComponent
 import Allender.ComponentSupport
+import Allender.CanonicalComponents
 import Allender.MedianExistence
 import Allender.Halving
 import Allender.ComponentChain
