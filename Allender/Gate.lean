@@ -21,6 +21,14 @@ inductive Gate (n w : Nat) where
 
 namespace Gate
 
+/-- Positions in the preceding layer used by the gate. -/
+def parents {n w : Nat} (g : Gate n w) : Finset (Fin w) :=
+  match g with
+  | .input _ _ => ∅
+  | .constant _ => ∅
+  | .andGate inputs => inputs
+  | .orGate inputs => inputs
+
 /-- Boolean evaluation of one gate. -/
 def eval {n w : Nat} (g : Gate n w) (x : BitState n) (previous : BitState w) : Bool :=
   match g with
@@ -29,6 +37,12 @@ def eval {n w : Nat} (g : Gate n w) (x : BitState n) (previous : BitState w) : B
   | .constant b => b
   | .andGate inputs => inputs.all fun i => previous i
   | .orGate inputs => inputs.any fun i => previous i
+
+@[simp] theorem parents_input {n w : Nat} (i : Fin n) (negated : Bool) :
+    (Gate.input i negated : Gate n w).parents = ∅ := rfl
+
+@[simp] theorem parents_constant {n w : Nat} (b : Bool) :
+    (Gate.constant b : Gate n w).parents = ∅ := rfl
 
 @[simp] theorem eval_input_false {n w : Nat} (i : Fin n) (x : BitState n)
     (previous : BitState w) :
