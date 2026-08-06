@@ -18,7 +18,9 @@ import Allender.FiniteComponent
 import Allender.MedianExistence
 import Allender.Halving
 import Allender.ComponentChain
+import Allender.ComponentRounds
 import Allender.GenusBudget
 import Allender.MacroblockCounting
+import Allender.MacroblockPartition
 import Allender.StateEnumeration
 import Allender.Padding

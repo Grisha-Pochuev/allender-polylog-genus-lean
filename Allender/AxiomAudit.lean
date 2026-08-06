@@ -37,10 +37,16 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.HalvingChain.terminal_eq_zero_of_start_le
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantChain.toHalvingChain
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.DescendantChain.impossible_after_log
+#print axioms Allender.ComponentRoundSystem.pow_mul_size_le
+#print axioms Allender.ComponentRoundSystem.active_empty_after_log
 #print axioms Allender.card_le_of_positive_cost_sum_le
 #print axioms Allender.separator_round_count_bound
 #print axioms Allender.card_badTransitions_le
 #print axioms Allender.macroblock_count_le_of_cuts
+#print axioms Allender.flatten_macroblockTags
+#print axioms Allender.nil_not_mem_macroblockTags
+#print axioms Allender.macroblock_isChain
+#print axioms Allender.macroblocks_separated
 #print axioms Allender.card_stateAssignments
 #print axioms Allender.card_stateAssignments_log_le
 #print axioms Allender.padding_gap

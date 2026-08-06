@@ -1,5 +1,5 @@
 import Allender.FiniteState
-import Mathlib.Data.Finset.Card
+import Mathlib.Data.Finset.Basic
 
 /-!
 # Gates for `AC⁰[m]`
@@ -34,8 +34,8 @@ def eval {m n s : Nat} (g : ACCGate m n s)
   | .input i => x i
   | .constant b => b
   | .notGate i => !(previous i)
-  | .andGate inputs => inputs.all fun i => previous i
-  | .orGate inputs => inputs.any fun i => previous i
+  | .andGate inputs => decide (∀ i ∈ inputs, previous i = true)
+  | .orGate inputs => decide (∃ i ∈ inputs, previous i = true)
   | .modGate inputs => decide (trueCount inputs previous % m = 0)
 
 @[simp] theorem eval_input {m n s : Nat} (i : Fin n)
