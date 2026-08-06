@@ -34,6 +34,12 @@ A green verification run means only that the declarations currently present have
 
 See [`STATUS.md`](STATUS.md) and [`docs/proof-obligations.md`](docs/proof-obligations.md) for the detailed proof ledger.
 
+## Human-review reproducibility package
+
+The complete candidate manuscript, its exact LaTeX source, an English technical synopsis, primary-source ledger, claim-by-claim audit map, independent-review checklist, integrity manifest, and repeatable PDF build are in [`reproducibility/`](reproducibility/README.md).
+
+This package supports international **human mathematical review** and is separate from the unfinished Lean formalization. It does not claim independent acceptance, a completed machine proof, or entitlement to the bounty.
+
 ## Why formalize this result?
 
 The 2005 paper *Topology inside NC¹* claimed that constant-width, polynomial-size circuits of polylogarithmic genus compute only languages in `ACC⁰`. Eric Allender later stated that the proof of its main theorem is incorrect and that the theorem remains open. A formal development is intended to:
@@ -64,8 +70,18 @@ docs/
   trust-boundary.md             what Lean does and does not currently certify
   references.bib                core bibliography
 
-paper/README.md                 workspace for the original TeX/PDF manuscript
-.github/workflows/lean.yml      reproducible build and proof checks
+reproducibility/
+  paper/                        exact candidate manuscript source
+  notes/                        English technical synopsis
+  SOURCES.md                    primary-source ledger
+  CLAIMS_AND_CHECKS.md          claim-by-claim audit map
+  REVIEW_CHECKLIST.md           independent-review procedure
+  MANIFEST.sha256               committed-file integrity checks
+
+paper/README.md                 pointer to the maintained manuscript package
+.github/workflows/lean.yml      Lean build and proof checks
+.github/workflows/reproducibility.yml
+                                manuscript integrity and PDF build
 ```
 
 ## Building locally
@@ -84,7 +100,9 @@ The Lean toolchain and `mathlib` release are pinned in the repository.
 
 ## GitHub verification
 
-The workflow runs automatically on pushes to `main` and can also be started manually from the Actions tab. It checks for proof placeholders, builds the project, compiles the axiom audit, and runs `leanchecker` on the root `Allender` module.
+The Lean workflow runs automatically on pushes to `main` and can also be started manually from the Actions tab. It checks for proof placeholders, builds the project, compiles the axiom audit, and runs `leanchecker` on the root `Allender` module.
+
+The separate reproducibility workflow checks the integrity manifest, rebuilds the 12-page manuscript from LaTeX, validates the page count, and publishes the generated PDF as an Actions artifact.
 
 ## Proof discipline
 
