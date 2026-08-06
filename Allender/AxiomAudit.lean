@@ -16,6 +16,8 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.segmentRelation_iff_eval
 #print axioms Allender.segmentRelation_functional
 #print axioms Allender.segmentRelation_append
+#print axioms Allender.initialState_iff_transition
+#print axioms Allender.accept_cons_iff_exists_boundary_states
 #print axioms Allender.Circuit.chain_from_zero_to_final
 #print axioms Allender.Circuit.composeList_zero_final
 #print axioms Allender.Circuit.card_vertex
