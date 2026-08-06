@@ -25,6 +25,8 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.ACCGate.eval_input
 #print axioms Allender.ACCGate.eval_constant
 #print axioms Allender.ACCGate.eval_not
+#print axioms Allender.CircuitFamily.Planar
+#print axioms Allender.Hansen.planar_constant_width_to_acc0
 #print axioms Allender.cutCountBelow_succ_of_not_mem
 #print axioms Allender.LayeredDigraph.edge_same_block_of_source_survives
 #print axioms Allender.LayeredDigraph.toSimpleGraph_adj
