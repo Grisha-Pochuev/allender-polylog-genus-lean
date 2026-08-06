@@ -1,12 +1,11 @@
 import Allender.SimpleGraph
-import Mathlib.Data.Finset.Lattice
 
 /-!
 # Deleting whole layers
 
 The separator proof repeatedly deletes every vertex whose layer index has been
-selected.  We keep the ambient vertex type fixed and remove all incident edges;
-deleted vertices consequently become isolated.  This makes graph inclusion
+selected. We keep the ambient vertex type fixed and remove all incident edges;
+deleted vertices consequently become isolated. This makes graph inclusion
 between rounds literal pointwise inclusion.
 -/
 
