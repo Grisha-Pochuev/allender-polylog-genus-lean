@@ -3,6 +3,7 @@ import Allender.Relation
 import Allender.RelationChain
 import Allender.Gate
 import Allender.CircuitLayer
+import Allender.CircuitSegment
 import Allender.Circuit
 import Allender.CircuitFamily
 import Allender.LayeredGraph
