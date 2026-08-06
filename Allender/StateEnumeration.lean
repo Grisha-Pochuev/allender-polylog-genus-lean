@@ -6,7 +6,7 @@ import Mathlib.Tactic
 # Counting intermediate state sequences
 
 The explicit composition construction enumerates assignments to intermediate
-boundary states.  Since the width is fixed, a logarithmic block has only
+boundary states. Since the width is fixed, a logarithmic block has only
 polynomially many such assignments.
 -/
 
@@ -33,6 +33,6 @@ theorem card_stateAssignments_log_le (w n : Nat) :
     (2 ^ w) ^ Nat.log 2 (n + 2) =
         (2 ^ Nat.log 2 (n + 2)) ^ w := by
       rw [← pow_mul, ← pow_mul, Nat.mul_comm]
-    _ ≤ (n + 2) ^ w := Nat.pow_le_pow_right hbase w
+    _ ≤ (n + 2) ^ w := Nat.pow_le_pow_left hbase w
 
 end Allender
