@@ -1,133 +1,110 @@
-# Allender polylogarithmic-genus problem — Lean formalization
+# Allender polylogarithmic-genus project
 
-This private repository develops a Lean 4 formalization of a **candidate proof strategy** for Eric Allender's Open Question 3:
+This repository studies Eric Allender's US $1000 open question:
 
-> Does every language accepted by constant-width circuit families of polylogarithmic genus lie in `ACC⁰`?
+> Does every language accepted by a nonuniform family of polynomial-size, constant-width Boolean circuits of polylogarithmic orientable genus belong to `ACC⁰`?
 
-Allender attached a **US $1000 bounty** to this question in his 2023 SIGACT News column.
+The project contains a complete **proof candidate** and an incomplete Lean formalization. These are two different verification tracks and are kept separate so that an external reader can immediately see what has and has not been checked.
+
+## Start here
+
+### Track A — human mathematical review
+
+Use the stable `main` branch and open [`reproducibility/`](reproducibility/README.md).
+
+It contains:
+
+- the exact English LaTeX manuscript;
+- an English technical synopsis;
+- primary-source and provenance records;
+- a claim-by-claim audit map;
+- an independent-review checklist and report template;
+- SHA-256 integrity checks;
+- a repeatable 12-page PDF build.
+
+**Status:** the package is reproducible, but the mathematics has not yet been independently accepted. A successful PDF build is not a correctness certificate.
+
+### Track B — Lean formalization
+
+Use the dedicated branch:
+
+[`formalization/full-reduction-v1`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/full-reduction-v1)
+
+Begin with that branch's [`README.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/README.md) and [`STATUS.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/STATUS.md).
+
+**Status:** substantial combinatorial and circuit infrastructure is machine checked, but the unconditional layer-planarization construction, the exact Hansen interface, the final `AC⁰[m]` construction, and the end-to-end theorem are still missing. Lean does **not** yet verify the $1000 result.
+
+The small `Allender/` development present on `main` is an earlier stable baseline. It is not the authoritative current Lean development. All new Lean work belongs on `formalization/full-reduction-v1` until an explicitly reviewed integration is made.
+
+## Repository structure
+
+```text
+main
+├── README.md                         this project index
+├── STATUS.md                         project-wide status
+├── PROJECT_STRUCTURE.md              branch and review guide
+├── reproducibility/                  human-review package
+│   ├── paper/                        exact LaTeX manuscript
+│   ├── notes/                        English technical synopsis
+│   ├── SOURCES.md                    primary-source ledger
+│   ├── CLAIMS_AND_CHECKS.md          mathematical audit map
+│   ├── REVIEW_CHECKLIST.md           independent-review procedure
+│   ├── REVIEW_REPORT_TEMPLATE.md     reviewer verdict template
+│   ├── MANIFEST.sha256               integrity record
+│   └── scripts/                      rebuild and verification commands
+├── formalization/README.md           pointer to the Lean branch
+├── Allender/                         earlier verified Lean baseline only
+└── .github/workflows/
+    ├── reproducibility.yml           manuscript build and integrity check
+    └── lean.yml                      manual Lean verification of the checked-out ref
+
+formalization/full-reduction-v1
+├── Allender/                         authoritative current Lean source
+├── Allender/AxiomAudit.lean          explicit dependency audit
+├── README.md                         Lean-specific entry point
+├── STATUS.md                         declaration-level proof ledger
+└── docs/source-alignment.md          manuscript-to-Lean correspondence
+```
+
+See [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) for the branch policy, review routes, and integration rules.
+
+## What each verification result means
+
+| Result | What it establishes | What it does not establish |
+|---|---|---|
+| SHA-256 check passes | files match the committed package | mathematical correctness |
+| LaTeX/PDF build passes | the manuscript is reproducible | correctness of the proof |
+| Partial Lean build passes | present Lean declarations type-check | the missing final theorem |
+| Independent expert review accepts the proof | a specialist endorses the argument | automatic machine verification |
+| Final Lean theorem passes with an explicit axiom audit | formal implication is machine checked | correctness of any inaccurately formalized external premise |
 
 ## Current status
 
-This repository is **not yet a complete formal proof of the bounty problem**. It is an auditable formalization project. The initial Lean modules have now passed a clean build with the pinned Lean 4.32.2 and `mathlib` 4.32.2 toolchain.
+- The English manuscript is a complete proof candidate, not an accepted result.
+- The human-review reproducibility package is present and independently rebuildable.
+- The active Lean formalization is isolated on its own branch.
+- The final Lean declaration corresponding to the bounty theorem does not yet exist.
+- No file in this repository should be interpreted as confirmation that the bounty has been won.
 
-| Component | Status |
-|---|---|
-| Boolean states of constant width | machine checked |
-| Algebra of binary relations and sequential composition | machine checked |
-| Basic invariant for cutting a layered graph along whole layers | machine checked |
-| Precise quantitative interfaces for size and genus bounds | specified |
-| Median-layer planarization theorem | pending |
-| Orientable genus and additivity over components | pending / external dependency |
-| Hansen's planar constant-width characterization of `ACC⁰` | pending / external dependency |
-| Syntax and semantics of Boolean and `ACC⁰` circuits | pending |
-| End-to-end theorem resolving Open Question 3 | **not yet proved** |
+See [`STATUS.md`](STATUS.md) for the concise project-wide ledger.
 
-The successful verification run performed all of the following:
+## Workflows
 
-- rejected `sorry` and `admit` placeholders;
-- ran `lake update` and restored the pinned `mathlib` cache;
-- completed `lake build` successfully;
-- compiled `Allender/AxiomAudit.lean` and found no `sorryAx`;
-- replayed the compiled `Allender` modules with Lean's `leanchecker`.
+- `Reproducibility bundle` runs when files under `reproducibility/` change and may also be started manually.
+- `Lean verification` is manual. Documentation-only changes do not start a Lean build.
 
-A green verification run means only that the declarations currently present have been accepted by Lean. It does **not** mean that Allender's full problem has already been formalized or solved.
+## Primary references
 
-See [`STATUS.md`](STATUS.md) and [`docs/proof-obligations.md`](docs/proof-obligations.md) for the detailed proof ledger.
-
-## Human-review reproducibility package
-
-The complete candidate manuscript, its exact LaTeX source, an English technical synopsis, primary-source ledger, claim-by-claim audit map, independent-review checklist, integrity manifest, and repeatable PDF build are in [`reproducibility/`](reproducibility/README.md).
-
-This package supports international **human mathematical review** and is separate from the unfinished Lean formalization. It does not claim independent acceptance, a completed machine proof, or entitlement to the bounty.
-
-## Why formalize this result?
-
-The 2005 paper *Topology inside NC¹* claimed that constant-width, polynomial-size circuits of polylogarithmic genus compute only languages in `ACC⁰`. Eric Allender later stated that the proof of its main theorem is incorrect and that the theorem remains open. A formal development is intended to:
-
-1. expose every hidden definition and dependency;
-2. isolate the genuinely new combinatorial argument from published external results;
-3. prevent accidental reuse of the invalid topological step from the earlier proof;
-4. provide a reproducible artifact that specialists can inspect without trusting prose alone.
-
-## Repository layout
-
-```text
-Allender/
-  FiniteState.lean              Boolean states of fixed width
-  Relation.lean                 relation composition and list semantics
-  LayeredGraph.lean             layered directed graphs and cut-layer invariant
-  Interfaces/
-    Topology.lean               exact statement expected from topology
-    Complexity.lean             language/family profiles and growth predicates
-  AxiomAudit.lean               `#print axioms` checks for central lemmas
-Allender.lean                   root import
-
-docs/
-  problem.md                    exact problem and historical context
-  candidate-proof-outline.md    current prose strategy mapped to Lean tasks
-  formalization-plan.md         staged implementation plan
-  proof-obligations.md          checklist of mathematical obligations
-  trust-boundary.md             what Lean does and does not currently certify
-  references.bib                core bibliography
-
-reproducibility/
-  paper/                        exact candidate manuscript source
-  notes/                        English technical synopsis
-  SOURCES.md                    primary-source ledger
-  CLAIMS_AND_CHECKS.md          claim-by-claim audit map
-  REVIEW_CHECKLIST.md           independent-review procedure
-  MANIFEST.sha256               committed-file integrity checks
-
-paper/README.md                 pointer to the maintained manuscript package
-.github/workflows/lean.yml      Lean build and proof checks
-.github/workflows/reproducibility.yml
-                                manuscript integrity and PDF build
-```
-
-## Building locally
-
-Install [elan](https://github.com/leanprover/elan), then run:
-
-```bash
-lake update
-lake exe cache get
-lake build
-lake env lean Allender/AxiomAudit.lean
-lake env leanchecker Allender
-```
-
-The Lean toolchain and `mathlib` release are pinned in the repository.
-
-## GitHub verification
-
-The Lean workflow runs automatically on pushes to `main` and can also be started manually from the Actions tab. It checks for proof placeholders, builds the project, compiles the axiom audit, and runs `leanchecker` on the root `Allender` module.
-
-The separate reproducibility workflow checks the integrity manifest, rebuilds the 12-page manuscript from LaTeX, validates the page count, and publishes the generated PDF as an Actions artifact.
-
-## Proof discipline
-
-The project follows these rules:
-
-- no `sorry` or `admit` in committed Lean files;
-- every imported external theorem must be named and documented;
-- abstract interfaces are not described as completed formalizations;
-- `#print axioms` is kept for central lemmas;
-- prose claims in the paper must be linked to specific Lean declarations;
-- no result is promoted to “checked” until a clean build succeeds.
-
-## Primary sources
-
-- Eric Allender, *Parting Thoughts and Parting Shots*, SIGACT News 54(1), 2023:  
-  https://people.cs.rutgers.edu/~allender/papers/sigact.news.draft.pdf
-- Eric Allender, Samir Datta, Sambuddha Roy, *Topology inside NC¹*, ECCC TR04-108 / CCC 2005:  
-  https://eccc.weizmann.ac.il/eccc-reports/2004/TR04-108/index.html
+- Eric Allender, *Parting Thoughts and Parting Shots*, SIGACT News 54(1), 2023.
+- Eric Allender, Samir Datta, Sambuddha Roy, *Topology inside NC¹*, CCC 2005 / ECCC TR04-108.
 - Kristoffer Arnsfelt Hansen, *Constant Width Planar Computation Characterizes ACC⁰*, Theory of Computing Systems 39, 2006.
+- J. Battle, F. Harary, Y. Kodama, J. W. T. Youngs, *Additivity of the Genus of a Graph*, 1962.
 
 ## Authorship and provenance
 
 Project owner: **Grisha Pochuev**, independent researcher.
 
-The initial repository structure and Lean code were prepared with AI assistance under the project owner's direction. Mathematical responsibility remains with the author. Machine acceptance by Lean verifies only the declarations actually present and their listed dependencies.
+The manuscript, documentation, and Lean code were developed with AI assistance under the project owner's direction. Mathematical responsibility remains with the author and any eventual submitting author. Machine acceptance verifies only the declarations actually present and their explicitly listed dependencies.
 
 ## License
 

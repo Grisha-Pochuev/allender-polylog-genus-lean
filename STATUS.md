@@ -1,58 +1,89 @@
-# Formalization status ledger
+# Project status
 
-Last verification update: 2026-08-06.
+Last project-structure review: 6 August 2026.
 
-## Meaning of labels
+This file summarizes the whole repository. The detailed Lean proof ledger is maintained on the branch `formalization/full-reduction-v1`.
 
-- **checked** — Lean accepts the declaration without `sorry` or `admit` in a clean build; the compiled project has also passed `leanchecker`.
-- **specified** — the intended mathematical statement has an explicit Lean interface, but no implementation has been supplied.
-- **external** — a published theorem is intended to be imported or re-proved; it is not currently machine checked here.
-- **pending** — no complete Lean statement/proof yet.
+## Two independent tracks
 
-## Verification record
+| Track | Authoritative location | Current status |
+|---|---|---|
+| Human mathematical review | `main/reproducibility/` | complete reproducibility package; independent expert review still required |
+| Lean formalization | branch `formalization/full-reduction-v1` | substantial partial formalization; final theorem not proved |
 
-The initial development passed:
+## Human-review package
 
-- `lake build` with Lean 4.32.2 and `mathlib` 4.32.2;
-- compilation of `Allender/AxiomAudit.lean`;
-- `lake env leanchecker Allender`;
-- a source check rejecting `sorry` and `admit`.
+The package contains the exact English manuscript source, an English synopsis, primary sources, provenance, integrity hashes, a claim audit, and a reviewer checklist.
 
-The axiom audit reported only standard Lean foundations such as `propext`, `Classical.choice`, and `Quot.sound`; no theorem depended on `sorryAx`.
+Verified properties of the package:
 
-## Ledger
+- the LaTeX source compiles;
+- the generated manuscript has 12 pages;
+- integrity is checked with `MANIFEST.sha256`;
+- the build is repeatable through `reproducibility/scripts/verify-bundle.sh`;
+- GitHub Actions can build and publish the PDF artifact.
 
-| ID | Mathematical item | Lean location | Status |
-|---|---|---|---|
-| S1 | Boolean state space `Fin w → Bool` | `Allender/FiniteState.lean` | checked |
-| S2 | Cardinality `|Q_w| = 2^w` | `Allender.BitState.card` | checked |
-| R1 | Identity and composition of relations | `Allender/Relation.lean` | checked |
-| R2 | Associativity of relation composition | `Allender.Rel.comp_assoc` | checked |
-| R3 | Semantics of splitting a list of transitions | `Allender.Rel.composeList_append` | checked |
-| R4 | Functionality preserved by composition | `Allender.Rel.Functional.comp` | checked |
-| G1 | Definition of a layered directed graph | `Allender/LayeredGraph.lean` | checked |
-| G2 | Whole-layer cut block index | `Allender.LayeredDigraph.blockIndex` | checked |
-| G3 | A surviving edge stays in one interval block | `edge_same_block_of_source_survives` | checked |
-| T1 | Orientable genus of a finite graph | — | pending |
-| T2 | Genus monotonicity under subgraphs | — | pending |
-| T3 | Genus additivity over connected components | — | pending / external |
-| T4 | Median-layer planarization with `O(g log N)` cuts | `TopologyInterface.planarize_by_layers` | specified, not proved |
-| C1 | Boolean circuit syntax and evaluation | — | pending |
-| C2 | Constant width and polynomial size predicates | profile only | partially specified |
-| C3 | Planarity of the circuit graph | — | pending |
-| C4 | Formal definition of `ACC⁰` | — | pending |
-| H1 | Hansen planar constant-width characterization | — | pending / external |
-| M1 | Macroblock transition semantics | — | pending |
-| M2 | One common fixed modulus for all blocks | — | pending |
-| M3 | Constant-depth composition of polylogarithmically many transitions | relation algebra only | partially checked |
-| F1 | End-to-end Allender theorem | — | **not proved** |
+These checks establish reproducibility of the files, not correctness of the mathematics.
 
-## Release criterion for a claimed formal proof
+## Lean formalization
 
-The repository may describe the bounty problem as formally proved only when:
+Authoritative branch:
 
-1. `F1` is a concrete Lean theorem with the intended circuit definitions;
-2. `#print axioms` for `F1` contains no `sorryAx` and no undocumented project axiom;
-3. every remaining external dependency is either already in a trusted Lean library or is stated exactly and identified by a published source;
-4. a clean `lake build` and an independent Lean environment check succeed for the final theorem;
-5. the prose paper and Lean theorem use the same hypotheses.
+```text
+formalization/full-reduction-v1
+```
+
+Latest fully verified code commit recorded by that branch:
+
+```text
+443db2186476346f91f4af8f66f47aa39fe4dcb6
+```
+
+Successful recorded workflow run:
+
+```text
+31116859409
+```
+
+The branch reports machine-checked infrastructure for circuit semantics, fixed-width states, relation composition, layer deletion, weighted medians, component halving, genus-budget consequences relative to explicit external genus declarations, macroblock counting, `ACC⁰` syntax, state enumeration, and padding.
+
+The following decisive obligations remain:
+
+1. construct the canonical separation process for actual nonplanar components of every remainder graph;
+2. prove the unconditional layer-planarization lemma;
+3. extract and verify the planar macroblock subcircuits;
+4. state Hansen's theorem exactly in the same circuit model or prove a conversion;
+5. construct common-modulus `AC⁰[m]` simulations and the polylogarithmic relation composition circuits;
+6. prove the final end-to-end theorem corresponding to the bounty statement.
+
+Therefore the project does not yet contain a full machine proof of the $1000 result.
+
+## Branch policy
+
+- `main` is the stable public-facing index and human-review package.
+- `formalization/full-reduction-v1` is the only active Lean development branch.
+- Lean work is not copied into the human-review package.
+- Manuscript changes are not represented as Lean progress until a named declaration is checked.
+- Integration of the Lean branch into `main` should happen only through an explicitly reviewed pull request after its current status and axiom audit are verified.
+
+The `Allender/` files on `main` are an earlier stable baseline and are not the authoritative current formalization.
+
+## Workflow policy
+
+- The reproducibility workflow runs only for relevant package changes or by manual request.
+- Lean verification is manual, preventing ordinary documentation edits from creating unrelated Lean jobs.
+- The Lean branch itself is also configured for manual verification.
+
+## Claim discipline
+
+The repository may claim a full formal verification only when:
+
+1. a concrete final Lean theorem matches the manuscript hypotheses and conclusion;
+2. the theorem has an explicit `#print axioms` audit with no `sorryAx` or undocumented premise;
+3. the complete checked-out branch passes `lake build`, the axiom audit, and `leanchecker`;
+4. the exact external theorems are isolated and cited;
+5. the prose manuscript and formal statement are independently compared.
+
+Until then, the correct description is:
+
+> complete proof candidate with a reproducible human-review package and an incomplete Lean formalization.
