@@ -55,6 +55,9 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.LayeredDigraph.canonicalChild_subset
 #print axioms Allender.LayeredDigraph.canonicalChild_avoids
 #print axioms Allender.LayeredDigraph.canonicalLayerSeparationProcess
+#print axioms Allender.LayeredDigraph.canonicalCuts_card_le
+#print axioms Allender.LayeredDigraph.canonicalRemainder_isPlanar_after_log
+#print axioms Allender.LayeredDigraph.exists_planarizing_layer_set
 #print axioms Allender.LayeredDigraph.FiniteConnectedSet.exists_medianLayer
 #print axioms Allender.HalvingChain.pow_mul_terminal_le
 #print axioms Allender.HalvingChain.terminal_eq_zero_of_start_le
