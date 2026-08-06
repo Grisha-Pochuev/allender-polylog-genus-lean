@@ -210,5 +210,90 @@ noncomputable def canonicalLayerSeparationProcess
     intro t ht s hs
     exact canonicalChild_avoids G hs
 
+
+/-- At most `g` distinct median layers are selected in any canonical round. -/
+theorem canonicalRoundCuts_card_le (cuts : Finset Nat) {g : Nat}
+    (hgenus : OrientableGenus.genus G.toSimpleGraph ≤ g) :
+    (canonicalRoundCuts G cuts).card ≤ g := by
+  classical
+  calc
+    (canonicalRoundCuts G cuts).card ≤
+        (activeComponentVerts
+          ((G.deleteLayers cuts).toSimpleGraph)).card :=
+      Finset.card_image_le
+    _ ≤ OrientableGenus.genus
+        ((G.deleteLayers cuts).toSimpleGraph) :=
+      activeComponentVerts_card_le_genus _
+    _ ≤ OrientableGenus.genus G.toSimpleGraph :=
+      OrientableGenus.genus_deleteLayers_le G cuts
+    _ ≤ g := hgenus
+
+/-- After `t` canonical rounds at most `g*t` distinct layers have been
+deleted. -/
+theorem canonicalCuts_card_le {g : Nat}
+    (hgenus : OrientableGenus.genus G.toSimpleGraph ≤ g) :
+    ∀ t, (canonicalCuts G t).card ≤ g * t := by
+  intro t
+  induction t with
+  | zero =>
+      simp
+  | succ t ih =>
+      calc
+        (canonicalCuts G (t + 1)).card =
+            (canonicalCuts G t ∪
+              canonicalRoundCuts G (canonicalCuts G t)).card := by rfl
+        _ ≤ (canonicalCuts G t).card +
+              (canonicalRoundCuts G (canonicalCuts G t)).card :=
+          Finset.card_union_le _ _
+        _ ≤ g * t + g :=
+          Nat.add_le_add ih
+            (canonicalRoundCuts_card_le G (canonicalCuts G t) hgenus)
+        _ = g * (t + 1) := (Nat.mul_succ g t).symm
+
+/-- After logarithmically many canonical median rounds, the actual graph
+remainder is planar. -/
+theorem canonicalRemainder_isPlanar_after_log {g : Nat}
+    (hgenus : OrientableGenus.genus G.toSimpleGraph ≤ g) :
+    OrientableGenus.IsPlanar
+      (canonicalRemainder G (Nat.log 2 (Fintype.card V) + 1)) := by
+  classical
+  let N := Fintype.card V
+  let T := Nat.log 2 N + 1
+  let S := canonicalLayerSeparationProcess G T N g le_rfl hgenus
+  have hactive : canonicalActive G T = ∅ := by
+    have h := S.active_empty_after_log
+    change canonicalActive G T = ∅ at h
+    exact h
+  have hnonplanar :
+      OrientableGenus.nonplanarComponents
+        (canonicalRemainder G T) = ∅ := by
+    apply Finset.eq_empty_iff_forall_notMem.mpr
+    intro c hc
+    have himage : componentVerts c ∈ canonicalActive G T := by
+      apply (mem_activeComponentVerts_iff
+        (canonicalRemainder G T) (componentVerts c)).2
+      exact ⟨c, hc, rfl⟩
+    rw [hactive] at himage
+    exact Finset.notMem_empty _ himage
+  have hplanar : OrientableGenus.IsPlanar
+      (canonicalRemainder G T) :=
+    (OrientableGenus.isPlanar_iff_nonplanarComponents_eq_empty
+      (canonicalRemainder G T)).2 hnonplanar
+  simpa [T, N] using hplanar
+
+/-- Unconditional formal version of the manuscript's layer-planarization
+lemma, relative only to the explicit orientable-genus boundary. -/
+theorem exists_planarizing_layer_set {g : Nat}
+    (hgenus : OrientableGenus.genus G.toSimpleGraph ≤ g) :
+    ∃ cuts : Finset Nat,
+      cuts.card ≤ g * (Nat.log 2 (Fintype.card V) + 1) ∧
+      OrientableGenus.IsPlanar
+        ((G.deleteLayers cuts).toSimpleGraph) := by
+  let T := Nat.log 2 (Fintype.card V) + 1
+  refine ⟨canonicalCuts G T, ?_, ?_⟩
+  · exact canonicalCuts_card_le G hgenus T
+  · have hplanar := canonicalRemainder_isPlanar_after_log G hgenus
+    simpa [canonicalRemainder, T] using hplanar
+
 end LayeredDigraph
 end Allender
