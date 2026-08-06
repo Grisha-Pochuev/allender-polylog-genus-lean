@@ -15,7 +15,6 @@ import Allender.SimpleGraph
 import Allender.LayerDeletion
 import Allender.OrientableGenus
 import Allender.CircuitGraph
-import Allender.HansenBoundary
 import Allender.WeightedMedian
 import Allender.FiniteComponent
 import Allender.MedianExistence
