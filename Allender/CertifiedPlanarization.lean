@@ -123,13 +123,13 @@ end RoundCoverage
 namespace PlanarizationCoverage
 
 /-- Iterate the local coverage-preservation law through any valid round. -/
-def at {S : G.LayerSeparationProcess α steps N g}
+def coverageAt {S : G.LayerSeparationProcess α steps N g}
     (C : S.PlanarizationCoverage) :
     (t : Nat) → t ≤ steps → S.RoundCoverage t
   | 0, _ => C.initial
   | t + 1, ht =>
       let hlt : t < steps := Nat.lt_of_succ_le ht
-      C.step t hlt (at C t hlt.le)
+      C.step t hlt (coverageAt C t hlt.le)
 
 /--
 After logarithmically many locally covered rounds, the actual remainder is
@@ -145,7 +145,7 @@ theorem final_isPlanar_of_coverage
   let T := Nat.log 2 N + 1
   have hactive : S.active T = ∅ := by
     simpa [T] using S.active_empty_after_log
-  have hle := (C.at T le_rfl).nonplanar_card_le_active_card
+  have hle := (C.coverageAt T le_rfl).nonplanar_card_le_active_card
   rw [hactive] at hle
   have hcard :
       (OrientableGenus.nonplanarComponents
