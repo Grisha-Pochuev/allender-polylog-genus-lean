@@ -1,0 +1,45 @@
+name: Reproducibility bundle
+
+on:
+  push:
+    paths:
+      - "reproducibility/**"
+      - ".github/workflows/reproducibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install LaTeX and PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-latex-extra poppler-utils
+
+      - name: Verify package integrity and build manuscript
+        run: bash reproducibility/scripts/verify-bundle.sh
+
+      - name: Check generated PDF
+        shell: bash
+        run: |
+          PDF="reproducibility/build/allender_polylog_genus_acc0_proof.pdf"
+          test -s "$PDF"
+          pages="$(pdfinfo "$PDF" | awk '/^Pages:/ {print $2}')"
+          test "$pages" = "12"
+          echo "Generated manuscript has $pages pages."
+
+      - name: Upload generated manuscript
+        uses: actions/upload-artifact@v4
+        with:
+          name: allender-candidate-proof-pdf
+          path: reproducibility/build/allender_polylog_genus_acc0_proof.pdf
+          if-no-files-found: error
