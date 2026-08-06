@@ -61,6 +61,12 @@ theorem canonicalCuts_subset_succ (t : Nat) :
 noncomputable def canonicalRemainder (t : Nat) : SimpleGraph V :=
   (G.deleteLayers (canonicalCuts G t)).toSimpleGraph
 
+/-- Adjacency in every canonical remainder remains decidable. -/
+noncomputable instance instDecidableRelCanonicalRemainder (t : Nat) :
+    DecidableRel (canonicalRemainder G t).Adj := by
+  unfold canonicalRemainder
+  infer_instance
+
 /-- Later canonical remainders are spanning subgraphs of earlier ones. -/
 theorem canonicalRemainder_mono (t : Nat) :
     canonicalRemainder G (t + 1) ≤ canonicalRemainder G t := by
