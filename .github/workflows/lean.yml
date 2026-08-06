@@ -1,20 +1,11 @@
 name: Lean verification
 
 on:
-  push:
-    branches:
-      - "formalization/full-reduction-v1"
-    paths:
-      - "**/*.lean"
-      - "lakefile.toml"
-      - "lake-manifest.json"
-      - "lean-toolchain"
-      - ".github/workflows/lean.yml"
   workflow_dispatch:
 
 concurrency:
-  group: lean-${{ github.ref }}-${{ github.sha }}
-  cancel-in-progress: false
+  group: lean-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
