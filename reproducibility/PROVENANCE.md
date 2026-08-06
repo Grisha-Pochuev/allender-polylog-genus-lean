@@ -8,11 +8,11 @@ The manuscript and supporting materials were prepared with AI assistance. Mathem
 
 ## Source artifacts
 
-The files committed here were taken from the project's source library rather than reconstructed from a summary:
+The files committed here originate from the project's source library and the reproducibility packaging process:
 
-- `paper/allender_polylog_genus_acc0_proof.tex` - editable manuscript source;
+- `paper/allender_polylog_genus_acc0_proof.tex` - exact editable manuscript source from the project library;
 - reference PDF - retained in the project source library; GitHub builds the PDF from the committed `.tex` source;
-- `notes/allender_polylog_genus_acc0_notes_ru.md` - Russian technical synopsis and audit notes.
+- `notes/allender_polylog_genus_acc0_synopsis_en.md` - English technical synopsis prepared from the complete manuscript for international review.
 
 At packaging time, the reference PDF used for verification matched the supplied project PDF byte for byte, with SHA-256:
 
@@ -26,13 +26,7 @@ The committed LaTeX source had SHA-256:
 6ecd5e76ed6d58004286b68bd6533bb3e55df057d8b7ca12f26ad9cc48002175
 ```
 
-The committed Russian notes had SHA-256:
-
-```text
-11ad02b0e690477bf1a68ca4c81be4c63e4cd3571d0ec79231821894be05b17b
-```
-
-The authoritative current integrity values for the whole directory are in `MANIFEST.sha256`.
+The authoritative current integrity values for the whole directory, including the English synopsis, are in `MANIFEST.sha256`.
 
 ## Build verification performed before commit
 
