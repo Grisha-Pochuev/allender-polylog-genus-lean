@@ -6,5 +6,3 @@ import Allender.Halving
 import Allender.WeightedMedian
 import Allender.FiniteComponent
 import Allender.MedianExistence
-import Allender.Interfaces.Complexity
-import Allender.Interfaces.Topology
