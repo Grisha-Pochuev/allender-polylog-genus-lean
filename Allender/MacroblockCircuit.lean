@@ -271,6 +271,65 @@ theorem macroblockTags_length_le_of_cuts (count : Nat) (cuts : Finset Nat) :
       i < count ∧ bad = decide (i ∈ badTransitions cuts) := by
   simp [transitionTags, eq_comm]
 
+/-- Transition indices in the complete canonical tag list increase by exactly
+one at every step. -/
+theorem transitionTags_index_isChain (count : Nat) (cuts : Finset Nat) :
+    (transitionTags count cuts).IsChain fun a b =>
+      b.index = a.index + 1 := by
+  unfold transitionTags
+  rw [List.isChain_map]
+  exact (List.isChain_range (fun a b => b = a + 1) count).2
+    (fun _ _ => rfl)
+
+/-- Every block produced by `splitBy` is a contiguous infix of the complete
+tag list, hence its transition indices also increase by exactly one. -/
+theorem macroblock_index_isChain {count : Nat} {cuts : Finset Nat}
+    {block : List TransitionTag} (hblock : block ∈ macroblockTags count cuts) :
+    block.IsChain fun a b => b.index = a.index + 1 := by
+  apply (transitionTags_index_isChain count cuts).infix
+  rw [← flatten_macroblockTags count cuts]
+  exact List.infix_of_mem_flatten hblock
+
+/-- Every canonical macroblock is nonempty. -/
+theorem macroblock_ne_nil {count : Nat} {cuts : Finset Nat}
+    {block : List TransitionTag} (hblock : block ∈ macroblockTags count cuts) :
+    block ≠ [] := by
+  intro hnil
+  exact nil_not_mem_macroblockTags count cuts (hnil ▸ hblock)
+
+/-- In a nonempty list whose adjacent tag indices increase by one, the tag at
+position `i` has index `head.index + i`. -/
+theorem transitionTag_index_getElem {block : List TransitionTag}
+    (hne : block ≠ [])
+    (hchain : block.IsChain fun a b => b.index = a.index + 1)
+    (i : Nat) (hi : i < block.length) :
+    block[i].index = (block.head hne).index + i := by
+  induction block generalizing i with
+  | nil => exact (hne rfl).elim
+  | cons a tail ih =>
+      cases i with
+      | zero => rfl
+      | succ i =>
+          cases tail with
+          | nil => simp at hi
+          | cons b rest =>
+              have hiTail : i < (b :: rest).length := by simpa using hi
+              have htailNe : b :: rest ≠ [] := by simp
+              have htailChain : (b :: rest).IsChain fun x y =>
+                  y.index = x.index + 1 := hchain.tail
+              have ih' := ih htailNe htailChain i hiTail
+              have hab : b.index = a.index + 1 := hchain.rel
+              simp only [List.getElem_cons_succ] at ih' ⊢
+              simpa [hab, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using ih'
+
+/-- Every tag in a canonical block belongs to the complete transition list. -/
+theorem mem_transitionTags_of_mem_macroblock {count : Nat} {cuts : Finset Nat}
+    {block : List TransitionTag} (hblock : block ∈ macroblockTags count cuts)
+    {tag : TransitionTag} (htag : tag ∈ block) :
+    tag ∈ transitionTags count cuts := by
+  rw [← flatten_macroblockTags count cuts]
+  exact List.mem_flatten.mpr ⟨block, hblock, htag⟩
+
 /-- A good tag in the canonical transition list avoids the cut layer at both
 ends of its transition. -/
 theorem good_transition_avoids_cuts {count : Nat} {cuts : Finset Nat}

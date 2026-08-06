@@ -2,17 +2,19 @@ import Allender.LayerDeletion
 import Allender.GenusBudget
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Finite
+import Mathlib.Combinatorics.SimpleGraph.Maps
 
 /-!
 # Exact external boundary for orientable graph genus
 
-The candidate proof uses ordinary orientable graph genus only through four
+The candidate proof uses ordinary orientable graph genus only through five
 published topological facts:
 
 1. the ordinary orientable genus of a finite graph is a natural number;
 2. genus is monotone under taking subgraphs;
-3. an edgeless graph has genus zero;
-4. genus is additive over connected components
+3. injectively relabelling vertices and adding isolates preserves genus;
+4. an edgeless graph has genus zero;
+5. genus is additive over connected components
    (Battle--Harary--Kodama--Youngs).
 
 These facts are deliberately isolated as named axioms. No separator,
@@ -42,6 +44,13 @@ def IsPlanar {V : Type*} [Finite V] (G : SimpleGraph V) : Prop :=
 subgraph. -/
 axiom genus_mono {V : Type*} [Finite V] {G H : SimpleGraph V}
     (h : G ≤ H) : genus G ≤ genus H
+
+/-- External invariance theorem: injectively relabelling all vertices of a
+finite graph, with any unused target vertices becoming isolated, preserves
+orientable genus. -/
+axiom genus_map {V W : Type*} [Finite V] [Finite W]
+    (G : SimpleGraph V) (f : V ↪ W) :
+    genus (G.map f) = genus G
 
 /-- External base case: an edgeless finite graph has orientable genus zero. -/
 axiom genus_bot {V : Type*} [Finite V] :
@@ -75,6 +84,16 @@ genus of a component. -/
 axiom genus_eq_sum_components {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     genus G = Finset.sum (components G) (fun c => genus (componentGraph c))
+
+/-- A graph that embeds, after an injective vertex relabelling, as a spanning
+subgraph of a planar graph is planar. -/
+theorem isPlanar_of_map_le {V W : Type*} [Finite V] [Finite W]
+    {G : SimpleGraph V} {H : SimpleGraph W} (f : V ↪ W)
+    (hsub : G.map f ≤ H) (hplanar : IsPlanar H) : IsPlanar G := by
+  unfold IsPlanar at hplanar ⊢
+  have hmono := genus_mono hsub
+  rw [genus_map G f, hplanar] at hmono
+  omega
 
 /-- Connected components whose induced component graph has positive genus. -/
 noncomputable def nonplanarComponents {V : Type*} [Fintype V]
