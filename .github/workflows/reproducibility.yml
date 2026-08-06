@@ -2,10 +2,15 @@ name: Reproducibility bundle
 
 on:
   push:
+    branches: ["main"]
     paths:
       - "reproducibility/**"
       - ".github/workflows/reproducibility.yml"
   workflow_dispatch:
+
+concurrency:
+  group: reproducibility-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
