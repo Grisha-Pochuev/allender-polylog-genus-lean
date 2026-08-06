@@ -19,6 +19,7 @@ import Allender.WeightedMedian
 import Allender.FiniteComponent
 import Allender.ComponentSupport
 import Allender.CanonicalComponents
+import Allender.CanonicalPlanarization
 import Allender.MedianExistence
 import Allender.Halving
 import Allender.ComponentChain
