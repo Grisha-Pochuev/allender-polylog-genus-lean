@@ -65,7 +65,7 @@ theorem cumulativeCuts_card_le_mul
         (S.cumulativeCuts (t + 1)).card =
             (S.cumulativeCuts t ∪ S.roundCuts t).card := by rfl
         _ ≤ (S.cumulativeCuts t).card + (S.roundCuts t).card :=
-          Finset.card_union_le
+          Finset.card_union_le (S.cumulativeCuts t) (S.roundCuts t)
         _ ≤ g * t + g :=
           Nat.add_le_add (ih htlt.le) (S.roundCuts_card_le htlt)
         _ = g * (t + 1) := (Nat.mul_succ g t).symm
@@ -132,8 +132,12 @@ theorem final_isPlanar
       OrientableGenus.nonplanarComponents
         ((G.deleteLayers (S.cumulativeCuts T)).toSimpleGraph) = ∅ :=
     Finset.card_eq_zero.mp hcard
-  exact (OrientableGenus.isPlanar_iff_nonplanarComponents_eq_empty
-    ((G.deleteLayers (S.cumulativeCuts T)).toSimpleGraph)).2 hempty
+  have hplanarT :
+      OrientableGenus.IsPlanar
+        ((G.deleteLayers (S.cumulativeCuts T)).toSimpleGraph) :=
+    (OrientableGenus.isPlanar_iff_nonplanarComponents_eq_empty
+      ((G.deleteLayers (S.cumulativeCuts T)).toSimpleGraph)).2 hempty
+  simpa [T] using hplanarT
 
 /-- The final certified planarization deletes at most `g(log₂ N + 1)` layers. -/
 theorem final_cuts_card_le
