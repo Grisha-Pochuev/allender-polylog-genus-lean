@@ -2,6 +2,9 @@ name: Lean verification
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - formalization/canonical-components-v2
   pull_request:
     branches:
       - main
