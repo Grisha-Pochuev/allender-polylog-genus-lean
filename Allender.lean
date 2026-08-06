@@ -17,6 +17,7 @@ import Allender.OrientableGenus
 import Allender.CircuitGraph
 import Allender.WeightedMedian
 import Allender.FiniteComponent
+import Allender.ComponentSupport
 import Allender.MedianExistence
 import Allender.Halving
 import Allender.ComponentChain
