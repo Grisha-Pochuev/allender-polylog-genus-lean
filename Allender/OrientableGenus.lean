@@ -42,21 +42,32 @@ subgraph. -/
 axiom genus_mono {V : Type*} [Finite V] {G H : SimpleGraph V}
     (h : G ≤ H) : genus G ≤ genus H
 
+/-- A fixed finite enumeration of the connected components of `G`.
+
+Using one named finset avoids accidental dependence on definitionally
+different `Fintype` instances for connected components.
+-/
+noncomputable def components {V : Type*} [Fintype V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] : Finset G.ConnectedComponent := by
+  classical
+  exact Finset.univ
+
 /-- External theorem: Battle--Harary--Kodama--Youngs additivity of orientable
 genus over connected components. -/
 axiom genus_eq_sum_components {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
-    genus G = ∑ c : G.ConnectedComponent, genus c.toSimpleGraph
+    genus G = Finset.sum (components G) (fun c => genus c.toSimpleGraph)
 
 /-- Connected components whose induced component graph has positive genus. -/
 noncomputable def nonplanarComponents {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] : Finset G.ConnectedComponent := by
   classical
-  exact Finset.univ.filter fun c => ¬IsPlanar c.toSimpleGraph
+  exact (components G).filter fun c => ¬IsPlanar c.toSimpleGraph
 
 /-- The number of nonplanar components is at most the genus of the whole graph.
 
-Unlike the three declarations above, this is a proved consequence inside Lean.
+Unlike the three external declarations above, this is a proved consequence
+inside Lean.
 -/
 theorem nonplanarComponents_card_le_genus {V : Type*}
     [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] :
@@ -73,8 +84,11 @@ theorem nonplanarComponents_card_le_genus {V : Type*}
         simpa [nonplanarComponents, IsPlanar] using
           (Finset.mem_filter.mp hc).2
       exact Nat.one_le_iff_ne_zero.mpr hpositive
-    _ ≤ ∑ c : G.ConnectedComponent, genus c.toSimpleGraph := by
-      exact Finset.sum_le_univ_sum_of_nonneg (fun _ => Nat.zero_le _)
+    _ ≤ Finset.sum (components G) (fun c => genus c.toSimpleGraph) := by
+      apply Finset.sum_le_sum_of_subset_of_nonneg
+      · exact Finset.filter_subset _ _
+      · intro c hc hnot
+        exact Nat.zero_le _
     _ = genus G := (genus_eq_sum_components G).symm
 
 /-- A finite graph is planar exactly when it has no nonplanar component. -/
@@ -98,8 +112,7 @@ theorem isPlanar_iff_nonplanarComponents_eq_empty {V : Type*}
     intro c hc
     by_contra hpositive
     have hmem : c ∈ nonplanarComponents G := by
-      exact Finset.mem_filter.mpr
-        ⟨Finset.mem_univ c, by simpa [IsPlanar]⟩
+      exact Finset.mem_filter.mpr ⟨hc, by simpa [IsPlanar]⟩
     rw [hempty] at hmem
     exact Finset.notMem_empty c hmem
 
