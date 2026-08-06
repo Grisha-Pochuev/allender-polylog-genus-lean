@@ -1,9 +1,11 @@
 name: Lean verification
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
+
+concurrency:
+  group: lean-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -39,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .lake
-          key: lean-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml') }}
+          key: lean-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'lake-manifest.json') }}
 
       - name: Generate Lake manifest
         run: lake update
