@@ -72,4 +72,16 @@ jobs:
         run: lake env lean Allender/AxiomAudit.lean
 
       - name: Independently check Lean environment
-        run: lake env leanchecker Allender
+        shell: bash
+        run: |
+          # `leanchecker Allender` replays every project module concurrently and
+          # can exhaust runner memory. Replay every built project module in its
+          # own process instead; this checks the same declarations serially.
+          set -euo pipefail
+          while IFS= read -r olean; do
+            module="${olean#.lake/build/lib/lean/}"
+            module="${module%.olean}"
+            module="${module//\//.}"
+            echo "leanchecker $module"
+            lake env leanchecker "$module"
+          done < <(find .lake/build/lib/lean/Allender -type f -name '*.olean' | sort)
