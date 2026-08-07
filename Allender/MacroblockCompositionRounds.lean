@@ -153,5 +153,51 @@ theorem roundedMacroblockRelations_sizeAtMost
     (P.realizedMacroblockRelations_depthAtMost A hsim hn D hdepth)
     (P.realizedMacroblockRelations_sizeAtMost A hsim hn D S hdepth hsize)
 
+/-- The last collapse adds only five further layers after all blocking rounds. -/
+theorem roundedComposedMacroblockCircuit_depth_le
+    (P : PlanarizedFamily F) (A : P.goodCircuitBatch.ACmBatch m)
+    (hsim : A.Simulates) {n : Nat} (hn : 1 ≤ n)
+    (L : Nat) (hL : 0 < L) (rounds D : Nat)
+    (hdepth : ∀ n t, (A.circuit n t).depth ≤ D)
+    (initial final : BitState F.width) :
+    (P.roundedComposedMacroblockCircuit A hsim hn L rounds
+      initial final).circuit.depth ≤ D + 9 + 5 * rounds := by
+  unfold roundedComposedMacroblockCircuit
+  have h := RealizedRelation.collapse_depthAtMost
+    (P.roundedMacroblockRelations A hsim hn L rounds)
+    (D + 4 + 5 * rounds)
+    (P.roundedMacroblockRelations_depthAtMost A hsim hn L hL
+      rounds D hdepth) initial final
+  exact h.trans (by omega)
+
+/-- Once the rounded list has length at most one, the final collapse has an
+explicit gate-count bound independent of the original macroblock count. -/
+theorem roundedComposedMacroblockCircuit_size_le
+    (P : PlanarizedFamily F) (A : P.goodCircuitBatch.ACmBatch m)
+    (hsim : A.Simulates) {n : Nat} (hn : 1 ≤ n)
+    (L : Nat) (hL : 0 < L) (rounds D S : Nat)
+    (hdepth : ∀ n t, (A.circuit n t).depth ≤ D)
+    (hsize : ∀ t, (A.circuit n t).size ≤ S)
+    (hcount :
+      (macroblockTags (F.circuit n).layers.tail.length (P.cuts n)).length ≤
+        L ^ rounds)
+    (initial final : BitState F.width) :
+    (P.roundedComposedMacroblockCircuit A hsim hn L rounds
+      initial final).circuit.size ≤
+      RealizedRelation.nextSizeBound (BitState F.width) 1
+        (D + 4 + 5 * rounds)
+        (RealizedRelation.roundsSizeBound (BitState F.width) L rounds
+          (D + 4) (macroblockRelationSizeBound F.width D S)) := by
+  exact RealizedRelation.collapse_sizeAtMost_nextSizeBound _ 1
+    (D + 4 + 5 * rounds)
+    (RealizedRelation.roundsSizeBound (BitState F.width) L rounds
+      (D + 4) (macroblockRelationSizeBound F.width D S))
+    (P.roundedMacroblockRelations_length_le_one A hsim hn L hL
+      rounds hcount)
+    (P.roundedMacroblockRelations_depthAtMost A hsim hn L hL
+      rounds D hdepth)
+    (P.roundedMacroblockRelations_sizeAtMost A hsim hn L hL
+      rounds D S hdepth hsize) initial final
+
 end PlanarizedFamily
 end Allender

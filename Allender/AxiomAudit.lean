@@ -140,3 +140,9 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.PlanarizedFamily.composedMacroblockCircuit_eval_iff
 #print axioms Allender.PlanarizedFamily.acceptanceCircuit_eval_iff
 #print axioms Allender.PlanarizedFamily.roundedAcceptanceCircuit_eval_iff
+#print axioms Allender.CircuitFamily.planarizedTotal_cuts_card_le
+#print axioms Allender.canonical_macroblock_count_le
+#print axioms Allender.PlanarizedFamily.finalFamily_constantDepth
+#print axioms Allender.PlanarizedFamily.finalFamily_polynomialSize
+#print axioms Allender.PlanarizedFamily.finalFamily_recognizes
+#print axioms Allender.allender_polylog_genus_in_ACC0

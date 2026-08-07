@@ -69,6 +69,63 @@ theorem chosenPlanarizingCuts_remainder_planar {n w g : Nat}
 
 end Circuit
 
+namespace Circuit
+
+/-- A nonempty layer list supplies a concrete dependency-graph vertex. -/
+theorem nonemptyVertex_of_layers_ne_nil {n w : Nat} (C : Circuit n w)
+    (hne : C.layers ≠ []) : Nonempty C.Vertex :=
+  ⟨⟨⟨0, List.length_pos_of_ne_nil hne⟩, C.output⟩⟩
+
+/-- The degenerate empty-layer encoding has an empty, hence planar,
+dependency graph after any layer deletion. -/
+theorem deleteLayers_isPlanar_of_layers_eq_nil {n w : Nat}
+    (C : Circuit n w) (h : C.layers = []) (cuts : Finset Nat) :
+    OrientableGenus.IsPlanar
+      ((C.layeredGraph.deleteLayers cuts).toSimpleGraph) := by
+  change OrientableGenus.genus
+    ((C.layeredGraph.deleteLayers cuts).toSimpleGraph) = 0
+  rw [show (C.layeredGraph.deleteLayers cuts).toSimpleGraph = ⊥ by
+    ext u v
+    have hu := u.1.isLt
+    simp [h] at hu]
+  exact OrientableGenus.genus_bot
+
+end Circuit
+
+/-- Total family-level planarization.  Nonempty circuits use the canonical
+separator; an empty-layer circuit has no graph vertices and needs no cuts. -/
+noncomputable def CircuitFamily.planarizedTotal {F : CircuitFamily}
+    {g : Nat → Nat} (hgenus : F.GenusBound g) : PlanarizedFamily F where
+  cuts := fun n => by
+    by_cases hnil : (F.circuit n).layers = []
+    · exact ∅
+    · letI : Nonempty (F.circuit n).Vertex :=
+        (F.circuit n).nonemptyVertex_of_layers_ne_nil hnil
+      exact (F.circuit n).chosenPlanarizingCuts (hgenus n)
+  remainderPlanar := by
+    intro n
+    by_cases hnil : (F.circuit n).layers = []
+    · simp only [dif_pos hnil]
+      exact (F.circuit n).deleteLayers_isPlanar_of_layers_eq_nil hnil ∅
+    · letI : Nonempty (F.circuit n).Vertex :=
+        (F.circuit n).nonemptyVertex_of_layers_ne_nil hnil
+      simp only [dif_neg hnil]
+      exact
+        (F.circuit n).chosenPlanarizingCuts_remainder_planar (hgenus n)
+
+/-- Quantitative cut bound for the total construction, including the empty
+base case. -/
+theorem CircuitFamily.planarizedTotal_cuts_card_le {F : CircuitFamily}
+    {g : Nat → Nat} (hgenus : F.GenusBound g) (n : Nat) :
+    ((F.planarizedTotal hgenus).cuts n).card ≤
+      g n * (Nat.log 2 (F.circuit n).size + 1) := by
+  by_cases hnil : (F.circuit n).layers = []
+  · simp [CircuitFamily.planarizedTotal, hnil]
+  · letI : Nonempty (F.circuit n).Vertex :=
+      (F.circuit n).nonemptyVertex_of_layers_ne_nil hnil
+    simpa [CircuitFamily.planarizedTotal, hnil] using
+      (F.circuit n).chosenPlanarizingCuts_card_le (hgenus n)
+
 /-- Apply the checked separator construction at every input length. -/
 noncomputable def CircuitFamily.planarized {F : CircuitFamily} {g : Nat → Nat}
     (hvertices : F.NonemptyVertices) (hgenus : F.GenusBound g) :
