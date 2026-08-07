@@ -14,6 +14,7 @@ Padding source inputs changes only input-gate indices, never dependency edges.
 Restricting a target circuit replaces an input outside the retained prefix by
 the constant `false`.  The semantic theorems below make the two operations
 exact rather than leaving “ignored inputs” as an informal convention.
+Both transformations retain the existing layer width and layer count.
 -/
 
 namespace Allender
@@ -54,7 +55,12 @@ def mapInput {n N w : Nat} (f : Fin n → Fin N) : Gate n w → Gate N w
 @[simp] theorem mapInput_eval {n N w : Nat} (f : Fin n → Fin N)
     (g : Gate n w) (y : BitState N) (previous : BitState w) :
     (g.mapInput f).eval y previous = g.eval (fun i => y (f i)) previous := by
-  cases g <;> rfl
+  cases g with
+  | input i negated => cases negated <;> rfl
+  | constant value => rfl
+  | copyGate source => rfl
+  | andGate left right => rfl
+  | orGate left right => rfl
 
 end Gate
 
@@ -128,7 +134,7 @@ def mapInputVertexEmbedding {n N w : Nat} (C : Circuit n w)
     apply Prod.ext
     · apply Fin.ext
       exact congrArg (fun z => z.1.val) huv
-    · exact congrArg Prod.snd huv
+    · simpa using congrArg (fun z => z.2) huv
 
 /-- A dependency edge is unchanged by external-input renaming. -/
 theorem mapInput_edge_embedding {n N w : Nat} (C : Circuit n w)
@@ -139,7 +145,15 @@ theorem mapInput_edge_embedding {n N w : Nat} (C : Circuit n w)
   rcases hedge with ⟨hlayer, hparent⟩
   constructor
   · exact hlayer
-  · simpa [mapInput, CircuitLayer.mapInput] using hparent
+  · let targetLayer : Fin C.layers.length :=
+      ⟨v.1.val, by simpa [mapInput] using v.1.isLt⟩
+    have huPosition : (C.mapInputVertexEmbedding f u).2 = u.2 := rfl
+    have hvPosition : (C.mapInputVertexEmbedding f v).2 = v.2 := rfl
+    have hvLayer : (C.mapInputVertexEmbedding f v).1 = targetLayer := by
+      apply Fin.ext
+      rfl
+    rw [huPosition, hvPosition, hvLayer]
+    simpa [mapInput, CircuitLayer.mapInput, targetLayer] using hparent
 
 /-- After the explicit vertex relabelling, an input-renamed dependency graph
 is a spanning subgraph of the original dependency graph. -/
@@ -178,7 +192,7 @@ def restrictInput {m n N s : Nat} (h : n ≤ N) :
   | .input i =>
       if hi : i.val < n then .input ⟨i.val, hi⟩ else .constant false
   | .constant value => .constant value
-  | .notGate input => .notGate input
+  | .notGate source => .notGate source
   | .andGate inputs => .andGate inputs
   | .orGate inputs => .orGate inputs
   | .modGate inputs => .modGate inputs
@@ -191,13 +205,13 @@ def restrictInput {m n N s : Nat} (h : n ≤ N) :
   cases g with
   | input i =>
       by_cases hi : i.val < n
-      · simp [restrictInput, hi, BitState.zeroExtend]
-      · simp [restrictInput, hi, BitState.zeroExtend]
-  | constant value => rfl
-  | notGate input => rfl
-  | andGate inputs => rfl
-  | orGate inputs => rfl
-  | modGate inputs => rfl
+      · simp [restrictInput, ACCGate.eval, hi, BitState.zeroExtend]
+      · simp [restrictInput, ACCGate.eval, hi, BitState.zeroExtend]
+  | constant value => simp [restrictInput, ACCGate.eval]
+  | notGate source => simp [restrictInput, ACCGate.eval]
+  | andGate inputs => simp [restrictInput, ACCGate.eval]
+  | orGate inputs => simp [restrictInput, ACCGate.eval]
+  | modGate inputs => simp [restrictInput, ACCGate.eval]
 
 end ACCGate
 
