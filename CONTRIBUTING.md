@@ -1,10 +1,12 @@
 # Contributing
 
-Contributions are welcome after the repository is made public. While it remains private, this file records the review standard.
+The repository is public and mathematical review is welcome.  This file records
+the standard for proposed changes and error reports.
 
 ## Before opening a change
 
-- Read `README.md`, `STATUS.md`, `AGENTS.md`, and `docs/trust-boundary.md`.
+- Read `README.md`, `docs/REVIEW_GUIDE.md`, `STATUS.md`, `AGENTS.md`, and
+  `docs/trust-boundary.md`.
 - Identify the exact proof obligation being addressed.
 - Check whether the intended definition agrees with the cited source.
 - Avoid mixing refactoring with new mathematics.
@@ -12,6 +14,7 @@ Contributions are welcome after the repository is made public. While it remains 
 ## Lean requirements
 
 - The project must build with the pinned toolchain.
+- Run `bash scripts/verify-lean.sh` before opening a pull request.
 - No `sorry`, `admit`, or undocumented custom axiom is permitted.
 - New central lemmas must be added to `Allender/AxiomAudit.lean`.
 - Definitions should have docstrings explaining their mathematical role.
