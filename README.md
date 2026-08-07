@@ -29,13 +29,13 @@ After synchronization with `main`, this branch may contain the same `reproducibi
 
 ## Verified status
 
-Latest fully verified code commit:
+Latest locally fully verified code commit:
 
 ```text
-443db2186476346f91f4af8f66f47aa39fe4dcb6
+9bb31c4
 ```
 
-Successful workflow run:
+Latest earlier successful GitHub workflow baseline:
 
 ```text
 31116859409
@@ -50,15 +50,14 @@ The run used Lean 4.32.2 and mathlib 4.32.2 and performed:
 
 Documentation-only commits after the verified code commit do not alter the checked Lean declarations.
 
-The canonical-planarization and standalone planar-macroblock code through
-commit `49b7625` has also passed locally:
+The complete end-to-end theorem through commit `9bb31c4` has passed locally:
 
 - a complete `lake build`;
 - compilation of the axiom audit, with no `sorryAx` dependency;
 - sequential `leanchecker` replay of every built project module.
 
-Its fresh GitHub Actions result is still pending, so the server-verified commit
-above remains the published CI baseline.
+Its fresh GitHub Actions result is still pending, so run `31116859409` remains
+the earlier server-verified baseline rather than verification of the final theorem.
 
 The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` field and an assumed layer-planarization structure field, were deleted. The current circuit family is computed by concrete layers and gates.
 
@@ -88,8 +87,12 @@ The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` 
 | Concrete syntax and semantics for `AC⁰[m]` and `ACC⁰` | checked |
 | Polynomial count of intermediate state assignments | checked |
 | Disjoint padded input-length ranges used in Lemma 6.1 | checked |
+| Common-modulus simulation of all good macroblocks | checked relative to Hansen |
+| Multi-round finite-state relation composition with exact semantics | checked |
+| Constant depth and polynomial size of the final target family | checked |
+| `PolynomialSize → PolylogGenus → InACC0` | checked relative to the named external boundary |
 
-See [`STATUS.md`](STATUS.md) and [`docs/source-alignment.md`](docs/source-alignment.md) for declaration-level correspondence and the exact remaining obligations.
+See [`STATUS.md`](STATUS.md) and [`docs/source-alignment.md`](docs/source-alignment.md) for declaration-level correspondence and the exact trust boundary.
 
 ## Scope of the new planarization result
 
@@ -103,19 +106,25 @@ This result is unconditional inside the graph model, but it deliberately
 depends on named external topology declarations: the genus invariant,
 monotonicity, relabelling invariance where used by extracted block circuits,
 the edgeless base case, and additivity over components.  It does not by itself
-prove the final circuit-class inclusion.
+feeds into the final circuit-class inclusion proved in
+`Allender.allender_polylog_genus_in_ACC0`.
 
-## What is not yet a complete Lean proof
+## Scope of the final theorem
 
-The final bounty theorem is **not yet formalized**. The main remaining obligations are:
+Lean now constructs one fixed-modulus target family and proves exact
+recognition, constant depth, and polynomial padded gate count.  The final
+declaration is:
 
-1. combine the checked standalone planar block circuits into the padded single family used for simultaneous simulation;
-2. apply the exact named Hansen boundary and fix unused padded inputs;
-3. construct the common-modulus simulations of all planar blocks;
-4. construct the constant-depth `AC⁰[m]` circuits for polylogarithmic relation composition and prove depth/size bounds;
-5. combine all parts into the final theorem `allender_main`.
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
 
-A green build certifies only the declarations listed in the axiom audit. It does not by itself establish the $1000 result.
+Its hypotheses are the concrete source-family predicates `PolynomialSize` and
+`PolylogGenus`; fixed width is part of `CircuitFamily`.  Empty-layer and
+zero-input encodings are handled explicitly.  This is a complete formal
+reduction relative to the published Hansen theorem and the five named genus
+facts below.  It is not a from-first-principles formalization of those external
+published results.
 
 ## Exact external boundary
 
@@ -171,6 +180,10 @@ Allender/
   Hansen.lean                  exact external family-level Hansen theorem
   StateEnumeration.lean        polynomial state enumeration
   Padding.lean                 common-family input-length padding
+  RelationCompositionRounds.lean checked logarithmic blocking rounds
+  PolynomialBounds.lean       explicit polynomial-bound calculus
+  AcceptanceCircuit.lean      end-to-end target-circuit construction
+  MainTheorem.lean             final `InACC0` theorem
   AxiomAudit.lean              trusted-dependency report
 ```
 

@@ -2,7 +2,9 @@
 
 Basis: the 12-page proof candidate *Polylogarithmic Genus Does Not Increase the Power of Constant-Width Polynomial-Size Circuits* and its Russian technical notes.
 
-This document records what is genuinely represented in Lean. It must not be read as a claim that the final theorem is already formalized.
+This document records what is genuinely represented in Lean. The final
+reduction is formalized relative to the exact external genus and Hansen
+declarations listed below.
 
 ## Section 2 — Circuit model and notation
 
@@ -15,7 +17,9 @@ This document records what is genuinely represented in Lean. It must not be read
 | State space is `Q={0,1}^w`, `|Q|=2^w` | `BitState`, `BitState.card` |
 | Circuit graph consists of gate positions and consecutive-layer dependencies | `Circuit.Vertex`, `Circuit.layeredGraph` |
 
-The source model pads every layer to the fixed width. Output-location conventions and exact equivalence with Hansen's published model still need a formal conversion theorem.
+The source model pads every layer to the fixed width. Hansen's published
+characterization is used through the exact family-level interface isolated in
+`Hansen.lean`.
 
 ## Section 3 — Layer planarization lemma
 
@@ -65,9 +69,9 @@ the graph model, relative only to the named orientable-genus declarations.
 | The standalone graph embeds into the ambient block graph | `macroblockCircuit_graph_map_le` |
 | Every standalone good-block circuit is planar | `macroblockCircuit_isPlanar` |
 
-The block extraction itself is now complete. Still missing is combining all
-valid block/output pairs across input lengths into the one padded planar family
-used for simultaneous Hansen simulation.
+`goodCircuitBatch` combines all valid block/output pairs across input lengths;
+`exists_common_modulus_goodCircuitBatch` supplies their common-modulus
+simulation relative to Hansen.
 
 ## Section 5 — Relations on the state space
 
@@ -84,9 +88,9 @@ used for simultaneous Hansen simulation.
 | Composing all canonical block relations equals the full tail relation | `compose_macroblockRelations_eq_tailSegment` |
 | Acceptance has exact initial/block-composition/final semantics | `accept_cons_iff_macroblockRelations` |
 
-The proposition-level macroblock decomposition is checked.  Still missing is
-its realization by concrete target `AC⁰[m]` circuits with uniform resource
-bounds.
+The proposition-level macroblock decomposition and its realization by concrete
+target `AC⁰[m]` circuits with uniform resource bounds are checked in
+`MacroblockRelationCircuits.lean` and `MacroblockCompositionRounds.lean`.
 
 ## Section 6 — Simultaneous Hansen simulation
 
@@ -99,12 +103,10 @@ bounds.
 | Valid padded ranges for distinct `n` are disjoint | `paddedLength_injective_on_ranges` |
 
 The exact family-level forward theorem is isolated as
-`Hansen.planar_constantWidth_polySize_to_ACC0`. Still missing:
-
-1. construction of the padded single family of planar block-output circuits;
-2. proof of its polynomial size and planarity at invalid padded lengths;
-3. fixing ignored variables in the resulting `AC⁰[m]` circuits;
-4. extraction of one common modulus, depth bound, and polynomial size bound.
+`Hansen.planar_constantWidth_polySize_to_ACC0`. The padded family, its
+planarity and polynomial size, restriction of ignored variables, and extraction
+of a common modulus/depth/size bound are checked by `SimultaneousHansen.lean`
+and `GoodBlockBatch.lean`.
 
 ## Section 7 — Polylogarithmic relation composition
 
@@ -113,22 +115,28 @@ The exact family-level forward theorem is isolated as
 | Number of assignments to `L` intermediate width-`w` states | `card_stateAssignments` |
 | For `L=log₂(n+2)`, this number is polynomial | `card_stateAssignments_log_le` |
 | Witness-chain semantics is the OR-over-assignments formula at proposition level | `RelationChain.lean` |
-
-Still missing: concrete unbounded-fan-in AND/OR circuit construction, depth increment of two per round, polynomial size recurrence, and the constant-round collapse for an arbitrary fixed polylogarithmic exponent.
+| Concrete unbounded-fan-in trajectory circuit | `composeFinCircuit` |
+| Exact semantics of each blocking round | `composeList_collapseRounds` |
+| Constant depth through a fixed number of rounds | `collapseRounds_depthAtMost` |
+| Polynomial size recurrence | `roundsSizeBound_polynomial` |
+| Polylogarithmic macroblock count fits `c+1` rounds | `canonical_macroblock_count_le` |
 
 ## Section 8 — Main theorem
 
-No final theorem of the form
+The final theorem is present:
 
 ```lean
-theorem allender_main
+theorem allender_polylog_genus_in_ACC0
     (F : CircuitFamily)
     (hsize : F.PolynomialSize)
-    (hgenus : ...)
+    (hgenus : F.PolylogGenus)
     : InACC0 F.language
 ```
 
-is present. The root module verifies the source-aligned lemmas and conditional reductions above, not the bounty conclusion.
+It constructs a concrete target family, proves exact recognition, constant
+depth, and polynomial size, and handles empty-layer and zero-input cases. Its
+axiom audit exposes only the standard Lean axioms plus the exact external
+boundary below.
 
 ## External theorem boundary
 

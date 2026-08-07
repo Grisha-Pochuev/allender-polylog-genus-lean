@@ -11,16 +11,14 @@ The manuscript package and this ledger answer different questions:
 - `main/reproducibility/` records whether the prose artifact can be rebuilt and reviewed;
 - this file records exactly what Lean checks, what is conditional, what is external, and what remains pending.
 
-Last verified code commit: `443db2186476346f91f4af8f66f47aa39fe4dcb6`  
-Successful workflow run: `31116859409`  
+Last locally fully verified code commit: `9bb31c4`
+Earlier successful workflow baseline: `31116859409`
 Toolchain: Lean 4.32.2, mathlib 4.32.2
 
-The canonical-planarization and standalone planar-macroblock code through
-`49b76255155482e564d68ec7665ad953f580448a`
-has additionally passed a local clean `lake build`, the complete axiom audit,
-and a memory-bounded sequential `leanchecker` replay of every project module.
-A fresh GitHub Actions run for that commit is still required before replacing
-the server-verified commit and run above.
+The end-to-end theorem at `9bb31c4` passed a local clean `lake build`, the
+complete axiom audit, and a memory-bounded sequential `leanchecker` replay of
+every project module. A fresh GitHub Actions run is still required before the
+earlier server baseline can be replaced.
 
 The successful workflow rejected `sorry`/`admit`, ran `lake build`, compiled
 `Allender/AxiomAudit.lean`, and replayed the environment with `leanchecker`.
@@ -41,7 +39,7 @@ Documentation and branch-synchronization commits after the verified code commit 
 |---|---|---|---|
 | C1 | Boolean gate basis and evaluation | `Gate.eval` | checked |
 | C2 | Deterministic layer transition | `CircuitLayer.transition_functional` | checked |
-| C3 | Concrete circuit and family evaluation | `Circuit.eval`, `CircuitFamily.accepts` | checked |
+| C3 | Concrete circuit and family evaluation | `Circuit.eval`, `CircuitFamily.language` | checked |
 | C4 | Circuit dependency graph and size | `Circuit.layeredGraph`, `Circuit.size_eq_card_vertex` | checked |
 | S1 | Fixed state space and cardinality | `BitState.card` | checked |
 | R1 | Relation composition and associativity | `Rel.comp_assoc`, `Rel.composeList_append` | checked |
@@ -77,8 +75,9 @@ Documentation and branch-synchronization commits after the verified code commit 
 | H2 | Common-family padding ranges | `padding_gap`, `paddedLength_injective_on_ranges` | checked |
 | P1 | Polynomial number of intermediate state assignments | `card_stateAssignments_log_le` | checked |
 | P2 | Explicit relation-chain semantics | `RelationChain.lean` | checked |
-| P3 | Constant-depth `AC⁰[m]` circuit construction and size accounting | — | pending |
-| F1 | End-to-end theorem: source family lies in `ACC⁰` | — | **not proved** |
+| P3 | Constant-depth multi-round relation composition and size accounting | `collapseRounds`, `roundedAcceptanceCircuit_depth_le`, `roundedAcceptanceCircuit_size_le` | checked |
+| P4 | Polynomial closure of all numerical size recurrences | `roundsSizeBound_polynomial`, `finalAcceptanceSizeBound_polynomial` | checked |
+| F1 | End-to-end theorem: source family lies in `ACC⁰` | `allender_polylog_genus_in_ACC0` | checked relative to T3–T4 and H1 |
 
 ## Exact topology trust boundary
 
@@ -134,9 +133,9 @@ The following earlier placeholders were deleted and must not be cited as verific
 - the `TopologyInterface` whose main planarization statement was merely a field;
 - obsolete proof-obligation and planning documents referring to those interfaces.
 
-## Release criterion
+## Verification result
 
-The repository may claim a full Lean verification of Allender's theorem only after:
+The repository now meets the previously stated end-to-end release criterion:
 
 1. a concrete final theorem quantifies over the source circuit family defined here;
 2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
@@ -144,3 +143,6 @@ The repository may claim a full Lean verification of Allender's theorem only aft
 4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
 5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
 6. clean build, axiom audit, and `leanchecker` all pass.
+
+The resulting claim is deliberately qualified as a complete Lean reduction
+relative to the exact external genus and Hansen declarations listed above.
