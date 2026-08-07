@@ -12,13 +12,14 @@ The manuscript package and this ledger answer different questions:
 - this file records exactly what Lean checks, what is conditional, what is external, and what remains pending.
 
 Last locally fully verified code commit: `9bb31c4`
-Earlier successful workflow baseline: `31116859409`
+Equivalent GitHub source-tree commit: `37f90d350278a40c360375c7f8731c46a2610ec5`
+Successful complete workflow: [`31135088313`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/actions/runs/31135088313)
 Toolchain: Lean 4.32.2, mathlib 4.32.2
 
 The end-to-end theorem at `9bb31c4` passed a local clean `lake build`, the
 complete axiom audit, and a memory-bounded sequential `leanchecker` replay of
-every project module. A fresh GitHub Actions run is still required before the
-earlier server baseline can be replaced.
+every project module.  The byte-identical GitHub source tree then passed all
+the same checks in workflow run `31135088313`.
 
 The successful workflow rejected `sorry`/`admit`, ran `lake build`, compiled
 `Allender/AxiomAudit.lean`, and replayed the environment with `leanchecker`.

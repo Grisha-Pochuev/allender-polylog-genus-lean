@@ -66,23 +66,5 @@ jobs:
       - name: Download mathlib build cache
         run: lake exe cache get
 
-      - name: Build project
-        run: lake build
-
-      - name: Compile axiom audit
-        run: lake env lean Allender/AxiomAudit.lean
-
-      - name: Independently check Lean environment
-        shell: bash
-        run: |
-          # `leanchecker Allender` replays every project module concurrently and
-          # can exhaust runner memory. Replay every built project module in its
-          # own process instead; this checks the same declarations serially.
-          set -euo pipefail
-          while IFS= read -r olean; do
-            module="${olean#.lake/build/lib/lean/}"
-            module="${module%.olean}"
-            module="${module//\//.}"
-            echo "leanchecker $module"
-            lake env leanchecker "$module"
-          done < <(find .lake/build/lib/lean/Allender -type f -name '*.olean' | sort)
+      - name: Build, audit, and independently replay the project
+        run: bash scripts/verify-lean.sh

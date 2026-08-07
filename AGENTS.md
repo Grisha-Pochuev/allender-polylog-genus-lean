@@ -4,7 +4,10 @@ Instructions for humans and coding agents working in this repository.
 
 ## Mission
 
-Develop a faithful Lean 4 formalization of the candidate proof strategy for Eric Allender's polylogarithmic-genus constant-width circuit problem. Correctness and explicit scope are more important than apparent progress.
+Maintain and independently review the Lean 4 formalization of the candidate
+proof strategy for Eric Allender's polylogarithmic-genus constant-width circuit
+problem. Correctness and explicit scope are more important than apparent
+progress.
 
 ## Non-negotiable rules
 
@@ -22,7 +25,7 @@ Develop a faithful Lean 4 formalization of the candidate proof strategy for Eric
 ## Required validation before committing
 
 ```bash
-lake build
+bash scripts/verify-lean.sh
 ```
 
 Also verify that no placeholders were introduced:
@@ -45,10 +48,13 @@ For central theorems, add a `#print axioms` line to `Allender/AxiomAudit.lean`.
 
 ## Preferred next tasks
 
-1. Add a path/walk representation and prove that every surviving path stays in one cut interval.
-2. Formalize median selection for a finite layered component.
-3. Prove the abstract halving recursion before introducing surfaces.
-4. Investigate existing `mathlib` graph-embedding infrastructure and document gaps.
+1. Obtain independent expert review of the prose-to-Lean alignment.
+2. Replace the five exact orientable-genus declarations with library-backed
+   proofs when suitable graph-embedding infrastructure becomes available.
+3. Formalize the cited forward direction of Hansen's theorem from its published
+   proof, without weakening its hypotheses or conclusion.
+4. Keep the final theorem, status ledger, review guide, and workflow result in
+   agreement after every change.
 
 ## Documentation discipline
 

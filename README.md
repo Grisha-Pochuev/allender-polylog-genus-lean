@@ -6,16 +6,44 @@ This branch develops a Lean 4 formalization of the proof candidate in:
 
 The target is Eric Allender's US $1000 open question: whether every language accepted by a nonuniform family of polynomial-size, constant-width Boolean circuits of polylogarithmic orientable genus belongs to `ACC⁰`.
 
+## Start here
+
+For a first review, follow this short route:
+
+1. [`docs/REVIEW_GUIDE.md`](docs/REVIEW_GUIDE.md) — what each part of the
+   repository is for and the exact verification command;
+2. [`reproducibility/paper/allender_polylog_genus_acc0_proof.tex`](reproducibility/paper/allender_polylog_genus_acc0_proof.tex)
+   — the human-readable proof;
+3. [`Allender/MainTheorem.lean`](Allender/MainTheorem.lean) — the final Lean
+   theorem;
+4. [`Allender/AxiomAudit.lean`](Allender/AxiomAudit.lean) — the complete visible
+   trust boundary;
+5. [`STATUS.md`](STATUS.md) and
+   [`docs/source-alignment.md`](docs/source-alignment.md) — exact status and the
+   manuscript-to-Lean map.
+
+To reproduce the complete machine check after installing `elan`:
+
+```bash
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+A green run verifies the reduction relative to the named genus facts and
+Hansen's published theorem.  It does not claim that those external results
+were formalized from first principles in this repository.
+
 ## Branch scope and project navigation
 
-The authoritative base branch is:
+The historical base of the current development is:
 
 ```text
 formalization/full-reduction-v1
 ```
 
-The currently checked continuation, including the concrete canonical
-planarization construction, is `formalization/canonical-components-v2`.
+The authoritative Lean development, including the final theorem, is currently
+`formalization/canonical-components-v2` and is reviewed through PR #7.
 
 The human-review manuscript package is maintained on `main` under [`reproducibility/`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/main/reproducibility). It contains the LaTeX manuscript, English synopsis, sources, integrity checks, and reviewer materials.
 
@@ -35,11 +63,15 @@ Latest locally fully verified code commit:
 9bb31c4
 ```
 
-Latest earlier successful GitHub workflow baseline:
+Equivalent final source tree published on GitHub:
 
 ```text
-31116859409
+37f90d350278a40c360375c7f8731c46a2610ec5
 ```
+
+Successful complete GitHub verification of that tree:
+
+[`Lean verification #98, run 31135088313`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/actions/runs/31135088313)
 
 The run used Lean 4.32.2 and mathlib 4.32.2 and performed:
 
@@ -50,14 +82,17 @@ The run used Lean 4.32.2 and mathlib 4.32.2 and performed:
 
 Documentation-only commits after the verified code commit do not alter the checked Lean declarations.
 
-The complete end-to-end theorem through commit `9bb31c4` has passed locally:
+The complete end-to-end theorem through local code commit `9bb31c4` has passed
+both locally and in GitHub Actions:
 
 - a complete `lake build`;
 - compilation of the axiom audit, with no `sorryAx` dependency;
 - sequential `leanchecker` replay of every built project module.
 
-Its fresh GitHub Actions result is still pending, so run `31116859409` remains
-the earlier server-verified baseline rather than verification of the final theorem.
+The GitHub copy has a different commit hash because the six locally verified
+commits were recreated through GitHub's authenticated Git-data interface.  Its
+final tree hash is exactly the local tree hash `4303f39b5462c36b397ea1621bc0ab96f9c42825`;
+the mathematical files are byte-for-byte identical.
 
 The old placeholder interfaces, including the arbitrary `CircuitFamily.accepts` field and an assumed layer-planarization structure field, were deleted. The current circuit family is computed by concrete layers and gates.
 
@@ -106,7 +141,7 @@ This result is unconditional inside the graph model, but it deliberately
 depends on named external topology declarations: the genus invariant,
 monotonicity, relabelling invariance where used by extracted block circuits,
 the edgeless base case, and additivity over components.  It does not by itself
-feeds into the final circuit-class inclusion proved in
+feed into the final circuit-class inclusion proved in
 `Allender.allender_polylog_genus_in_ACC0`.
 
 ## Scope of the final theorem
@@ -180,7 +215,18 @@ Allender/
   Hansen.lean                  exact external family-level Hansen theorem
   StateEnumeration.lean        polynomial state enumeration
   Padding.lean                 common-family input-length padding
+  InputPadding.lean            source padding and target input restriction
+  SimultaneousHansen.lean      one common-modulus simulation family
+  GoodBlockBatch.lean          polynomial package of planar good blocks
+  GoodBlockRelations.lean      exact good-block relation circuits
+  BadBlockRelations.lean       finite bad-block relation circuits
+  FixedBoundaryCircuit.lean    first/last boundary predicates
+  ACC0Closure.lean             explicit target-circuit closure operations
+  FiniteRelationComposition.lean finite relation composition circuits
+  MacroblockRelationCircuits.lean per-block target relation circuits
+  MacroblockCompositionCircuit.lean one-round composition
   RelationCompositionRounds.lean checked logarithmic blocking rounds
+  MacroblockCompositionRounds.lean repeated macroblock composition
   PolynomialBounds.lean       explicit polynomial-bound calculus
   AcceptanceCircuit.lean      end-to-end target-circuit construction
   MainTheorem.lean             final `InACC0` theorem
@@ -189,24 +235,21 @@ Allender/
 
 ## Build locally
 
-Install `elan`, then run:
+Install `elan`, prepare the pinned dependencies, and run the repository's
+single verification entry point:
 
 ```bash
 lake update
 lake exe cache get
-lake build
-lake env lean Allender/AxiomAudit.lean
-for olean in $(find .lake/build/lib/lean/Allender -name '*.olean' | sort); do
-  module=${olean#.lake/build/lib/lean/}
-  module=${module%.olean}
-  lake env leanchecker "${module//\//.}"
-done
+bash scripts/verify-lean.sh
 ```
 
-The toolchain and mathlib revision are pinned. The GitHub Lean workflow runs on
+The script rejects proof placeholders, builds the project, compiles the axiom
+audit, and independently replays every project module.  The toolchain and
+mathlib revision are pinned. The GitHub Lean workflow calls this same script on
 the active formalization branch, on relevant pull requests, and by manual
-dispatch.  It checks modules sequentially to keep independent replay within
-the runner's memory limit.
+dispatch. It checks modules sequentially to remain within the runner's memory
+limit.
 
 ## Proof discipline
 
