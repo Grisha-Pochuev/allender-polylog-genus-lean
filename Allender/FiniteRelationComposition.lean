@@ -254,6 +254,137 @@ theorem finPathCircuit_eval_iff [DecidableEq α] {k : Nat}
     PackedACmCircuit.conjoinParallel_eval_eq_true_iff]
   simp [finEdgeCircuits]
 
+/-- Normalizing all edge circuits raises a common depth bound by at most one. -/
+theorem finEdgeCircuits_depth_le {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (states : Fin (k + 1) → α) (D : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D) :
+    ∀ C ∈ finEdgeCircuits matrices states, C.circuit.depth ≤ D + 1 := by
+  rw [finEdgeCircuits, List.forall_mem_ofFn_iff]
+  intro i
+  exact (PackedACmCircuit.normalize_depth_le _).trans
+    (Nat.add_le_add_right
+      (hdepth i (states i.castSucc) (states i.succ)) 1)
+
+/-- Sum of the normalized edge widths under common depth and width bounds. -/
+theorem finEdgeCircuits_width_sum_le {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (states : Fin (k + 1) → α) (D W : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D)
+    (hwidth : ∀ i a b, (matrices i a b).width ≤ W) :
+    ((finEdgeCircuits matrices states).map
+      PackedACmCircuit.width).sum ≤ k * (D * W + 1) := by
+  calc
+    ((finEdgeCircuits matrices states).map
+        PackedACmCircuit.width).sum ≤
+        (D * W + 1) *
+          ((finEdgeCircuits matrices states).map
+            PackedACmCircuit.width).length :=
+      sum_le_mul_length_of_each_le _ (D * W + 1) (by
+        intro width hwidthMem
+        rw [List.mem_map] at hwidthMem
+        rcases hwidthMem with ⟨C, hC, rfl⟩
+        rw [finEdgeCircuits, List.mem_ofFn] at hC
+        rcases hC with ⟨i, rfl⟩
+        calc
+          ((matrices i (states i.castSucc)
+            (states i.succ)).normalize).width ≤
+              (matrices i (states i.castSucc)
+                (states i.succ)).circuit.size + 1 :=
+            PackedACmCircuit.normalize_width_le _
+          _ ≤ D * W + 1 := by
+            apply Nat.add_le_add_right
+            exact Nat.mul_le_mul
+              (hdepth i (states i.castSucc) (states i.succ))
+              (hwidth i (states i.castSucc) (states i.succ)))
+    _ = k * (D * W + 1) := by
+      simp [finEdgeCircuits, Nat.mul_comm]
+
+/-- Variant controlled directly by the genuine padded gate count. -/
+theorem finEdgeCircuits_width_sum_le_of_size {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (states : Fin (k + 1) → α) (S : Nat)
+    (hsize : ∀ i a b, (matrices i a b).circuit.size ≤ S) :
+    ((finEdgeCircuits matrices states).map
+      PackedACmCircuit.width).sum ≤ k * (S + 1) := by
+  calc
+    ((finEdgeCircuits matrices states).map
+        PackedACmCircuit.width).sum ≤
+        (S + 1) *
+          ((finEdgeCircuits matrices states).map
+            PackedACmCircuit.width).length :=
+      sum_le_mul_length_of_each_le _ (S + 1) (by
+        intro width hwidthMem
+        rw [List.mem_map] at hwidthMem
+        rcases hwidthMem with ⟨C, hC, rfl⟩
+        rw [finEdgeCircuits, List.mem_ofFn] at hC
+        rcases hC with ⟨i, rfl⟩
+        exact (PackedACmCircuit.normalize_width_le _).trans
+          (Nat.add_le_add_right
+            (hsize i (states i.castSucc) (states i.succ)) 1))
+    _ = k * (S + 1) := by simp [finEdgeCircuits, Nat.mul_comm]
+
+/-- A trajectory checker has constant additive depth overhead, independent
+of the number of edges in the trajectory. -/
+theorem finPathCircuit_depth_le [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (states : Fin (k + 1) → α) (D : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D) :
+    (finPathCircuit matrices initial final states).circuit.depth ≤ D + 2 := by
+  apply PackedACmCircuit.conjoinParallel_depth_le _ (D + 1)
+  intro C hC
+  rcases List.mem_append.mp hC with hendpoint | hedge
+  · simp only [List.mem_cons, List.not_mem_nil, or_false] at hendpoint
+    rcases hendpoint with hendpoint | hendpoint
+    · subst C
+      simp [PackedACmCircuit.constant, ACmCircuit.depth]
+    · subst C
+      simp [PackedACmCircuit.constant, ACmCircuit.depth]
+  · exact finEdgeCircuits_depth_le matrices states D hdepth C hedge
+
+/-- Explicit width bound for one trajectory checker. -/
+theorem finPathCircuit_width_le [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (states : Fin (k + 1) → α) (D W : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D)
+    (hwidth : ∀ i a b, (matrices i a b).width ≤ W) :
+    (finPathCircuit matrices initial final states).width ≤
+      k * (D * W + 1) + 3 := by
+  let edges := finEdgeCircuits matrices states
+  calc
+    (finPathCircuit matrices initial final states).width ≤
+        (([PackedACmCircuit.constant m n
+              (decide (states (firstIndex k) = initial)),
+            PackedACmCircuit.constant m n
+              (decide (states (Fin.last k) = final))] ++ edges).map
+          PackedACmCircuit.width).sum + 1 := by
+      exact PackedACmCircuit.conjoinParallel_width_le _
+    _ = ((edges.map PackedACmCircuit.width).sum + 3) := by
+      simp [edges, PackedACmCircuit.constant] <;> omega
+    _ ≤ k * (D * W + 1) + 3 := Nat.add_le_add_right
+      (finEdgeCircuits_width_sum_le matrices states D W hdepth hwidth) 3
+
+/-- Trajectory-checker width controlled directly by entry gate counts. -/
+theorem finPathCircuit_width_le_of_size [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (states : Fin (k + 1) → α) (S : Nat)
+    (hsize : ∀ i a b, (matrices i a b).circuit.size ≤ S) :
+    (finPathCircuit matrices initial final states).width ≤
+      k * (S + 1) + 3 := by
+  let edges := finEdgeCircuits matrices states
+  calc
+    (finPathCircuit matrices initial final states).width ≤
+        (([PackedACmCircuit.constant m n
+              (decide (states (firstIndex k) = initial)),
+            PackedACmCircuit.constant m n
+              (decide (states (Fin.last k) = final))] ++ edges).map
+          PackedACmCircuit.width).sum + 1 :=
+      PackedACmCircuit.conjoinParallel_width_le _
+    _ = (edges.map PackedACmCircuit.width).sum + 3 := by
+      simp [edges, PackedACmCircuit.constant] <;> omega
+    _ ≤ k * (S + 1) + 3 := Nat.add_le_add_right
+      (finEdgeCircuits_width_sum_le_of_size matrices states S hsize) 3
+
 /-- Indexed form of the composition circuit.  The common length is carried
 by the type, so circuit matrices and semantic relations cannot be misaligned. -/
 noncomputable def composeFinCircuit [Fintype α] [DecidableEq α] {k : Nat}
@@ -262,6 +393,81 @@ noncomputable def composeFinCircuit [Fintype α] [DecidableEq α] {k : Nat}
   PackedACmCircuit.disjoinParallel
     ((Finset.univ : Finset (Fin (k + 1) → α)).toList.map
       (finPathCircuit matrices initial final))
+
+/-- Finite-state trajectory expansion adds at most five layers, independently
+of the block length and of the number of trajectories. -/
+theorem composeFinCircuit_depth_le [Fintype α] [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (D : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D) :
+    (composeFinCircuit matrices initial final).circuit.depth ≤ D + 5 := by
+  apply PackedACmCircuit.disjoinParallel_depth_le _ (D + 2)
+  intro C hC
+  rw [List.mem_map] at hC
+  rcases hC with ⟨states, _hstates, rfl⟩
+  exact finPathCircuit_depth_le matrices initial final states D hdepth
+
+/-- Explicit finite-state composition width bound.  Its only dependence on
+the group length is through the number of trajectories and the number of
+normalized edge circuits. -/
+theorem composeFinCircuit_width_le [Fintype α] [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (D W : Nat)
+    (hdepth : ∀ i a b, (matrices i a b).circuit.depth ≤ D)
+    (hwidth : ∀ i a b, (matrices i a b).width ≤ W) :
+    (composeFinCircuit matrices initial final).width ≤
+      (Fintype.card α) ^ (k + 1) * (k * (D * W + 1) + 3) + 1 := by
+  let paths :=
+    ((Finset.univ : Finset (Fin (k + 1) → α)).toList.map
+      (finPathCircuit matrices initial final))
+  let pathWidth := k * (D * W + 1) + 3
+  calc
+    (composeFinCircuit matrices initial final).width ≤
+        (paths.map PackedACmCircuit.width).sum + 1 := by
+      exact PackedACmCircuit.disjoinParallel_width_le _
+    _ = (Finset.univ : Finset (Fin (k + 1) → α)).sum
+          (fun states =>
+            (finPathCircuit matrices initial final states).width) + 1 := by
+      simp [paths]
+    _ ≤ (Finset.univ : Finset (Fin (k + 1) → α)).sum
+          (fun _ => pathWidth) + 1 := by
+      apply Nat.add_le_add_right
+      apply Finset.sum_le_sum
+      intro states _hstates
+      exact finPathCircuit_width_le matrices initial final states
+        D W hdepth hwidth
+    _ = (Fintype.card α) ^ (k + 1) * pathWidth + 1 := by
+      simp [Fintype.card_fun, pathWidth]
+
+/-- Composition width controlled directly by entry gate counts. -/
+theorem composeFinCircuit_width_le_of_size
+    [Fintype α] [DecidableEq α] {k : Nat}
+    (matrices : Fin k → PackedRelationCircuit m n α)
+    (initial final : α) (S : Nat)
+    (hsize : ∀ i a b, (matrices i a b).circuit.size ≤ S) :
+    (composeFinCircuit matrices initial final).width ≤
+      (Fintype.card α) ^ (k + 1) * (k * (S + 1) + 3) + 1 := by
+  let paths :=
+    ((Finset.univ : Finset (Fin (k + 1) → α)).toList.map
+      (finPathCircuit matrices initial final))
+  let pathWidth := k * (S + 1) + 3
+  calc
+    (composeFinCircuit matrices initial final).width ≤
+        (paths.map PackedACmCircuit.width).sum + 1 :=
+      PackedACmCircuit.disjoinParallel_width_le _
+    _ = (Finset.univ : Finset (Fin (k + 1) → α)).sum
+          (fun states =>
+            (finPathCircuit matrices initial final states).width) + 1 := by
+      simp [paths]
+    _ ≤ (Finset.univ : Finset (Fin (k + 1) → α)).sum
+          (fun _ => pathWidth) + 1 := by
+      apply Nat.add_le_add_right
+      apply Finset.sum_le_sum
+      intro states _hstates
+      exact finPathCircuit_width_le_of_size matrices initial final states
+        S hsize
+    _ = (Fintype.card α) ^ (k + 1) * pathWidth + 1 := by
+      simp [pathWidth]
 
 theorem composeFinCircuit_eval_iff [Fintype α] [DecidableEq α] {k : Nat}
     (matrices : Fin k → PackedRelationCircuit m n α)

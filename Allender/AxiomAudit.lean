@@ -130,6 +130,13 @@ compilation. No theorem below may depend on `sorryAx`.
 #print axioms Allender.PackedACmCircuit.disjoinParallel_eval_eq_true_iff
 #print axioms Allender.PackedRelationCircuit.finPath_iff_chain_ofFn
 #print axioms Allender.PackedRelationCircuit.composeFinCircuit_eval_iff_composeList
+#print axioms Allender.PackedRelationCircuit.composeFinCircuit_depth_le
+#print axioms Allender.RealizedRelation.composeList_collapseRounds
+#print axioms Allender.RealizedRelation.collapseRounds_length_le_of_length_le_mul_pow
+#print axioms Allender.RealizedRelation.collapseRounds_depthAtMost
 #print axioms Allender.PlanarizedFamily.macroblockRelationCircuit_eval_iff
+#print axioms Allender.PlanarizedFamily.roundedComposedMacroblockCircuit_eval_iff
+#print axioms Allender.PlanarizedFamily.roundedMacroblockRelations_length_le_one
 #print axioms Allender.PlanarizedFamily.composedMacroblockCircuit_eval_iff
 #print axioms Allender.PlanarizedFamily.acceptanceCircuit_eval_iff
+#print axioms Allender.PlanarizedFamily.roundedAcceptanceCircuit_eval_iff

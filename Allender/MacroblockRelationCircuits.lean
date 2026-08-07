@@ -116,5 +116,62 @@ theorem macroblockRelationCircuit_eval_iff (P : PlanarizedFamily F)
     exact ((F.circuit n).layerAfterTransition tag).relationCircuit_eval_iff
       m initial final x
 
+/-- Uniform depth bound for every canonical macroblock relation entry. -/
+theorem macroblockRelationCircuit_depth_le (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) {n : Nat} (hn : 1 ≤ n)
+    (b : Fin (macroblockTags (F.circuit n).layers.tail.length
+      (P.cuts n)).length)
+    (initial final : BitState F.width) (D : Nat)
+    (hdepth : ∀ n t, (A.circuit n t).depth ≤ D) :
+    (P.macroblockRelationCircuit A hn b initial final).circuit.depth ≤
+      D + 4 := by
+  let block := (macroblockTags (F.circuit n).layers.tail.length
+    (P.cuts n)).get b
+  have hblock : block ∈ macroblockTags (F.circuit n).layers.tail.length
+      (P.cuts n) := List.get_mem _ _
+  unfold macroblockRelationCircuit
+  dsimp only
+  by_cases hgoodActual : GoodMacroblock
+      ((macroblockTags (F.circuit n).layers.tail.length (P.cuts n)).get b)
+  · rw [dif_pos hgoodActual]
+    exact (P.goodRelationCircuit_depth_le A hn _ initial final D hdepth).trans
+      (by omega)
+  · rw [dif_neg hgoodActual]
+    exact (((F.circuit n).layerAfterTransition
+      ((F.circuit n).badBlockTag (P.cuts n)
+        (List.get_mem _ _) hgoodActual)).relationCircuit_depth_le
+          m initial final).trans (by omega)
+
+/-- A common numerical gate-count bound covering both good blocks and the
+direct singleton implementation of bad blocks. -/
+def macroblockRelationSizeBound (w D S : Nat) : Nat :=
+  (D + 3) * (w * (S + 1) + 1) + 4 * (w + 1)
+
+theorem macroblockRelationCircuit_size_le (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) {n : Nat} (hn : 1 ≤ n)
+    (b : Fin (macroblockTags (F.circuit n).layers.tail.length
+      (P.cuts n)).length)
+    (initial final : BitState F.width) (D S : Nat)
+    (hdepth : ∀ n t, (A.circuit n t).depth ≤ D)
+    (hsize : ∀ t, (A.circuit n t).size ≤ S) :
+    (P.macroblockRelationCircuit A hn b initial final).circuit.size ≤
+      macroblockRelationSizeBound F.width D S := by
+  let block := (macroblockTags (F.circuit n).layers.tail.length
+    (P.cuts n)).get b
+  have hblock : block ∈ macroblockTags (F.circuit n).layers.tail.length
+      (P.cuts n) := List.get_mem _ _
+  unfold macroblockRelationCircuit
+  dsimp only
+  by_cases hgoodActual : GoodMacroblock
+      ((macroblockTags (F.circuit n).layers.tail.length (P.cuts n)).get b)
+  · rw [dif_pos hgoodActual]
+    exact (P.goodRelationCircuit_size_le A hn _ initial final D S
+      hdepth hsize).trans (Nat.le_add_right _ _)
+  · rw [dif_neg hgoodActual]
+    exact ((((F.circuit n).layerAfterTransition
+      ((F.circuit n).badBlockTag (P.cuts n)
+        (List.get_mem _ _) hgoodActual)).relationCircuit_size_le
+          m initial final).trans (Nat.le_add_left _ _))
+
 end PlanarizedFamily
 end Allender

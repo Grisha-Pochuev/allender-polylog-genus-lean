@@ -1,4 +1,5 @@
 import Allender.MacroblockCompositionCircuit
+import Allender.MacroblockCompositionRounds
 
 /-!
 # End-to-end target circuit semantics
@@ -132,6 +133,93 @@ theorem acceptanceCircuit_eval_iff (P : PlanarizedFamily F)
       exact ⟨(initial, final), by simp, rfl⟩
     · exact (P.acceptingPairCircuit_eval_iff A hsim hn hne
           initial final x).2 hstates
+
+/-- Acceptance checker using the multi-round macroblock composite. -/
+noncomputable def roundedAcceptingPairCircuit (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) (hsim : A.Simulates)
+    {n : Nat} (hn : 1 ≤ n) (hne : (F.circuit n).layers ≠ [])
+    (L rounds : Nat) (initial final : BitState F.width) :
+    PackedACmCircuit m n :=
+  PackedACmCircuit.conjoinParallel
+    [((F.circuit n).layers.head hne).initialBoundaryCircuit m initial,
+      P.roundedComposedMacroblockCircuit A hsim hn L rounds initial final,
+      PackedACmCircuit.constant m n (final (F.circuit n).output)]
+
+theorem roundedAcceptingPairCircuit_eval_iff (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) (hsim : A.Simulates)
+    {n : Nat} (hn : 1 ≤ n) (hne : (F.circuit n).layers ≠ [])
+    (L : Nat) (hL : 0 < L) (rounds : Nat)
+    (initial final : BitState F.width) (x : BitState n) :
+    (P.roundedAcceptingPairCircuit A hsim hn hne L rounds
+      initial final).circuit.eval x = true ↔
+      InitialStatePredicate ((F.circuit n).layers.head hne) x initial ∧
+      Rel.composeList ((F.circuit n).macroblockRelations (P.cuts n) x)
+        initial final ∧
+      AcceptingState (F.circuit n).output final := by
+  rw [roundedAcceptingPairCircuit,
+    PackedACmCircuit.conjoinParallel_eval_eq_true_iff]
+  constructor
+  · intro hall
+    have hinitial := hall
+      (((F.circuit n).layers.head hne).initialBoundaryCircuit m initial)
+      (by simp)
+    have hblocks := hall
+      (P.roundedComposedMacroblockCircuit A hsim hn L rounds initial final)
+      (by simp)
+    have haccept := hall
+      (PackedACmCircuit.constant m n (final (F.circuit n).output))
+      (by simp)
+    rw [CircuitLayer.initialBoundaryCircuit_eval_iff] at hinitial
+    rw [P.roundedComposedMacroblockCircuit_eval_iff A hsim hn L hL rounds
+      initial final x] at hblocks
+    exact ⟨hinitial, hblocks, by simpa [AcceptingState] using haccept⟩
+  · rintro ⟨hinitial, hblocks, haccept⟩ C hC
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hC
+    rcases hC with hC | hC | hC
+    · subst C
+      exact (CircuitLayer.initialBoundaryCircuit_eval_iff
+        m _ initial x).2 hinitial
+    · subst C
+      exact (P.roundedComposedMacroblockCircuit_eval_iff A hsim hn L hL
+        rounds initial final x).2 hblocks
+    · subst C
+      simpa [AcceptingState] using haccept
+
+/-- Disjoin all constant-width endpoint pairs after multi-round composition. -/
+noncomputable def roundedAcceptanceCircuit (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) (hsim : A.Simulates)
+    {n : Nat} (hn : 1 ≤ n) (hne : (F.circuit n).layers ≠ [])
+    (L rounds : Nat) : PackedACmCircuit m n :=
+  PackedACmCircuit.disjoinParallel
+    ((Finset.univ : Finset (BitState F.width × BitState F.width)).toList.map
+      fun states => P.roundedAcceptingPairCircuit A hsim hn hne L rounds
+        states.1 states.2)
+
+/-- Exact end-to-end semantics of the multi-round construction. -/
+theorem roundedAcceptanceCircuit_eval_iff (P : PlanarizedFamily F)
+    (A : P.goodCircuitBatch.ACmBatch m) (hsim : A.Simulates)
+    {n : Nat} (hn : 1 ≤ n) (hne : (F.circuit n).layers ≠ [])
+    (L : Nat) (hL : 0 < L) (rounds : Nat) (x : BitState n) :
+    (P.roundedAcceptanceCircuit A hsim hn hne L rounds).circuit.eval x = true ↔
+      (F.circuit n).eval x = true := by
+  rw [roundedAcceptanceCircuit,
+    PackedACmCircuit.disjoinParallel_eval_eq_true_iff]
+  rw [(F.circuit n).accept_iff_macroblockRelations_of_ne_nil
+    hne (P.cuts n) x]
+  constructor
+  · rintro ⟨C, hCmem, hC⟩
+    rw [List.mem_map] at hCmem
+    rcases hCmem with ⟨states, _hstatesMem, rfl⟩
+    rw [P.roundedAcceptingPairCircuit_eval_iff A hsim hn hne L hL rounds
+      states.1 states.2 x] at hC
+    exact ⟨states.1, states.2, hC⟩
+  · rintro ⟨initial, final, hstates⟩
+    refine ⟨P.roundedAcceptingPairCircuit A hsim hn hne L rounds
+      initial final, ?_, ?_⟩
+    · rw [List.mem_map]
+      exact ⟨(initial, final), by simp, rfl⟩
+    · exact (P.roundedAcceptingPairCircuit_eval_iff A hsim hn hne L hL
+        rounds initial final x).2 hstates
 
 end PlanarizedFamily
 end Allender

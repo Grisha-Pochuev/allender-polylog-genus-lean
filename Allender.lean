@@ -41,8 +41,10 @@ import Allender.GoodBlockBatch
 import Allender.FamilyPlanarization
 import Allender.ACC0Closure
 import Allender.FiniteRelationComposition
+import Allender.RelationCompositionRounds
 import Allender.GoodBlockRelations
 import Allender.BadBlockRelations
 import Allender.MacroblockRelationCircuits
+import Allender.MacroblockCompositionRounds
 import Allender.MacroblockCompositionCircuit
 import Allender.AcceptanceCircuit
