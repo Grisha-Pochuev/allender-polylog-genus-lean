@@ -9,7 +9,12 @@ A successful build certifies that the declarations currently compiled by Lean fo
 - any axioms reported by `#print axioms`;
 - the definitions and theorem statements actually written in this repository.
 
-For the checked modules currently present, Lean verifies finite-state cardinality, relation algebra, and the elementary whole-layer cut invariant.
+For the checked modules currently present, Lean verifies the concrete source
+circuit semantics, finite-state relations, the canonical median-layer
+recursion, and the layer-planarization conclusion relative to the named genus
+declarations.  It also verifies the numerical macroblock, padding, and state
+enumeration lemmas, the exact semantic macroblock decomposition, and planar
+standalone good-block circuits listed in `STATUS.md`.
 
 ## What it does not certify yet
 
@@ -17,12 +22,18 @@ A successful build does **not** currently certify:
 
 - the full statement of Allender's Open Question 3;
 - any definition of graph genus or surface embedding;
-- the median-layer planarization theorem;
-- Hansen's planar characterization;
-- a formal definition of `ACC⁰`;
+- an internal proof of Hansen's planar characterization (it is one exact named external theorem);
 - the end-to-end simulation from source circuits to `ACC⁰`.
 
-The interfaces in `Allender/Interfaces` are specifications of future work. Constructing a value of an interface by assumption would not prove the underlying mathematics.
+`ACC⁰` has a concrete syntax and family definition in `Allender/ACC0Gate.lean`
+and `Allender/ACC0Circuit.lean`; what remains missing is the circuit construction
+that realizes the final simulation.  Supplying an arbitrary interface value or
+an assumption with the desired conclusion would not prove that construction.
+
+The topology boundary consists of `genus`, `genus_mono`, `genus_map`,
+`genus_bot`, and `genus_eq_sum_components`.  The separate complexity boundary
+consists only of `Hansen.planar_constantWidth_polySize_to_ACC0`, stated for the
+concrete `CircuitFamily` and `InACC0` definitions.
 
 ## Axioms
 
@@ -40,7 +51,9 @@ GitHub Actions performs:
 
 1. a source scan rejecting `sorry` and `admit`;
 2. `lake build` using the pinned Lean and `mathlib` versions;
-3. Lean's independent environment checker through `lean-action`.
+3. compilation of the central axiom audit;
+4. Lean's independent environment checker, run sequentially per project module
+   to avoid making memory exhaustion look like a proof failure.
 
 CI protects reproducibility but cannot detect a theorem that has been formalized with the wrong definitions. Definitions must therefore be compared carefully with the cited papers.
 

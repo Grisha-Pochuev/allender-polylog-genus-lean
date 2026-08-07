@@ -1,89 +1,149 @@
-# Project status
+# Formalization status
 
-Last project-structure review: 6 August 2026.
+This is the authoritative status ledger for the Lean formalization.  The
+currently checked continuation branch is
+`formalization/canonical-components-v2`, based on
+`formalization/full-reduction-v1`.  The project-wide status and the
+human-review reproducibility package are maintained on `main`.
 
-This file summarizes the whole repository. The detailed Lean proof ledger is maintained on the branch `formalization/full-reduction-v1`.
+The manuscript package and this ledger answer different questions:
 
-## Two independent tracks
+- `main/reproducibility/` records whether the prose artifact can be rebuilt and reviewed;
+- this file records exactly what Lean checks, what is conditional, what is external, and what remains pending.
 
-| Track | Authoritative location | Current status |
-|---|---|---|
-| Human mathematical review | `main/reproducibility/` | complete reproducibility package; independent expert review still required |
-| Lean formalization | branch `formalization/full-reduction-v1` | substantial partial formalization; final theorem not proved |
+Last locally fully verified code commit: `9bb31c4`
+Equivalent GitHub source-tree commit: `37f90d350278a40c360375c7f8731c46a2610ec5`
+Successful complete workflow: [`31135088313`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/actions/runs/31135088313)
+Toolchain: Lean 4.32.2, mathlib 4.32.2
 
-## Human-review package
+The end-to-end theorem at `9bb31c4` passed a local clean `lake build`, the
+complete axiom audit, and a memory-bounded sequential `leanchecker` replay of
+every project module.  The byte-identical GitHub source tree then passed all
+the same checks in workflow run `31135088313`.
 
-The package contains the exact English manuscript source, an English synopsis, primary sources, provenance, integrity hashes, a claim audit, and a reviewer checklist.
+The successful workflow rejected `sorry`/`admit`, ran `lake build`, compiled
+`Allender/AxiomAudit.lean`, and replayed the environment with `leanchecker`.
 
-Verified properties of the package:
+Documentation and branch-synchronization commits after the verified code commit do not upgrade the machine-checked claim. A new code claim requires a fresh complete verification run.
 
-- the LaTeX source compiles;
-- the generated manuscript has 12 pages;
-- integrity is checked with `MANIFEST.sha256`;
-- the build is repeatable through `reproducibility/scripts/verify-bundle.sh`;
-- GitHub Actions can build and publish the PDF artifact.
+## Status labels
 
-These checks establish reproducibility of the files, not correctness of the mathematics.
+- **checked** — built without `sorry`/`admit`, included in the root module, audited, and replayed by `leanchecker`.
+- **conditional** — Lean proves the stated implication from an explicit mathematical proof obligation that has not yet been constructed.
+- **partial** — a mathematically relevant core is checked, but the manuscript statement is not yet represented end to end.
+- **external** — an exact named trust boundary for a published result; it is visible in `#print axioms` and is not being presented as proved in this repository.
+- **pending** — not yet represented adequately in Lean.
 
-## Lean formalization
+## Source-aligned ledger
 
-Authoritative branch:
+| ID | Item | Lean declaration/file | Status |
+|---|---|---|---|
+| C1 | Boolean gate basis and evaluation | `Gate.eval` | checked |
+| C2 | Deterministic layer transition | `CircuitLayer.transition_functional` | checked |
+| C3 | Concrete circuit and family evaluation | `Circuit.eval`, `CircuitFamily.language` | checked |
+| C4 | Circuit dependency graph and size | `Circuit.layeredGraph`, `Circuit.size_eq_card_vertex` | checked |
+| S1 | Fixed state space and cardinality | `BitState.card` | checked |
+| R1 | Relation composition and associativity | `Rel.comp_assoc`, `Rel.composeList_append` | checked |
+| R2 | Explicit intermediate-state witness semantics | `Rel.chain_iff_composeList` | checked |
+| G1 | Layered graph and whole-layer cuts | `LayeredGraph.lean` | checked |
+| G2 | No surviving path crosses a deleted layer | `no_surviving_walk_across_layer` | checked |
+| G3 | Underlying undirected simple graph | `toSimpleGraph` | checked |
+| G4 | Decidable adjacency for a graph after whole-layer deletion | `instDecidableRelDeleteLayersToSimpleGraph` | checked |
+| M1 | Existence of weighted median layer | `exists_medianLayer` | checked |
+| M2 | Each connected descendant halves | `DescendantAfterCut.card_halves` | checked |
+| M3 | Descendant chain terminates after logarithmically many rounds | `DescendantChain.impossible_after_log` | checked |
+| T1 | Positive-cost components are bounded by the total budget | `card_le_of_positive_cost_sum_le` | checked |
+| T2 | Total selected layers over bounded rounds | `separator_round_count_bound` | checked |
+| T3 | Orientable genus symbol, monotonicity, relabelling invariance, and edgeless base case | `OrientableGenus.genus`, `genus_mono`, `genus_map`, `genus_bot` | external |
+| T4 | Genus additivity over components | `genus_eq_sum_components` (Battle–Harary–Kodama–Youngs) | external |
+| T4a | Number of nonplanar components is at most genus | `nonplanarComponents_card_le_genus` | checked relative to T3–T4 |
+| T4b | Planarity iff no component has positive genus | `isPlanar_iff_nonplanarComponents_eq_empty` | checked relative to T3–T4 |
+| T4c | Deleting layers cannot increase genus | `genus_deleteLayers_le` | checked relative to T3 |
+| T5a | Accumulated cut layers and bound `|J_t| ≤ g t` | `cumulativeCuts`, `cumulativeCuts_card_le_mul` | checked |
+| T5b | One-round representation of actual nonplanar components by active components | `RoundCoverage`, `nonplanar_card_le_active_card` | checked as an implication from explicit representation data |
+| T5c | Iteration of initial and stepwise coverage | `PlanarizationCoverage.coverageAt` | checked |
+| T5d | Planarity after `log₂ N + 1` covered rounds | `final_isPlanar_of_coverage` | conditional on `PlanarizationCoverage`, relative to T3–T4 |
+| T5e | Canonical construction from the actual nonplanar components of every remainder | `canonicalLayerSeparationProcess`, `canonicalParent_active`, `canonicalChild_subset`, `canonicalChild_avoids` | checked relative to T3–T4 |
+| T5f | Unconditional layer-planarization conclusion `|J| ≤ g(log₂ N+1)` | `exists_planarizing_layer_set` | checked relative to T3–T4 |
+| B1 | Bad-transition bound | `card_badTransitions_le` | checked |
+| B2 | Canonical macroblock partition and actual bound `≤ 4|J|+1` | `macroblockTags`, `macroblockTags_length_le_of_cuts` | checked |
+| B3 | Canonical block layers concatenate to the exact circuit tail | `flatten_canonicalMacroblockLayers_eq_tail` | checked |
+| B4 | Exact acceptance decomposition through canonical block relations | `compose_macroblockRelations_eq_tailSegment`, `accept_cons_iff_macroblockRelations` | checked |
+| B5 | Every good block dependency graph is planar when the cut remainder is planar | `macroblockGraph_toSimpleGraph_le_deleteLayers`, `goodMacroblock_isPlanar` | checked relative to T3 |
+| B6 | Standalone `(n+w)`-input circuit for each block has exact semantics and size | `macroblockCircuit_eval`, `macroblockCircuit_size` | checked |
+| B7 | Every good standalone block circuit is planar; combined cut/block certificate exists | `macroblockCircuit_graph_map_le`, `macroblockCircuit_isPlanar`, `exists_planarizingCuts_with_planar_good_macroblocks` | checked relative to T3–T4 |
+| H1 | Hansen forward theorem for concrete planar `CircuitFamily` and concrete `InACC0` | `Hansen.planar_constantWidth_polySize_to_ACC0` | external, exact named published dependency |
+| H2 | Common-family padding ranges | `padding_gap`, `paddedLength_injective_on_ranges` | checked |
+| P1 | Polynomial number of intermediate state assignments | `card_stateAssignments_log_le` | checked |
+| P2 | Explicit relation-chain semantics | `RelationChain.lean` | checked |
+| P3 | Constant-depth multi-round relation composition and size accounting | `collapseRounds`, `roundedAcceptanceCircuit_depth_le`, `roundedAcceptanceCircuit_size_le` | checked |
+| P4 | Polynomial closure of all numerical size recurrences | `roundsSizeBound_polynomial`, `finalAcceptanceSizeBound_polynomial` | checked |
+| F1 | End-to-end theorem: source family lies in `ACC⁰` | `allender_polylog_genus_in_ACC0` | checked relative to T3–T4 and H1 |
 
-```text
-formalization/full-reduction-v1
-```
+## Exact topology trust boundary
 
-Latest fully verified code commit recorded by that branch:
+`Allender/OrientableGenus.lean` contains exactly five external declarations:
 
-```text
-443db2186476346f91f4af8f66f47aa39fe4dcb6
-```
+1. `genus` — the ordinary orientable genus as a natural-valued graph invariant;
+2. `genus_mono` — monotonicity under taking a spanning subgraph;
+3. `genus_map` — invariance under injective vertex relabelling and added isolates;
+4. `genus_bot` — an edgeless finite graph has genus zero;
+5. `genus_eq_sum_components` — Battle–Harary–Kodama–Youngs additivity over connected components.
 
-Successful recorded workflow run:
+`Allender/Hansen.lean` contains one additional external declaration: the
+forward, family-level direction of Hansen's Theorem 1.  Its hypotheses use the
+concrete source-family graph and polynomial-size definitions, and its
+conclusion is the concrete `InACC0` predicate.  No per-block simulator is
+postulated.
 
-```text
-31116859409
-```
+No separator theorem, planarization theorem, circuit theorem, or final Allender
+conclusion is assumed. The finset `components G` fixes one enumeration of
+connected components so that all sums use the same data rather than relying on
+potentially different `Fintype` instances.
 
-The branch reports machine-checked infrastructure for circuit semantics, fixed-width states, relation composition, layer deletion, weighted medians, component halving, genus-budget consequences relative to explicit external genus declarations, macroblock counting, `ACC⁰` syntax, state enumeration, and padding.
+The derived topology lemmas are listed in `Allender/AxiomAudit.lean`. Their
+`#print axioms` output exposes the named external declarations above and does
+not contain `sorryAx`.
 
-The following decisive obligations remain:
+## Completed separator construction
 
-1. construct the canonical separation process for actual nonplanar components of every remainder graph;
-2. prove the unconditional layer-planarization lemma;
-3. extract and verify the planar macroblock subcircuits;
-4. state Hansen's theorem exactly in the same circuit model or prove a conversion;
-5. construct common-modulus `AC⁰[m]` simulations and the polylogarithmic relation composition circuits;
-6. prove the final end-to-end theorem corresponding to the bounty statement.
+`Allender/CanonicalComponents.lean` and
+`Allender/CanonicalPlanarization.lean` instantiate the earlier abstract
+recursion with the actual connected components of every graph remainder.
 
-Therefore the project does not yet contain a full machine proof of the $1000 result.
+Lean has checked, relative only to the four topology declarations above, that:
 
-## Branch policy
+1. at most `g` median layers are added per valid round;
+2. the cumulative number of distinct cuts after `t` rounds is at most `g * t`;
+3. the active identifiers are exactly the finite supports of actual nonplanar
+   components;
+4. every active next-round component has a nonplanar parent, is contained in
+   it, and avoids its newly deleted median layer;
+5. after `log₂ N + 1` rounds no nonplanar component remains;
+6. `exists_planarizing_layer_set` supplies an actual set of at most
+   `g * (log₂ N + 1)` whole layers whose deletion leaves a planar graph.
 
-- `main` is the stable public-facing index and human-review package.
-- `formalization/full-reduction-v1` is the only active Lean development branch.
-- Lean work is not copied into the human-review package.
-- Manuscript changes are not represented as Lean progress until a named declaration is checked.
-- Integration of the Lean branch into `main` should happen only through an explicitly reviewed pull request after its current status and axiom audit are verified.
+The earlier conditional `PlanarizationCoverage` API remains useful generic
+infrastructure, but it is no longer the trust boundary for Lemma 3.1.
 
-The `Allender/` files on `main` are an earlier stable baseline and are not the authoritative current formalization.
+## Removed material
 
-## Workflow policy
+The following earlier placeholders were deleted and must not be cited as verification:
 
-- The reproducibility workflow runs only for relevant package changes or by manual request.
-- Lean verification is manual, preventing ordinary documentation edits from creating unrelated Lean jobs.
-- The Lean branch itself is also configured for manual verification.
+- the structure with arbitrary `CircuitFamily.accepts` unrelated to a circuit;
+- the `TopologyInterface` whose main planarization statement was merely a field;
+- obsolete proof-obligation and planning documents referring to those interfaces.
 
-## Claim discipline
+## Verification result
 
-The repository may claim a full formal verification only when:
+The repository now meets the previously stated end-to-end release criterion:
 
-1. a concrete final Lean theorem matches the manuscript hypotheses and conclusion;
-2. the theorem has an explicit `#print axioms` audit with no `sorryAx` or undocumented premise;
-3. the complete checked-out branch passes `lake build`, the axiom audit, and `leanchecker`;
-4. the exact external theorems are isolated and cited;
-5. the prose manuscript and formal statement are independently compared.
+1. a concrete final theorem quantifies over the source circuit family defined here;
+2. the target is a concrete `ACC⁰` definition with fixed modulus/depth and polynomial size;
+3. the checked standalone planar block circuits are combined, via the padding construction, into one polynomial-size planar family to which Hansen applies;
+4. Hansen and genus additivity are either formalized or isolated as exact published dependencies;
+5. `#print axioms` for the final theorem contains no `sorryAx` or undocumented assumption;
+6. clean build, axiom audit, and `leanchecker` all pass.
 
-Until then, the correct description is:
-
-> complete proof candidate with a reproducible human-review package and an incomplete Lean formalization.
+The resulting claim is deliberately qualified as a complete Lean reduction
+relative to the exact external genus and Hansen declarations listed above.

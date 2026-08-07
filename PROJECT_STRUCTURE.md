@@ -29,7 +29,9 @@ A reviewer should not use the state of the Lean branch as a substitute for check
 
 ## 2. Lean formalization track
 
-**Authoritative location:** branch `formalization/full-reduction-v1`
+**Historical base:** branch `formalization/full-reduction-v1`
+
+**Authoritative current Lean branch:** `formalization/canonical-components-v2`
 
 Purpose:
 
@@ -43,8 +45,10 @@ Recommended order:
 1. branch `README.md`
 2. branch `STATUS.md`
 3. `docs/source-alignment.md`
-4. `Allender/AxiomAudit.lean`
-5. the specific Lean modules named by the status ledger
+4. `docs/REVIEW_GUIDE.md`
+5. `Allender/MainTheorem.lean`
+6. `Allender/AxiomAudit.lean`
+7. the specific Lean modules named by the status ledger
 
 A green partial build certifies only the declarations imported by the checked root module. It does not certify a theorem that has not yet been stated and proved.
 
@@ -63,7 +67,17 @@ The `Allender/` directory on `main` is not the current authoritative formalizati
 
 ### `formalization/full-reduction-v1`
 
-Only active Lean development branch. It contains the current source-aligned formalization and its declaration-level status ledger.
+Stable base of the active Lean development. It contains the source-aligned
+formalization and its declaration-level status ledger.
+
+### `formalization/canonical-components-v2`
+
+Authoritative current formalization.  It constructs the canonical
+planarization, concrete macroblock relations, the simultaneous Hansen package,
+multi-round relation composition, polynomial resource bounds, and the final
+`allender_polylog_genus_in_ACC0` theorem.  The result is checked relative to
+the five named genus facts and the exact forward direction of Hansen's theorem.
+The branch is reviewed through PR #7 before integration.
 
 Do not describe a manuscript claim as machine checked unless the branch status names the exact Lean declaration and a successful verification run includes it.
 
@@ -93,7 +107,9 @@ When Lean formalizes a manuscript step:
 ## Workflow separation
 
 - `.github/workflows/reproducibility.yml` checks only the manuscript package and runs automatically only for relevant paths.
-- `.github/workflows/lean.yml` is manual and checks the currently selected ref.
+- `.github/workflows/lean.yml` checks pushes to the authoritative Lean branch,
+  relevant pull requests, and manual runs.  It invokes
+  `scripts/verify-lean.sh`, the same entry point documented for local review.
 
 This prevents documentation maintenance from creating misleading Lean verification runs.
 

@@ -1,5 +1,9 @@
 name: Lean verification
 
+# A green run validates the Lean declarations present on this branch; it does
+# not certify manuscript claims that have not yet been formalized.
+# The reported commit SHA must equal the branch head being claimed as verified.
+
 on:
   workflow_dispatch:
   push:
@@ -62,11 +66,5 @@ jobs:
       - name: Download mathlib build cache
         run: lake exe cache get
 
-      - name: Build project
-        run: lake build
-
-      - name: Compile axiom audit
-        run: lake env lean Allender/AxiomAudit.lean
-
-      - name: Independently check Lean environment
-        run: lake env leanchecker Allender
+      - name: Build, audit, and independently replay the project
+        run: bash scripts/verify-lean.sh
