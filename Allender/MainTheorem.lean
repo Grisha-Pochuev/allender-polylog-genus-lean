@@ -260,8 +260,8 @@ polynomial-size family of layered circuits with polylogarithmic
 orientable genus is recognized by one fixed-modulus nonuniform `ACC⁰` family.
 
 The theorem depends on the five explicitly audited orientable-genus facts and
-the separately stated Hansen simulation theorem; no `sorry` or additional
-reduction hypothesis is used. -/
+the separately stated Hansen simulation theorem; no proof placeholder or
+additional reduction hypothesis is used. -/
 theorem allender_polylog_genus_in_ACC0 (F : CircuitFamily)
     (hsourceSize : F.PolynomialSize)
     (hsourceGenus : F.PolylogGenus) : InACC0 F.language := by
