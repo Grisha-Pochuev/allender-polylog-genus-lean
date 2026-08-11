@@ -1,89 +1,85 @@
 # Project status
 
-Last project-structure review: 6 August 2026.
+Last project-structure review: 12 August 2026.
 
-This file summarizes the whole repository. The detailed Lean proof ledger is maintained on the branch `formalization/full-reduction-v1`.
+This file summarizes the whole repository. The human-review manuscript is maintained on `main`; the authoritative current Lean development is on branch `formalization/canonical-components-v2`.
 
-## Two independent tracks
+## Two complementary tracks
 
 | Track | Authoritative location | Current status |
 |---|---|---|
-| Human mathematical review | `main/reproducibility/` | complete reproducibility package; independent expert review still required |
-| Lean formalization | branch `formalization/full-reduction-v1` | substantial partial formalization; final theorem not proved |
+| Human mathematical review | `main/reproducibility/` | Version 6.0 is the current proof candidate; independent expert review still required |
+| Lean formalization | `formalization/canonical-components-v2` | end-to-end reduction checked relative to five named genus facts and Hansen's published theorem |
 
-## Human-review package
+## Current manuscript
 
-The package contains the exact English manuscript source, an English synopsis, primary sources, provenance, integrity hashes, a claim audit, and a reviewer checklist.
+The latest manuscript snapshot is:
 
-Verified properties of the package:
+```text
+reproducibility/paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex
+```
 
-- the LaTeX source compiles;
-- the generated manuscript has 12 pages;
-- integrity is checked with `MANIFEST.sha256`;
-- the build is repeatable through `reproducibility/scripts/verify-bundle.sh`;
-- GitHub Actions can build and publish the PDF artifact.
+Its companion files are kept in the same `v6.0/` directory. The older unversioned manuscript remains in place as a historical reproducibility baseline.
 
-These checks establish reproducibility of the files, not correctness of the mathematics.
+The latest hostile audit recorded in the project found no remaining red/orange mathematical gap in Version 6.0 as stated. This is not a substitute for independent specialist review.
 
-## Lean formalization
+## Lean verification
 
 Authoritative branch:
 
 ```text
-formalization/full-reduction-v1
+formalization/canonical-components-v2
 ```
 
-Latest fully verified code commit recorded by that branch:
+Final declaration:
+
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
+
+Verified GitHub source commit:
 
 ```text
-443db2186476346f91f4af8f66f47aa39fe4dcb6
+37f90d350278a40c360375c7f8731c46a2610ec5
 ```
 
-Successful recorded workflow run:
+Successful complete GitHub Actions run:
 
 ```text
-31116859409
+31135088313
 ```
 
-The branch reports machine-checked infrastructure for circuit semantics, fixed-width states, relation composition, layer deletion, weighted medians, component halving, genus-budget consequences relative to explicit external genus declarations, macroblock counting, `ACC⁰` syntax, state enumeration, and padding.
+The verified run rejects proof placeholders, performs `lake build`, compiles the explicit axiom audit, and replays the project modules with `leanchecker`.
 
-The following decisive obligations remain:
+To reproduce locally after installing `elan`:
 
-1. construct the canonical separation process for actual nonplanar components of every remainder graph;
-2. prove the unconditional layer-planarization lemma;
-3. extract and verify the planar macroblock subcircuits;
-4. state Hansen's theorem exactly in the same circuit model or prove a conversion;
-5. construct common-modulus `AC⁰[m]` simulations and the polylogarithmic relation composition circuits;
-6. prove the final end-to-end theorem corresponding to the bounty statement.
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
 
-Therefore the project does not yet contain a full machine proof of the $1000 result.
+The same script is called by the branch's GitHub Actions workflow.
+
+## Exact machine-checking claim
+
+Lean checks the end-to-end reduction from the concrete source-family hypotheses `PolynomialSize` and `PolylogGenus` to `InACC0` for the formalized circuit model. The final theorem depends on an explicit external boundary consisting of five named standard facts about ordinary orientable graph genus and the forward family-level direction of Hansen's planar constant-width theorem.
+
+Those external published results are not re-proved from first principles in this repository; they are isolated and visible through `Allender/AxiomAudit.lean`.
 
 ## Branch policy
 
 - `main` is the stable public-facing index and human-review package.
-- `formalization/full-reduction-v1` is the only active Lean development branch.
-- Lean work is not copied into the human-review package.
-- Manuscript changes are not represented as Lean progress until a named declaration is checked.
-- Integration of the Lean branch into `main` should happen only through an explicitly reviewed pull request after its current status and axiom audit are verified.
-
-The `Allender/` files on `main` are an earlier stable baseline and are not the authoritative current formalization.
-
-## Workflow policy
-
-- The reproducibility workflow runs only for relevant package changes or by manual request.
-- Lean verification is manual, preventing ordinary documentation edits from creating unrelated Lean jobs.
-- The Lean branch itself is also configured for manual verification.
+- `formalization/canonical-components-v2` is the authoritative current Lean development and contains the final theorem.
+- `formalization/full-reduction-v1` is the historical base of the completed development.
+- `Allender/` on `main` is an earlier baseline retained for provenance and is not authoritative for current Lean coverage.
+- Manuscript and Lean status remain distinct: a prose revision does not alter Lean declarations, and a green Lean run does not replace independent human review of the manuscript.
 
 ## Claim discipline
 
-The repository may claim a full formal verification only when:
+The current correct description is:
 
-1. a concrete final Lean theorem matches the manuscript hypotheses and conclusion;
-2. the theorem has an explicit `#print axioms` audit with no `sorryAx` or undocumented premise;
-3. the complete checked-out branch passes `lake build`, the axiom audit, and `leanchecker`;
-4. the exact external theorems are isolated and cited;
-5. the prose manuscript and formal statement are independently compared.
+> Version 6.0 is the current complete proof candidate; the repository also contains an end-to-end Lean verification of the formalized reduction relative to explicit published external results, while independent expert acceptance remains outstanding.
 
-Until then, the correct description is:
-
-> complete proof candidate with a reproducible human-review package and an incomplete Lean formalization.
+The repository does not itself certify that Eric Allender has accepted the proof or that the bounty is payable.

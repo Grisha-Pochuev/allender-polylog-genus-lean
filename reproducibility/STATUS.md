@@ -1,34 +1,71 @@
-# Status of this package
+# Status of the human-review package
 
-**Package type:** ordinary scientific reproducibility package for human review.  
-**Mathematical status:** complete proof candidate, not independently accepted.  
-**Machine-checking status:** partial Lean formalization exists elsewhere in the repository; the end-to-end Allender theorem is not yet machine checked.  
-**Package date:** 6 August 2026.
+**Package type:** scientific reproducibility and review package.  
+**Current manuscript:** Version 6.0 under `paper/v6.0/`.  
+**Mathematical status:** complete proof candidate; not independently accepted.  
+**Machine-checking status:** an end-to-end Lean reduction exists on `formalization/canonical-components-v2`, relative to explicit external genus facts and Hansen's theorem.  
+**Status date:** 12 August 2026.
 
-## What is complete here
+## Current manuscript
 
-- Exact English manuscript in LaTeX.
-- Repeatable generation of the 12-page PDF from the committed source.
-- Russian technical synopsis.
-- Primary-source bibliography and links.
-- Claim-by-claim audit guide.
-- Independent-review checklist and report template.
-- SHA-256 integrity manifest.
-- Repeatable source-build and integrity-check scripts.
+The latest manuscript source is:
+
+```text
+paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex
+```
+
+The same directory contains the v6.0 README, change record, hostile-audit record, source-verification notes, and integrity manifest. The older unversioned manuscript is retained as a historical reproducibility baseline.
+
+The latest hostile audit recorded in the project found no remaining red/orange mathematical gap in Version 6.0 as stated. Independent expert review is still required before treating the result as accepted.
+
+## Lean status
+
+The authoritative current Lean branch is:
+
+```text
+formalization/canonical-components-v2
+```
+
+Final declaration:
+
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
+
+Verified source commit:
+
+```text
+37f90d350278a40c360375c7f8731c46a2610ec5
+```
+
+Successful complete workflow run:
+
+```text
+31135088313
+```
+
+The Lean verification checks the end-to-end reduction for the concrete formalized circuit model, relative to five named standard facts about ordinary orientable genus and the published forward family-level direction of Hansen's theorem. Those external results are not re-proved from first principles in the repository.
+
+## Run Lean verification
+
+After installing `elan`, from the repository root:
+
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+The same verification script is used by the GitHub Actions workflow on the authoritative branch.
 
 ## What is not certified here
 
-This package does not certify that:
+Neither this package nor a green Lean run by itself certifies that:
 
-- the new layer-planarization lemma is correct in every graph-genus convention;
-- the circuit model exactly matches every detail of Hansen's model;
-- the common-modulus padding argument has no hidden family-indexing issue;
-- every polynomial-size and constant-depth bound has been formalized;
-- Eric Allender or an independent specialist has accepted the proof;
+- an independent specialist has accepted the prose proof;
+- the five external genus facts or Hansen's theorem were formalized from foundations here;
+- Eric Allender has accepted the result;
 - the $1000 bounty is payable.
 
-Those are review questions, not file-reproducibility questions.
-
-## Relation to Lean
-
-The ordinary package and the Lean formalization are intentionally separate. Changes under `reproducibility/` do not alter Lean declarations. The current formalization work should only be described as a full machine-checked solution after the repository contains an end-to-end theorem matching the bounty statement and its axiom audit is explicit.
+The manuscript, Lean reduction, external published dependencies, and independent expert review should therefore be reported as distinct layers of evidence.

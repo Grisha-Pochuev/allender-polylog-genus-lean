@@ -4,94 +4,125 @@ This repository studies Eric Allender's US $1000 open question:
 
 > Does every language accepted by a nonuniform family of polynomial-size, constant-width Boolean circuits of polylogarithmic orientable genus belong to `ACC⁰`?
 
-The project contains a complete **proof candidate** and an incomplete Lean formalization. These are two different verification tracks and are kept separate so that an external reader can immediately see what has and has not been checked.
+The repository contains two deliberately separate review tracks:
+
+1. a prose manuscript for human mathematical review;
+2. an end-to-end Lean reduction for machine checking, relative to an explicit external trust boundary.
 
 ## Start here
 
-### Track A — human mathematical review
+### A. Current manuscript for human review
 
-Use the stable `main` branch and open [`reproducibility/`](reproducibility/README.md).
+The latest manuscript snapshot is **Version 6.0**:
 
-It contains:
+- [`reproducibility/paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex`](reproducibility/paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex)
+- [`reproducibility/paper/v6.0/README_v_6.0.md`](reproducibility/paper/v6.0/README_v_6.0.md)
+- [`reproducibility/paper/v6.0/AUDIT_v_6.0.md`](reproducibility/paper/v6.0/AUDIT_v_6.0.md)
+- [`reproducibility/paper/v6.0/SOURCE_VERIFICATION_v_6.0.md`](reproducibility/paper/v6.0/SOURCE_VERIFICATION_v_6.0.md)
+- [`reproducibility/paper/v6.0/MANIFEST.sha256`](reproducibility/paper/v6.0/MANIFEST.sha256)
 
-- the exact English LaTeX manuscript;
-- an English technical synopsis;
-- primary-source and provenance records;
-- a claim-by-claim audit map;
-- an independent-review checklist and report template;
-- SHA-256 integrity checks;
-- a repeatable 12-page PDF build.
+Version 6.0 is the current revised article; the latest hostile audit recorded in the project found no remaining red/orange gap in the proof as stated, although independent expert review is still required.
 
-**Status:** the package is reproducible, but the mathematics has not yet been independently accepted. A successful PDF build is not a correctness certificate.
+Earlier drafts had unresolved issues around exact Hansen-model compatibility, obtaining one common modulus, and making the planarization/composition steps fully explicit.
 
-### Track B — Lean formalization
+The older `reproducibility/paper/allender_polylog_genus_acc0_proof.tex` is retained as a historical reproducibility baseline and is not the current manuscript version.
 
-Use the dedicated branch:
+### B. Lean verification
 
-[`formalization/full-reduction-v1`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/full-reduction-v1)
+The **authoritative current Lean development** is on branch:
 
-Begin with that branch's [`README.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/README.md) and [`STATUS.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/STATUS.md).
+[`formalization/canonical-components-v2`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/canonical-components-v2)
 
-**Status:** substantial combinatorial and circuit infrastructure is machine checked, but the unconditional layer-planarization construction, the exact Hansen interface, the final `AC⁰[m]` construction, and the end-to-end theorem are still missing. Lean does **not** yet verify the $1000 result.
+Start with:
 
-The small `Allender/` development present on `main` is an earlier stable baseline. It is not the authoritative current Lean development. All new Lean work belongs on `formalization/full-reduction-v1` until an explicitly reviewed integration is made.
+1. [`docs/REVIEW_GUIDE.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/docs/REVIEW_GUIDE.md)
+2. [`README.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/README.md)
+3. [`Allender/MainTheorem.lean`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/Allender/MainTheorem.lean)
+4. [`Allender/AxiomAudit.lean`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/Allender/AxiomAudit.lean)
+5. [`STATUS.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/STATUS.md)
 
-## Repository structure
+The final checked declaration is:
+
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
+
+The verified GitHub source tree is commit:
+
+```text
+37f90d350278a40c360375c7f8731c46a2610ec5
+```
+
+A complete successful GitHub Actions verification of that tree is run **31135088313** (`Lean verification #98`).
+
+### Run Lean locally
+
+Install `elan`, switch to the authoritative branch, and run from the repository root:
+
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+The verification script:
+
+- rejects `sorry` and `admit` in project Lean files;
+- runs the complete `lake build`;
+- compiles the explicit axiom audit;
+- independently replays the generated project modules with `leanchecker`.
+
+The GitHub workflow on the authoritative branch calls the same `scripts/verify-lean.sh`. It can also be started with **Actions → Lean verification → Run workflow**, selecting `formalization/canonical-components-v2`.
+
+### What the Lean result means
+
+A green verification checks the complete reduction
+
+```text
+PolynomialSize → PolylogGenus → InACC0
+```
+
+for the concrete circuit definitions in the formalization. The proof is relative to five explicitly named standard facts about orientable graph genus and the published forward direction of Hansen's planar constant-width theorem; those external results are visible in the axiom audit and are not re-proved from first principles here.
+
+## Repository map
 
 ```text
 main
-├── README.md                         this project index
-├── STATUS.md                         project-wide status
-├── PROJECT_STRUCTURE.md              branch and review guide
-├── reproducibility/                  human-review package
-│   ├── paper/                        exact LaTeX manuscript
-│   ├── notes/                        English technical synopsis
+├── README.md                         project entry point
+├── STATUS.md                         synchronized project status
+├── PROJECT_STRUCTURE.md              branch and review routes
+├── reproducibility/                  human-review materials
+│   ├── paper/
+│   │   ├── allender_polylog_genus_acc0_proof.tex   historical baseline
+│   │   └── v6.0/                     current manuscript snapshot
+│   ├── notes/                        technical synopsis
 │   ├── SOURCES.md                    primary-source ledger
 │   ├── CLAIMS_AND_CHECKS.md          mathematical audit map
-│   ├── REVIEW_CHECKLIST.md           independent-review procedure
-│   ├── REVIEW_REPORT_TEMPLATE.md     reviewer verdict template
-│   ├── MANIFEST.sha256               integrity record
-│   └── scripts/                      rebuild and verification commands
-├── formalization/README.md           pointer to the Lean branch
-├── Allender/                         earlier verified Lean baseline only
-└── .github/workflows/
-    ├── reproducibility.yml           manuscript build and integrity check
-    └── lean.yml                      manual Lean verification of the checked-out ref
+│   └── scripts/                      legacy manuscript rebuild tools
+├── formalization/README.md           pointer to current Lean branch
+├── Allender/                         earlier Lean baseline on main only
+└── .github/workflows/                repository workflows
 
-formalization/full-reduction-v1
-├── Allender/                         authoritative current Lean source
-├── Allender/AxiomAudit.lean          explicit dependency audit
-├── README.md                         Lean-specific entry point
-├── STATUS.md                         declaration-level proof ledger
-└── docs/source-alignment.md          manuscript-to-Lean correspondence
+formalization/canonical-components-v2
+├── Allender/                         authoritative Lean source
+├── Allender/MainTheorem.lean         final theorem
+├── Allender/AxiomAudit.lean          explicit trust-boundary audit
+├── scripts/verify-lean.sh             single verification entry point
+├── docs/REVIEW_GUIDE.md              shortest review route
+├── docs/source-alignment.md          manuscript-to-Lean map
+├── README.md                         Lean-specific overview
+└── STATUS.md                         declaration-level status ledger
 ```
 
-See [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) for the branch policy, review routes, and integration rules.
+`formalization/full-reduction-v1` is the historical base of the completed development, not the current authoritative branch. The small `Allender/` directory on `main` is retained for provenance and should not be used to judge current Lean coverage.
 
-## What each verification result means
+## Current claim level
 
-| Result | What it establishes | What it does not establish |
-|---|---|---|
-| SHA-256 check passes | files match the committed package | mathematical correctness |
-| LaTeX/PDF build passes | the manuscript is reproducible | correctness of the proof |
-| Partial Lean build passes | present Lean declarations type-check | the missing final theorem |
-| Independent expert review accepts the proof | a specialist endorses the argument | automatic machine verification |
-| Final Lean theorem passes with an explicit axiom audit | formal implication is machine checked | correctness of any inaccurately formalized external premise |
-
-## Current status
-
-- The English manuscript is a complete proof candidate, not an accepted result.
-- The human-review reproducibility package is present and independently rebuildable.
-- The active Lean formalization is isolated on its own branch.
-- The final Lean declaration corresponding to the bounty theorem does not yet exist.
-- No file in this repository should be interpreted as confirmation that the bounty has been won.
-
-See [`STATUS.md`](STATUS.md) for the concise project-wide ledger.
-
-## Workflows
-
-- `Reproducibility bundle` runs when files under `reproducibility/` change and may also be started manually.
-- `Lean verification` is manual. Documentation-only changes do not start a Lean build.
+- Version 6.0 is the current prose proof candidate.
+- The project has an end-to-end Lean verification of the reduction on `formalization/canonical-components-v2`, relative to the explicitly listed external genus facts and Hansen theorem.
+- The project does not claim a from-first-principles formalization of those external published results.
+- The manuscript has not yet been independently accepted by a specialist, and the repository does not itself establish that the bounty is payable.
 
 ## Primary references
 

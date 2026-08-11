@@ -1,58 +1,76 @@
 # Relationship to the Lean formalization
 
-The human-review package and the Lean development serve different purposes and are intentionally separated.
+The human-review package and the Lean development serve different purposes and remain intentionally separate.
 
 ## Human-review package
 
 **Authoritative location:** `main/reproducibility/`
 
-This directory preserves:
+The current prose manuscript is Version 6.0 under:
 
-- the exact prose proof candidate;
-- its repeatable PDF build;
-- source provenance and integrity hashes;
-- an explicit expert-review procedure.
+```text
+reproducibility/paper/v6.0/
+```
 
-It can be reviewed independently while Lean work remains incomplete.
+This directory preserves the current manuscript source, source-verification notes, audit records, and review materials. It is the place to assess the written mathematical argument.
 
 ## Lean formalization
 
-**Authoritative location:** branch [`formalization/full-reduction-v1`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/full-reduction-v1)
+**Authoritative location:** branch [`formalization/canonical-components-v2`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/canonical-components-v2)
 
 Use that branch's:
 
-- [`README.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/README.md);
-- [`STATUS.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/STATUS.md);
-- [`docs/source-alignment.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/docs/source-alignment.md);
-- [`Allender/AxiomAudit.lean`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/full-reduction-v1/Allender/AxiomAudit.lean).
+- [`docs/REVIEW_GUIDE.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/docs/REVIEW_GUIDE.md);
+- [`README.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/README.md);
+- [`Allender/MainTheorem.lean`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/Allender/MainTheorem.lean);
+- [`Allender/AxiomAudit.lean`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/Allender/AxiomAudit.lean);
+- [`STATUS.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/STATUS.md);
+- [`docs/source-alignment.md`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/blob/formalization/canonical-components-v2/docs/source-alignment.md).
 
-The `Allender/` files on `main` are an earlier stable baseline retained for provenance. They are not the authoritative current formalization.
+The final Lean declaration is:
 
-A green build of partial Lean modules does not certify the whole manuscript. Conversely, a reproducible PDF does not certify the mathematics.
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
 
-## Synchronization table
+Verified GitHub source commit: `37f90d350278a40c360375c7f8731c46a2610ec5`.  
+Successful complete workflow run: `31135088313`.
 
-When a manuscript claim is formalized, record the exact correspondence in the Lean branch's `docs/source-alignment.md` and status ledger.
+## Reproduce the machine check
 
-| Manuscript claim | Intended Lean object | Current interpretation |
-|---|---|---|
-| Fixed-width state space | `BitState` and its cardinality | checked infrastructure |
-| Relation composition | `Rel.comp`, list composition, chain semantics | checked infrastructure |
-| No path crosses a deleted whole layer | layered-walk cut lemmas | checked support for the halving step |
-| Weighted median layer | median-layer existence declaration | checked support for separator rounds |
-| Genus monotonicity/additivity | explicitly named external topology declarations unless fully formalized | trust boundary |
-| Global planarizing layer set | unconditional end-to-end separator theorem | not yet complete |
-| Hansen characterization | exact external theorem in the same circuit model unless fully formalized | not yet stated exactly |
-| Common modulus padding | padding family lemmas plus circuit-family construction | partial reduction infrastructure |
-| Polylogarithmic relation composition in `AC⁰[m]` | explicit target-circuit construction and bounds | pending |
-| Main theorem | concrete theorem from source circuit family to `ACC⁰` | release criterion; not yet proved |
+Install `elan`, then run from the repository root:
+
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+The branch's GitHub Actions workflow calls the same script.
+
+## Exact trust boundary
+
+Lean checks the end-to-end reduction for the concrete circuit model. The final theorem is relative to:
+
+- five explicitly named standard facts about ordinary orientable graph genus;
+- the published forward family-level direction of Hansen's planar constant-width theorem.
+
+These external dependencies are isolated and visible in `Allender/AxiomAudit.lean`; they are not re-proved from foundational definitions in this repository.
+
+## Manuscript-to-Lean relation
+
+The two artifacts should not be silently substituted for each other:
+
+- Version 6.0 is the current prose proof candidate and must still be read as mathematics;
+- the Lean branch verifies the formal reduction and exposes its external assumptions;
+- `docs/source-alignment.md` records the intended correspondence between manuscript steps and Lean declarations;
+- independent expert acceptance remains separate from both reproducibility and machine checking.
+
+## Branch history
+
+`formalization/full-reduction-v1` is the historical base of the current formalization. The `Allender/` files on `main` are an earlier baseline retained for provenance and are not authoritative for current Lean coverage.
 
 ## Merge safety
 
-Files in this package live under `reproducibility/` and do not modify Lean source files or mathematical declarations.
-
-Repository-level documentation may link the two tracks, but progress claims remain separate:
-
-- manuscript reproducibility is recorded on `main`;
-- Lean proof status is recorded on `formalization/full-reduction-v1`;
-- neither status is silently upgraded by changes in the other track.
+Files under `reproducibility/` do not modify Lean source declarations. Documentation may link the two tracks, but changes to the prose manuscript do not by themselves alter the machine-checked theorem.

@@ -1,26 +1,53 @@
-# Manuscript source and PDF generation
+# Manuscript sources
 
-`allender_polylog_genus_acc0_proof.tex` is the authoritative editable source in this repository.
+This directory keeps both the historical reproducibility baseline and the current versioned manuscript.
 
-Build the PDF from the repository root with:
+## Current manuscript: Version 6.0
+
+The latest manuscript snapshot is:
+
+```text
+v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex
+```
+
+Companion files in `v6.0/` include:
+
+- `README_v_6.0.md`
+- `AUDIT_v_6.0.md`
+- `CHANGES_v_6.0.md`
+- `SOURCE_VERIFICATION_v_6.0.md`
+- `MANIFEST.sha256`
+
+The latest hostile audit recorded in the project found no remaining red/orange mathematical gap in Version 6.0 as stated; independent expert review is still required.
+
+The original v6.0 source bundle also contained a PDF, but the binary PDF is not currently committed in this GitHub directory. The committed `.tex` is the exact source preserved from that bundle.
+
+## Historical baseline
+
+The unversioned file
+
+```text
+allender_polylog_genus_acc0_proof.tex
+```
+
+is an older 12-page reproducibility baseline. It is retained for provenance and for the existing legacy build workflow; it is not the current manuscript version.
+
+The existing commands
 
 ```bash
 cd reproducibility
 bash scripts/build-paper.sh
 ```
 
-The result is written to:
+and
 
-```text
-reproducibility/build/allender_polylog_genus_acc0_proof.pdf
+```bash
+cd reproducibility
+bash scripts/verify-bundle.sh
 ```
 
-The reference PDF originally supplied to the project had 12 pages and SHA-256:
+continue to target that historical unversioned baseline.
 
-```text
-e8d04870bf696263d34cdc863d2337897ca9ed4f46e997121e2c7da2a9f97225
-```
+## Lean verification
 
-A fresh build can have a different binary hash because PDF metadata may differ. Before packaging, a fresh rebuild and the reference PDF were rendered at 120 DPI and all 12 pages were pixel-identical.
-
-The GitHub workflow `.github/workflows/reproducibility.yml` builds the PDF and uploads it as an Actions artifact whenever this directory changes.
+The current Lean proof is maintained separately on branch `formalization/canonical-components-v2`. See the repository root `README.md` or `formalization/README.md` for the exact branch, verified commit, workflow run, and local verification command.

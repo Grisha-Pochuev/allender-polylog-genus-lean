@@ -1,19 +1,60 @@
 # Human-review reproducibility package
 
-This directory contains the ordinary scientific reproducibility package for the separator-based candidate proof of Eric Allender's Open Question 3.
+This directory contains the human-review materials for the separator-based candidate proof of Eric Allender's Open Question 3.
 
-## What this package does
+## Current manuscript
 
-It gives an independent reader the exact manuscript, its editable LaTeX source, an English technical synopsis, primary-source links, a claim-by-claim audit map, and repeatable integrity/build commands.
+The latest manuscript snapshot is **Version 6.0**:
 
-It is designed for **human mathematical review**. It is not, by itself, a machine-checked proof and it does not claim that the bounty has been won.
+```text
+reproducibility/paper/v6.0/
+```
 
-The Lean formalization is developed separately in this repository. The two efforts can proceed in parallel:
+Start with:
 
-- this directory preserves and documents the prose proof candidate;
-- the Lean branch formalizes selected claims and will eventually provide a machine-checked theorem if the full reduction is completed.
+1. `paper/v6.0/README_v_6.0.md`
+2. `paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex`
+3. `paper/v6.0/AUDIT_v_6.0.md`
+4. `paper/v6.0/SOURCE_VERIFICATION_v_6.0.md`
+5. `paper/v6.0/MANIFEST.sha256`
 
-## Contents
+The latest hostile audit recorded in the project found no remaining red/orange mathematical gap in Version 6.0 as stated. Independent expert review is still required.
+
+The older `paper/allender_polylog_genus_acc0_proof.tex` and the existing top-level build scripts are retained as a historical reproducibility baseline.
+
+## What this package is for
+
+It gives an independent reader:
+
+- the current versioned LaTeX manuscript;
+- provenance and source-verification records;
+- primary-source links;
+- a claim-by-claim audit map;
+- an independent-review checklist and report template;
+- integrity records for preserved manuscript snapshots.
+
+This package supports human mathematical review. File integrity and successful PDF generation do not by themselves prove the mathematics.
+
+## Relation to Lean
+
+The current end-to-end Lean reduction is maintained separately on branch:
+
+[`formalization/canonical-components-v2`](https://github.com/Grisha-Pochuev/allender-polylog-genus-lean/tree/formalization/canonical-components-v2)
+
+The final Lean declaration is `Allender.allender_polylog_genus_in_ACC0`. Complete verification run `31135088313` succeeded for source commit `37f90d350278a40c360375c7f8731c46a2610ec5`.
+
+To reproduce the Lean check after installing `elan`:
+
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+See [`LEAN_INTEGRATION.md`](LEAN_INTEGRATION.md) for the exact relationship between the prose and Lean tracks.
+
+## Directory map
 
 ```text
 reproducibility/
@@ -25,10 +66,17 @@ reproducibility/
   REVIEW_CHECKLIST.md
   REVIEW_REPORT_TEMPLATE.md
   LEAN_INTEGRATION.md
-  MANIFEST.sha256
+  MANIFEST.sha256                  historical baseline manifest
   paper/
     README.md
-    allender_polylog_genus_acc0_proof.tex
+    allender_polylog_genus_acc0_proof.tex   historical baseline
+    v6.0/
+      README_v_6.0.md
+      allender_polylog_genus_acc0_proof_v_6.0.tex
+      AUDIT_v_6.0.md
+      CHANGES_v_6.0.md
+      SOURCE_VERIFICATION_v_6.0.md
+      MANIFEST.sha256
   notes/
     allender_polylog_genus_acc0_synopsis_en.md
   scripts/
@@ -36,36 +84,29 @@ reproducibility/
     verify-bundle.sh
 ```
 
-## Fast verification
+## Recommended human-review order
 
-From the repository root:
+1. Read `STATUS.md`.
+2. Compare `SOURCES.md` with the statement in Version 6.0.
+3. Read `paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex`.
+4. Read the v6.0 audit and source-verification notes.
+5. Work through `CLAIMS_AND_CHECKS.md` and `REVIEW_CHECKLIST.md`.
+6. Consult `LEAN_INTEGRATION.md` and the authoritative Lean branch for machine-checking coverage.
+
+## Historical build tools
+
+The existing commands
 
 ```bash
 cd reproducibility
 bash scripts/verify-bundle.sh
 ```
 
-The script always checks the SHA-256 integrity manifest. If `latexmk` is installed, it also rebuilds the PDF from the committed LaTeX source into `reproducibility/build/`. GitHub Actions performs the same build and publishes the PDF as a workflow artifact.
-
-Manual build:
+and
 
 ```bash
 cd reproducibility
 bash scripts/build-paper.sh
 ```
 
-Required LaTeX packages are standard packages from a reasonably complete TeX Live installation (`texlive-latex-extra` is sufficient on Ubuntu).
-
-## Recommended review order
-
-1. Read `STATUS.md` so the claim level is clear.
-2. Compare the exact problem in `SOURCES.md` with Theorem 1.1 of the manuscript.
-3. Read the English synopsis in `notes/`.
-4. Read the complete manuscript in `paper/`.
-5. Work through `CLAIMS_AND_CHECKS.md` and `REVIEW_CHECKLIST.md`.
-6. Record an independent verdict using `REVIEW_REPORT_TEMPLATE.md`.
-7. Consult `LEAN_INTEGRATION.md` only to see which parts are or are not machine checked.
-
-## Reproducibility versus correctness
-
-A successful integrity check proves that the files are exactly the committed files. A successful LaTeX build proves that the manuscript can be regenerated. Neither proves the mathematics. Mathematical correctness requires expert review or a completed formal proof.
+continue to target the older unversioned reproducibility baseline. They should not be confused with the current Version 6.0 snapshot.

@@ -1,52 +1,61 @@
 # Project structure and review routes
 
-This repository intentionally separates two kinds of verification.
+This repository intentionally separates human review of the manuscript from machine checking of the Lean reduction.
 
 ## 1. Human-review track
 
 **Authoritative location:** `main/reproducibility/`
 
-Purpose:
+The latest manuscript snapshot is **Version 6.0**:
 
-- preserve the exact manuscript and its source;
-- make the PDF independently rebuildable;
-- expose provenance and primary references;
-- guide a specialist through the mathematical claims;
-- record an independent review verdict.
+```text
+reproducibility/paper/v6.0/
+```
 
-Recommended order:
+Recommended route:
 
 1. `reproducibility/STATUS.md`
 2. `reproducibility/SOURCES.md`
-3. `reproducibility/paper/allender_polylog_genus_acc0_proof.tex`
-4. generated PDF from the reproducibility workflow
-5. `reproducibility/notes/allender_polylog_genus_acc0_synopsis_en.md`
-6. `reproducibility/CLAIMS_AND_CHECKS.md`
-7. `reproducibility/REVIEW_CHECKLIST.md`
-8. `reproducibility/REVIEW_REPORT_TEMPLATE.md`
+3. `reproducibility/paper/v6.0/README_v_6.0.md`
+4. `reproducibility/paper/v6.0/allender_polylog_genus_acc0_proof_v_6.0.tex`
+5. `reproducibility/paper/v6.0/AUDIT_v_6.0.md`
+6. `reproducibility/paper/v6.0/SOURCE_VERIFICATION_v_6.0.md`
+7. `reproducibility/CLAIMS_AND_CHECKS.md`
+8. `reproducibility/REVIEW_CHECKLIST.md`
 
-A reviewer should not use the state of the Lean branch as a substitute for checking the prose argument.
+The older unversioned manuscript under `reproducibility/paper/` is retained as a historical reproducibility baseline.
 
 ## 2. Lean formalization track
 
-**Authoritative location:** branch `formalization/full-reduction-v1`
+**Authoritative location:** branch `formalization/canonical-components-v2`.
 
-Purpose:
+The branch contains the end-to-end theorem:
 
-- formalize the exact source circuit model;
-- formalize the separator and finite-state reductions;
-- make external dependencies explicit;
-- construct the final `ACC⁰` theorem when all obligations are complete.
+```lean
+Allender.allender_polylog_genus_in_ACC0
+```
 
-Recommended order:
+Recommended route:
 
-1. branch `README.md`
-2. branch `STATUS.md`
-3. `docs/source-alignment.md`
+1. `docs/REVIEW_GUIDE.md`
+2. branch `README.md`
+3. `Allender/MainTheorem.lean`
 4. `Allender/AxiomAudit.lean`
-5. the specific Lean modules named by the status ledger
+5. branch `STATUS.md`
+6. `docs/source-alignment.md`
 
-A green partial build certifies only the declarations imported by the checked root module. It does not certify a theorem that has not yet been stated and proved.
+To reproduce the complete machine check after installing `elan`:
+
+```bash
+git switch formalization/canonical-components-v2
+lake update
+lake exe cache get
+bash scripts/verify-lean.sh
+```
+
+The branch's GitHub Actions workflow calls the same script. The verified source tree is commit `37f90d350278a40c360375c7f8731c46a2610ec5`; complete verification run `31135088313` succeeded.
+
+A green run checks the formal reduction relative to the explicitly named external genus facts and Hansen's published theorem. It does not claim those external results were formalized from first principles.
 
 ## Branch policy
 
@@ -54,55 +63,51 @@ A green partial build certifies only the declarations imported by the checked ro
 
 Stable public-facing branch. It contains:
 
-- the project index;
+- the project index and synchronized status;
 - the human-review reproducibility package;
-- project-wide status;
-- an earlier stable Lean baseline retained for provenance.
+- Version 6.0 of the manuscript;
+- an earlier Lean baseline retained for provenance.
 
-The `Allender/` directory on `main` is not the current authoritative formalization.
+The `Allender/` directory on `main` is not the authoritative current formalization.
+
+### `formalization/canonical-components-v2`
+
+Authoritative current Lean development. It contains the final theorem, the exact external trust boundary, the single verification script, and the detailed review guide.
 
 ### `formalization/full-reduction-v1`
 
-Only active Lean development branch. It contains the current source-aligned formalization and its declaration-level status ledger.
-
-Do not describe a manuscript claim as machine checked unless the branch status names the exact Lean declaration and a successful verification run includes it.
+Historical base of the current formalization. It should not be used as the current proof-status authority.
 
 ### Temporary branches
 
-Branches with names beginning `agent/` are implementation branches used for isolated repository maintenance. Once their pull requests have been merged, they are obsolete and should be deleted.
+Branches beginning with `agent/` are maintenance branches and are not authoritative mathematical sources.
 
-## Integration policy
-
-The two tracks may progress independently. They are synchronized through explicit records, not by informal claims.
+## Synchronization rules
 
 When the manuscript changes:
 
-1. update the LaTeX source;
-2. rebuild and refresh the integrity manifest;
-3. update the claim audit;
-4. state whether the Lean branch is affected.
+1. preserve the versioned source;
+2. update the human-review navigation and status;
+3. record whether the Lean statement is affected;
+4. do not infer Lean progress merely from prose changes.
 
-When Lean formalizes a manuscript step:
+When Lean changes:
 
-1. name the exact manuscript lemma or section;
-2. name the exact Lean declaration;
-3. update `docs/source-alignment.md` and branch `STATUS.md`;
-4. run the full build and axiom audit;
-5. do not upgrade the overall claim beyond what the final theorem establishes.
+1. update the branch status and `docs/source-alignment.md`;
+2. run `scripts/verify-lean.sh` completely;
+3. record the exact verified commit and workflow run;
+4. keep the external assumptions visible in `AxiomAudit.lean`.
 
 ## Workflow separation
 
-- `.github/workflows/reproducibility.yml` checks only the manuscript package and runs automatically only for relevant paths.
-- `.github/workflows/lean.yml` is manual and checks the currently selected ref.
+- manuscript/reproducibility workflows concern the human-review package;
+- Lean verification concerns the authoritative formalization branch;
+- documentation-only maintenance does not alter Lean proof objects.
 
-This prevents documentation maintenance from creating misleading Lean verification runs.
+## Release criterion
 
-## Final release criterion
+A combined public release should distinguish three facts clearly:
 
-A combined public release should be prepared only after:
-
-- the prose proof has received independent expert review;
-- the final Lean theorem exists and matches the manuscript statement;
-- its exact external assumptions are documented;
-- the complete Lean branch passes build, axiom audit, and `leanchecker`;
-- the manuscript, English synopsis, status ledgers, and citation metadata agree.
+- the prose manuscript and its human-review status;
+- the Lean-checked reduction and its explicit external assumptions;
+- independent expert acceptance, which remains a separate requirement.
